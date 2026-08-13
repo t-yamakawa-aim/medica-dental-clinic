@@ -20,7 +20,8 @@
 
 ## URLs
 - **開発中プレビュー**: PM2 + wrangler pages dev（ローカルサンドボックス）
-- **本番URL**: 未デプロイ（今後 Cloudflare Pages へデプロイ予定）
+- **本番URL**: https://medica-dental-clinic.pages.dev
+- **Web予約管理画面（本番）**: https://medica-dental-clinic.pages.dev/admin/reserve（Basic認証。ID/パスワードはCloudflareのシークレットとして設定済み。忘れた場合は下記コマンドで再設定可能）
 
 ## 現在完成している機能
 - [x] トップページ全体のレイアウト・デザイン実装
