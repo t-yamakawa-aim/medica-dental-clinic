@@ -817,13 +817,21 @@ h1, h2, h3, h4, p {
 }
 
 .blog-card__thumb {
-  height: 120px;
+  aspect-ratio: 16 / 9;
+  height: auto;
   background: linear-gradient(135deg, var(--color-main), var(--color-main-dark));
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 40px;
+  overflow: hidden;
+}
+.blog-card__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .blog-card__body {
@@ -2865,13 +2873,21 @@ h1, h2, h3, h4, p {
 
 .blog-archive-item__thumb {
   flex: none;
-  width: 120px;
+  width: 240px;
+  aspect-ratio: 16 / 9;
   background: linear-gradient(135deg, var(--color-main), var(--color-main-dark));
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
   font-size: 32px;
+  overflow: hidden;
+}
+.blog-archive-item__thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
 }
 
 .blog-archive-item__body {
@@ -2963,7 +2979,7 @@ h1, h2, h3, h4, p {
   }
   .blog-archive-item__thumb {
     width: 100%;
-    height: 90px;
+    aspect-ratio: 16 / 9;
   }
   .news-detail-page__pager {
     flex-direction: column;
@@ -2974,5 +2990,69 @@ h1, h2, h3, h4, p {
   }
   .archive-filter {
     flex-wrap: wrap;
+  }
+}
+
+/* =========================================================
+   ブログ/お知らせ 詳細ページ：アイキャッチ・本文中の写真・リンク・ボタン
+   ========================================================= */
+/* 一覧サムネイル・アイキャッチ・本文中画像は横長(16:9)固定。
+   PCでは記事幅いっぱいの視認性の良いサイズ、
+   スマホでは画面幅にフィットした横長サイズに自動調整される。 */
+.blog-detail-page__eyecatch {
+  margin: 24px 0 32px;
+  border-radius: 12px;
+  overflow: hidden;
+  aspect-ratio: 16 / 9;
+  background: var(--color-bg-blue);
+}
+.blog-detail-page__eyecatch img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.blog-detail-page__figure {
+  margin: 28px 0;
+}
+.blog-detail-page__figure img {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  object-fit: cover;
+  border-radius: 12px;
+  display: block;
+}
+.blog-detail-page__figure figcaption {
+  margin-top: 8px;
+  font-size: 13px;
+  color: #999;
+  text-align: center;
+}
+
+.blog-detail-page__link {
+  color: var(--color-main);
+  text-decoration: underline;
+  word-break: break-all;
+}
+.blog-detail-page__link:hover {
+  text-decoration: none;
+}
+
+.blog-detail-page__btn-wrap {
+  text-align: center;
+  margin: 32px 0;
+}
+
+@media (max-width: 767px) {
+  .blog-detail-page__eyecatch {
+    margin: 16px 0 24px;
+    border-radius: 8px;
+  }
+  .blog-detail-page__figure {
+    margin: 20px 0;
+  }
+  .blog-detail-page__figure img {
+    border-radius: 8px;
   }
 }

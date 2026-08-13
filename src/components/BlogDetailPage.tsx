@@ -13,18 +13,42 @@ export type BlogDetailItem = {
 // それ以外の行は通常の段落として表示する。
 const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(([^)]+)\)$/
 
-const renderBodyLine = (line: string, key: number) => {
-  const match = line.match(IMAGE_LINE_RE)
-  if (match) {
-    const [, alt, src] = match
+const LINK_LINE_RE = /^\[([^\]]*)\]\(([^)]+)\)(?:\{(button|link)\})?$/
+
+const renderBodyLine = (line: string) => {
+  const imgMatch = line.match(IMAGE_LINE_RE)
+  if (imgMatch) {
+    const [, alt, src] = imgMatch
     return (
-      <figure class="blog-detail-page__figure" key={key}>
+      <figure class="blog-detail-page__figure">
         <img src={src} alt={alt || ''} loading="lazy" />
         {alt && <figcaption>{alt}</figcaption>}
       </figure>
     )
   }
-  return line ? <p key={key}>{line}</p> : <br key={key} />
+
+  const linkMatch = line.match(LINK_LINE_RE)
+  if (linkMatch) {
+    const [, label, href, style] = linkMatch
+    if (style === 'button') {
+      return (
+        <p class="blog-detail-page__btn-wrap">
+          <a href={href} class="btn btn-primary" target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}>
+            {label}
+          </a>
+        </p>
+      )
+    }
+    return (
+      <p>
+        <a href={href} class="blog-detail-page__link" target={href.startsWith('http') ? '_blank' : undefined} rel={href.startsWith('http') ? 'noopener noreferrer' : undefined}>
+          {label}
+        </a>
+      </p>
+    )
+  }
+
+  return line ? <p>{line}</p> : <br />
 }
 
 type Props = {
@@ -61,7 +85,7 @@ export const BlogDetailPage = ({ item, prev, next }: Props) => {
           )}
 
           <div class="news-detail-page__body">
-            {(item.body || '').split('\n').map((line, i) => renderBodyLine(line, i))}
+            {(item.body || '').split('\n').map((line) => renderBodyLine(line))}
           </div>
         </article>
 

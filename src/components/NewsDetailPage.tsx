@@ -15,6 +15,50 @@ type Props = {
 
 const formatDate = (dateStr: string) => dateStr.replaceAll('-', '.')
 
+// 本文中に以下の記法を使うと、写真・リンク・ボタンを挿入できる。
+//   ![説明文](画像URL)               → 横長サイズの写真
+//   [ラベル](URL)                    → 通常のテキストリンク
+//   [ラベル](URL){button}            → ボタン
+const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(([^)]+)\)$/
+const LINK_LINE_RE = /^\[([^\]]*)\]\(([^)]+)\)(?:\{(button|link)\})?$/
+
+const renderBodyLine = (line: string) => {
+  const imgMatch = line.match(IMAGE_LINE_RE)
+  if (imgMatch) {
+    const [, alt, src] = imgMatch
+    return (
+      <figure class="blog-detail-page__figure">
+        <img src={src} alt={alt || ''} loading="lazy" />
+        {alt && <figcaption>{alt}</figcaption>}
+      </figure>
+    )
+  }
+
+  const linkMatch = line.match(LINK_LINE_RE)
+  if (linkMatch) {
+    const [, label, href, style] = linkMatch
+    const isExternal = href.startsWith('http')
+    if (style === 'button') {
+      return (
+        <p class="blog-detail-page__btn-wrap">
+          <a href={href} class="btn btn-primary" target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined}>
+            {label}
+          </a>
+        </p>
+      )
+    }
+    return (
+      <p>
+        <a href={href} class="blog-detail-page__link" target={isExternal ? '_blank' : undefined} rel={isExternal ? 'noopener noreferrer' : undefined}>
+          {label}
+        </a>
+      </p>
+    )
+  }
+
+  return line ? <p>{line}</p> : <br />
+}
+
 export const NewsDetailPage = ({ item, prev, next }: Props) => {
   return (
     <>
@@ -29,7 +73,7 @@ export const NewsDetailPage = ({ item, prev, next }: Props) => {
           <p class="news-detail-page__date">{formatDate(item.published_at)}</p>
           <h1 class="news-detail-page__title">{item.title}</h1>
           <div class="news-detail-page__body">
-            {(item.body || '').split('\n').map((line) => (line ? <p>{line}</p> : <br />))}
+            {(item.body || '').split('\n').map((line) => renderBodyLine(line))}
           </div>
         </article>
 
