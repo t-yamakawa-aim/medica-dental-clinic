@@ -15,6 +15,8 @@
   - アクセス（Googleマップ埋め込み）
   - レスポンシブ対応（PC/スマホ）
   - スマホ用固定フッターナビ（Web予約・電話・アクセス）
+  - プライバシーポリシーページ
+  - Web予約システム（初診専用・1時間枠、患者向け予約フォーム＋クリニック向け予約枠管理画面）
 
 ## URLs
 - **開発中プレビュー**: PM2 + wrangler pages dev（ローカルサンドボックス）
@@ -36,6 +38,11 @@
 - [x] アクセスセクション（Googleマップ埋め込み、駐車場案内）
 - [x] スムーススクロール・ページトップボタン・ヘッダースクロール制御のJS実装
 - [x] お問い合わせ/Web予約フォーム送信用API（`POST /api/contact`）を用意（フォームUI自体は下層ページ`/contact`で今後実装予定）
+- [x] **「プライバシーポリシー」ページ（`/privacy`）**：参考サイトの内容・構成に準拠（基本方針／個人情報の取扱い・利用目的／開示等について／お問合せ先の4セクション）
+- [x] **「Web予約」システム（初診専用・1時間枠、15分間隔でクリニック側が枠を設定可能）**
+  - `/reserve` — 患者向け予約ウィザード（①日付選択（カレンダー、空きがある日のみ選択可）→②時間選択（その日の空き枠一覧）→③お客様情報入力（氏名・電話番号は必須、フリガナ・メール・生年月日・症状・備考は任意）→④予約完了）
+  - `/admin/reserve` — クリニック向け予約枠管理画面（Basic認証で保護）。日付ナビ、単発での枠追加（開始時刻を15分間隔で指定、自動で1時間後を終了時刻に設定）、指定した時間帯を1時間ごとに一括追加、その日の枠一覧表示（予約が入っている枠は患者情報を表示しキャンセル可能、空き枠は削除可能）
+  - 予約確定処理はダブルブッキング防止のため「空いている場合のみ更新（`status='open'`条件付きUPDATE）」というレース対策済みのロジックで実装
 - [x] 「当院について」ページ（`/medical`）：1枚物構成、各セクションにid付与、グローバルナビ・トップページからのアンカーリンク遷移に対応
   - 私たちの目指すもの（3つの約束）／院長紹介（挨拶・経歴・所属研究会・講演実績・修了コース）／当院概要／施設・設備紹介／当院の感染症対策／スタッフ紹介
 - [x] 「診療のご案内」ページ（`/service`）：1枚物構成、各セクションにid付与、グローバルナビ・トップページ・フッターナビからのアンカーリンク遷移に対応
@@ -68,6 +75,16 @@
 | GET | `/api/news` | お知らせ一覧取得（最大5件、JSON。トップページのプレビュー表示用） |
 | GET | `/api/blog` | ブログ一覧取得（最大4件、JSON。トップページのプレビュー表示用） |
 | POST | `/api/contact` | お問い合わせ・Web予約フォーム送信（JSON: name, kana, phone, email, message, type） |
+| GET | `/privacy` | プライバシーポリシー |
+| GET | `/reserve` | Web予約（初診専用・1時間枠）患者向け予約ウィザード |
+| GET | `/api/reserve/available-dates` | 予約可能な日付一覧取得（空き枠が1つ以上ある今日以降の日付、JSON） |
+| GET | `/api/reserve/slots?date=YYYY-MM-DD` | 指定日の空き枠一覧取得（JSON） |
+| POST | `/api/reserve` | 予約登録（JSON: slot_id, name, phone は必須。kana, email, birth_date, symptom, message は任意） |
+| GET | `/admin/reserve` | 【Basic認証必須】クリニック向け予約枠管理画面 |
+| GET | `/api/admin/reserve/slots?date=YYYY-MM-DD` | 【Basic認証必須】指定日の全枠＋予約者情報取得（JSON） |
+| POST | `/api/admin/reserve/slots` | 【Basic認証必須】枠を新規追加（JSON: slot_date, start_time。終了時刻は自動で+1時間） |
+| DELETE | `/api/admin/reserve/slots/:id` | 【Basic認証必須】枠を削除（予約が入っている場合は409エラーで拒否） |
+| POST | `/api/admin/reserve/slots/:id/cancel` | 【Basic認証必須】予約をキャンセルし枠を空きに戻す |
 | GET | `/recruit` | 採用情報（1枚物、`#message` `#catch` `#jobs` `#tour` の各セクションIDにアンカー遷移可能、`#job-dentist` `#job-hygienist` `#job-assistant` で各職種タブへ遷移可能） |
 | GET | `/recruit/entry` | 採用エントリーフォーム |
 | GET | `/recruit/entry/thanks` | 応募完了ページ |
@@ -90,7 +107,7 @@
   - **6/6 実装完了**: `maintenance`（メンテナンスを受けたい・お口の状況を知りたい／メンテナンス・デンタルドックの2セクション）、`other`（その他のお悩み・ご相談／歯ぎしり・顎関節症・小児歯科治療・口臭・入れ歯・歯を抜きたいの6セクション）も実装完了
   - データは`src/data/symptomDetails.ts`の`SYMPTOM_DETAILS`に追加するだけで新しい症状ページが自動的に有効化される設計（`src/data/site.ts`の`SYMPTOMS`配列で`ready: true`を設定）
 
-※ 下層ページ（`/contact`, `/privacy`, `/reserve`（Web予約））は現在ヘッダー・フッターのリンク先として用意されていますが、ページ自体は未実装です（今後、情報提供後に実装予定）。
+※ 下層ページ（`/contact`）は現在ヘッダー・フッターのリンク先として用意されていますが、ページ自体は未実装です（今後、情報提供後に実装予定）。「プライバシーポリシー」「Web予約」は実装済みです（下記参照）。
 
 ## データアーキテクチャ
 - **データベース**: Cloudflare D1（SQLite互換）
@@ -99,7 +116,9 @@
   - `blog_posts` — ブログ記事（id, title, body, category, thumbnail_url, published_at, is_published, created_at）
   - `contact_messages` — お問い合わせ・Web予約フォームの送信内容（id, name, kana, phone, email, message, type, created_at）
   - `recruit_entries` — 採用エントリーフォームの送信内容（id, inquiry_types[JSON配列文字列], job_types[JSON配列文字列], name, kana, phone, email, message, created_at）
-- **マイグレーション**: `migrations/0001_initial_schema.sql`, `migrations/0002_contact.sql`, `migrations/0003_recruit_entries.sql`
+  - `reservation_slots` — Web予約の予約枠（id, slot_date, start_time, end_time, status['open'/'booked'], created_at。`(slot_date, start_time)`にUNIQUE制約あり）
+  - `reservations` — Web予約の予約者情報（id, slot_id[UNIQUE], name, kana, phone, email, birth_date, symptom, message, created_at, cancelled_at）
+- **マイグレーション**: `migrations/0001_initial_schema.sql`, `migrations/0002_contact.sql`, `migrations/0003_recruit_entries.sql`, `migrations/0004_reservations.sql`
 - **シードデータ**: `seed.sql`（お知らせ23件・ブログ10件。年別/月別アーカイブとページネーションの動作確認ができるよう複数年・複数カテゴリのサンプルデータを用意）
 - **ローカル開発**: `--local`フラグでSQLiteをローカルに自動生成（`.wrangler/state/v3/d1`）
 
@@ -151,6 +170,38 @@ curl http://localhost:3000
   4. 本番: `npx wrangler pages secret put RESEND_API_KEY` でCloudflare Secretsに設定
 - ※ 独自ドメインのDNS認証をしていない場合、Resendの制約上「アカウント登録したメールアドレス宛」にのみ送信可能です。今回は送信先が `peacefultomorrow0528@gmail.com` 固定のため、ドメイン認証なしでも送信可能です。
 
+## Web予約システムについて（初診専用・1時間枠・15分間隔）
+「Web予約」は初診の方専用のご予約受付です。1回のご予約で1時間の診療時間を確保します。
+
+### 患者側の流れ（`/reserve`）
+1. カレンダーから空き枠がある日付を選択（空きがない日はグレー表示で選択不可）
+2. その日の空き時間枠一覧から希望の時間を選択（1時間単位で表示、例: `09:00 〜 10:00`）
+3. お名前・電話番号（必須）、フリガナ・メール・生年月日・症状・備考（任意）を入力して送信
+4. 予約完了画面を表示（確認メール等は送信していません。変更・キャンセルは電話でのご連絡をご案内）
+
+予約確定時は「対象の枠が`status='open'`である場合のみUPDATE」という条件付き更新のあと更新件数(`meta.changes`)を確認することで、複数の患者が同時に同じ枠を予約しようとしても二重予約が発生しないようにしています（レース対策）。
+
+### クリニック側の流れ（`/admin/reserve`）
+Basic認証で保護された管理画面から、以下の操作が可能です。
+- 日付ナビ（前日／翌日／今日）で管理したい日を選択
+- 「枠を追加」：開始時刻を`15分間隔`（`<input type="time" step="900">`）で指定して1件ずつ追加。終了時刻は自動で+1時間に設定
+- 「一括追加」：開始〜終了の範囲を指定すると、1時間ごとの枠をまとめて登録（例: 09:00〜18:00 → 09:00, 10:00, 11:00 ... 17:00 の9枠を一括作成）
+- その日の枠一覧を表示。予約が入っている枠は患者情報（氏名・フリガナ・電話番号・メール・生年月日・症状・備考）を表示し「予約キャンセル」ボタンで取消可能。空き枠は「削除」ボタンで削除可能（予約が入っている枠は削除不可、409エラーを返します）
+
+### Web予約管理画面のBasic認証について
+`/admin/reserve` と `/api/admin/reserve/*` は Basic認証で保護されています。認証情報は環境変数 `ADMIN_RESERVE_USER` / `ADMIN_RESERVE_PASSWORD` で設定します。
+- **ローカル開発**: `.dev.vars` に以下を追記（既に設定済み。運用開始前に変更を推奨）
+  ```
+  ADMIN_RESERVE_USER=admin
+  ADMIN_RESERVE_PASSWORD=akigawa2026
+  ```
+- **本番環境**: Cloudflare Pagesのシークレットとして設定してください
+  ```bash
+  npx wrangler pages secret put ADMIN_RESERVE_USER --project-name <project-name>
+  npx wrangler pages secret put ADMIN_RESERVE_PASSWORD --project-name <project-name>
+  ```
+- `ADMIN_RESERVE_PASSWORD` が未設定の場合、管理画面・管理APIは503エラー（「管理画面のパスワードが設定されていません」）を返し、安全側に倒れる設計になっています。
+
 ## お知らせ・ブログの投稿型ページ実装について（WordPress不要の理由）
 参考にした秋川臨床デンタルクリニック様のサイトは「お知らせ」「ブログ」がWordPressのカスタム投稿タイプ・アーカイブ・`wp-pagenavi`プラグインで実装されていましたが、本サイトではCloudflare D1のSQLクエリで同等の機能を実現しています。
 - **一覧・新しい順表示** → `ORDER BY published_at DESC`
@@ -193,16 +244,17 @@ INSERT INTO blog_posts (title, body, category, thumbnail_url, published_at) VALU
 
 ## 未実装の機能・今後の開発予定
 1. **残りの下層ページの実装**（ユーザーからの情報提供待ち）
-   - `/reserve` または `/contact`（Web予約ページ）※症状別で探すページは6/6完了
-   - `/privacy`（プライバシーポリシー）
+   - `/contact`（お問い合わせページ、フォームUI）※症状別で探すページは6/6完了、プライバシーポリシー・Web予約は実装完了
 2. **お知らせ・ブログの管理画面**（簡易パスワード保護付きの投稿・編集・削除UI。現在はSQL直接実行でのみ投稿可能）
 3. **本番Cloudflare D1データベースの作成・マイグレーション適用**
 4. **本番Cloudflare Pagesへのデプロイ**
 5. **お問い合わせフォームのフロントエンドUI実装**（現在APIのみ実装済み）
 6. **診療カレンダーのGoogleカレンダー連携**（現在は静的な休診日案内のみ）
 7. **RESEND_API_KEYの設定**（採用エントリーメール通知を実際に有効化するため。上記「メール通知機能について」参照）
+8. **Web予約の確認メール送信機能**（現在は予約完了時のメール・SMS通知は行っていません。ご希望であればResend APIで実装可能）
+9. **本番用ADMIN_RESERVE_USER / ADMIN_RESERVE_PASSWORDの設定**（下記「Web予約管理画面のBasic認証について」参照）
 
 ## デプロイ状況
 - **プラットフォーム**: Cloudflare Pages（予定）
 - **現在の状態**: ❌ 未デプロイ（ローカル開発環境でのみ動作確認済み）
-- **最終更新**: 2026-08-13（症状別で探すページの残り2件を追加実装し、6/6完了：「メンテナンスを受けたい・お口の状況を知りたい」（メンテナンス／デンタルドックの2セクション）、「その他のお悩み・ご相談」（歯ぎしり／顎関節症／小児歯科治療／口臭／入れ歯／歯を抜きたいの6セクション、アンカーボタンナビあり）。`other`ページの「入れ歯」「顎関節症」は`bite`/`pain`ページと内容が重複するため、既存画像（denture.jpg / tmj.jpg）を再利用。画像はCreative Commons/フリーライセンスの検索結果を使用）
+- **最終更新**: 2026-08-13（プライバシーポリシー`/privacy`とWeb予約システム`/reserve`・`/admin/reserve`を追加実装。D1マイグレーション`0004_reservations.sql`を追加し、`reservation_slots`/`reservations`テーブルを作成。全ページの`/contact`リンクを`/reserve`に変更。実装中にHonoミドルウェアのワイルドカードパターン誤りにより管理画面が未認証でアクセス可能になる不具合を発見・修正済み）
