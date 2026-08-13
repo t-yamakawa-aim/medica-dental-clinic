@@ -192,13 +192,17 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
-  /* ===== Web予約（初診専用・1時間枠） ===== */
+  /* ===== Web予約（コース選択制） ===== */
   const reserveWidget = document.getElementById('reserve-widget')
   if (reserveWidget) {
+    const stepCourse = document.getElementById('reserve-step-course')
     const stepDate = document.getElementById('reserve-step-date')
     const stepTime = document.getElementById('reserve-step-time')
     const stepForm = document.getElementById('reserve-step-form')
     const stepDone = document.getElementById('reserve-step-done')
+
+    const courseListEl = document.getElementById('reserve-course-list')
+    const selectedCourseEl = document.getElementById('reserve-selected-course')
 
     const calMonthLabel = document.getElementById('reserve-cal-month')
     const calDays = document.getElementById('reserve-cal-days')
@@ -216,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     let viewYear, viewMonth // カレンダー表示中の年月(0-indexed month)
     let availableDatesSet = new Set() // 'YYYY-MM-DD' の空き枠がある日付
+    let selectedCourse = null // { course_type, label, duration_minutes }
     let selectedDate = null
     let selectedSlot = null // { id, start_time, end_time }
 
@@ -226,15 +231,53 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const showStep = (name) => {
+      stepCourse.style.display = name === 'course' ? '' : 'none'
       stepDate.style.display = name === 'date' ? '' : 'none'
       stepTime.style.display = name === 'time' ? '' : 'none'
       stepForm.style.display = name === 'form' ? '' : 'none'
       stepDone.style.display = name === 'done' ? '' : 'none'
     }
 
-    const fetchAvailableDates = async () => {
+    const fetchCourses = async () => {
+      courseListEl.innerHTML = '<p class="reserve-loading">読み込み中...</p>'
       try {
-        const res = await fetch('/api/reserve/available-dates')
+        const res = await fetch('/api/reserve/courses')
+        const data = await res.json()
+        courseListEl.innerHTML = ''
+        if (data.ok && data.courses.length > 0) {
+          data.courses.forEach((course) => {
+            const btn = document.createElement('button')
+            btn.type = 'button'
+            btn.className = 'reserve-course-list__item'
+            btn.innerHTML = `<span class="reserve-course-list__label">${course.label}</span><span class="reserve-course-list__duration">${course.duration_minutes}分</span>`
+            btn.addEventListener('click', () => selectCourse(course))
+            courseListEl.appendChild(btn)
+          })
+        } else {
+          courseListEl.innerHTML = '<p class="reserve-time-list__empty">現在ご予約いただけるコースがありません。</p>'
+        }
+      } catch (e) {
+        courseListEl.innerHTML = '<p class="reserve-time-list__empty">読み込みに失敗しました。時間をおいて再度お試しください。</p>'
+      }
+    }
+
+    const selectCourse = (course) => {
+      selectedCourse = course
+      selectedDate = null
+      selectedSlot = null
+      if (selectedCourseEl) selectedCourseEl.textContent = `選択中のコース：${course.label}（${course.duration_minutes}分）`
+
+      const now = new Date()
+      viewYear = now.getFullYear()
+      viewMonth = now.getMonth()
+      showStep('date')
+      fetchAvailableDates().then(renderCalendar)
+    }
+
+    const fetchAvailableDates = async () => {
+      if (!selectedCourse) return
+      try {
+        const res = await fetch(`/api/reserve/available-dates?course=${encodeURIComponent(selectedCourse.course_type)}`)
         const data = await res.json()
         if (data.ok) {
           availableDatesSet = new Set(data.dates)
@@ -282,6 +325,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     const selectDate = async (dateStr) => {
+      if (!selectedCourse) return
       selectedDate = dateStr
       const d = new Date(dateStr + 'T00:00:00')
       const weekdays = ['日', '月', '火', '水', '木', '金', '土']
@@ -291,7 +335,7 @@ document.addEventListener('DOMContentLoaded', () => {
       showStep('time')
 
       try {
-        const res = await fetch(`/api/reserve/slots?date=${dateStr}`)
+        const res = await fetch(`/api/reserve/slots?date=${dateStr}&course=${encodeURIComponent(selectedCourse.course_type)}`)
         const data = await res.json()
         timeListEl.innerHTML = ''
         if (data.ok && data.slots.length > 0) {
@@ -356,7 +400,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const formData = new FormData(reserveForm)
         const payload = {
-          slot_id: selectedSlot.id,
+          slot_date: selectedDate,
+          start_time: selectedSlot.start_time,
+          course_type: selectedCourse.course_type,
           name: formData.get('name'),
           kana: formData.get('kana'),
           phone: formData.get('phone'),
@@ -394,10 +440,7 @@ document.addEventListener('DOMContentLoaded', () => {
       })
     }
 
-    // 初期化
-    const now = new Date()
-    viewYear = now.getFullYear()
-    viewMonth = now.getMonth()
-    fetchAvailableDates().then(renderCalendar)
+    // 初期化（まずコース一覧を取得。日付・時間のカレンダーはコース選択後に初期化される）
+    fetchCourses()
   }
 })

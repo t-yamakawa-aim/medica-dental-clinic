@@ -13,7 +13,7 @@ export const ReservePage = () => {
       <main class="reserve-page" id="top">
         <section class="container container-sm section_pdg reserve-section">
           <p class="reserve-section__lead">
-            当院のWeb予約は<span class="service-attention">初診の方専用</span>のご予約受付です。1回のご予約で1時間の診療時間を確保いたします。
+            当院のWeb予約は<span class="service-attention">初診の方専用</span>のご予約受付です。
           </p>
           <p class="reserve-section__lead">
             通院中の方の次回ご予約や、急なお痛みなどでお急ぎの場合は、お電話（<a href={SITE.phoneHref} class="underline-link">{SITE.phone}</a>）にてご連絡ください。
@@ -21,10 +21,19 @@ export const ReservePage = () => {
         </section>
 
         <section class="container container-sm section_pdg reserve-section">
-          <div class="reserve-widget" id="reserve-widget" data-step="date">
+          <div class="reserve-widget" id="reserve-widget" data-step="course">
+            {/* STEP 0: コース選択 */}
+            <div class="reserve-step" id="reserve-step-course">
+              <h2 class="reserve-step__title"><span class="reserve-step__num">1</span>ご希望のコースを選択してください</h2>
+              <div class="reserve-course-list" id="reserve-course-list">
+                <p class="reserve-loading">読み込み中...</p>
+              </div>
+            </div>
+
             {/* STEP 1: 日付選択 */}
-            <div class="reserve-step" id="reserve-step-date">
-              <h2 class="reserve-step__title"><span class="reserve-step__num">1</span>ご希望の日付を選択してください</h2>
+            <div class="reserve-step" id="reserve-step-date" style="display:none;">
+              <h2 class="reserve-step__title"><span class="reserve-step__num">2</span>ご希望の日付を選択してください</h2>
+              <p class="reserve-step__selected-date" id="reserve-selected-course"></p>
               <div class="reserve-calendar" id="reserve-calendar">
                 <div class="reserve-calendar__header">
                   <button type="button" id="reserve-cal-prev" class="reserve-calendar__nav" aria-label="前の月">
@@ -44,11 +53,14 @@ export const ReservePage = () => {
                   <span class="reserve-calendar__legend-dot is-none"></span>予約不可
                 </p>
               </div>
+              <button type="button" class="reserve-back-btn" data-back-to="course">
+                <i class="fa-solid fa-arrow-left"></i>コース選択に戻る
+              </button>
             </div>
 
             {/* STEP 2: 時間選択 */}
             <div class="reserve-step" id="reserve-step-time" style="display:none;">
-              <h2 class="reserve-step__title"><span class="reserve-step__num">2</span>ご希望の時間を選択してください</h2>
+              <h2 class="reserve-step__title"><span class="reserve-step__num">3</span>ご希望の時間を選択してください</h2>
               <p class="reserve-step__selected-date" id="reserve-selected-date"></p>
               <div class="reserve-time-list" id="reserve-time-list"></div>
               <button type="button" class="reserve-back-btn" data-back-to="date">
@@ -58,7 +70,7 @@ export const ReservePage = () => {
 
             {/* STEP 3: 情報入力 */}
             <div class="reserve-step" id="reserve-step-form" style="display:none;">
-              <h2 class="reserve-step__title"><span class="reserve-step__num">3</span>お客様情報をご入力ください</h2>
+              <h2 class="reserve-step__title"><span class="reserve-step__num">4</span>お客様情報をご入力ください</h2>
               <p class="reserve-step__selected-date" id="reserve-selected-datetime"></p>
 
               <form id="reserve-form" class="reserve-form" novalidate>

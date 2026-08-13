@@ -3390,6 +3390,41 @@ h1, h2, h3, h4, p {
 .reserve-calendar__legend-dot.is-none {
   background: #ddd;
 }
+.reserve-course-list {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14px;
+  margin-bottom: 8px;
+}
+.reserve-course-list__item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 24px 12px;
+  border: 1px solid var(--color-main);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-main);
+  cursor: pointer;
+}
+.reserve-course-list__item:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+.reserve-course-list__label {
+  font-size: 17px;
+  font-weight: 700;
+}
+.reserve-course-list__duration {
+  font-size: 13px;
+  opacity: 0.85;
+}
+@media (max-width: 600px) {
+  .reserve-course-list {
+    grid-template-columns: 1fr;
+  }
+}
 .reserve-time-list {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
@@ -3416,6 +3451,10 @@ h1, h2, h3, h4, p {
   text-align: center;
   color: #888;
   padding: 24px 0;
+}
+.reserve-course-list .reserve-time-list__empty,
+.reserve-course-list .reserve-loading {
+  grid-column: 1 / -1;
 }
 .reserve-back-btn {
   background: none;
@@ -3556,6 +3595,129 @@ h1, h2, h3, h4, p {
   border-radius: 10px;
   padding: 24px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  margin-bottom: 20px;
+}
+.admin-reserve__panel-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--color-sub);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+.admin-reserve__course-select {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.admin-reserve__course-select label {
+  font-weight: 700;
+  color: var(--color-sub);
+  font-size: 14px;
+}
+.admin-reserve__course-select select {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.admin-reserve__hygienist-wrap {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-reserve__slot-course {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #eef2f7;
+  color: var(--color-sub);
+  font-weight: 700;
+}
+
+/* ---- コース設定パネル ---- */
+.admin-course-settings {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.admin-course-settings__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  background: var(--color-bg-blue);
+  border-radius: 8px;
+}
+.admin-course-settings__label {
+  font-weight: 700;
+  color: var(--color-sub);
+  min-width: 130px;
+}
+.admin-course-settings__duration-select {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+
+/* ---- 歯科衛生士（スタッフ）管理パネル ---- */
+.admin-hygienists {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 14px;
+}
+.admin-hygienists__row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+.admin-hygienists__row.is-inactive {
+  background: #f7f7f7;
+  color: #999;
+}
+.admin-hygienists__name-input {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  flex: 1 1 140px;
+  min-width: 100px;
+}
+.admin-hygienists__badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+.admin-hygienists__badge.is-active {
+  background: var(--color-bg-blue);
+  color: var(--color-main);
+}
+.admin-hygienists__badge.is-inactive {
+  background: #eee;
+  color: #999;
+}
+.admin-hygienists__add-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.admin-hygienists__add-form input[type='text'] {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+  flex: 1 1 200px;
 }
 .admin-reserve__date-nav {
   display: flex;
@@ -3702,6 +3864,13 @@ h1, h2, h3, h4, p {
   .admin-reserve__slot-btn {
     margin-left: 0;
     width: 100%;
+  }
+  .admin-hygienists__row {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .admin-hygienists__name-input {
+    flex: 1 1 auto;
   }
 }
 

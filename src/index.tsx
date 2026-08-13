@@ -185,33 +185,67 @@ app.post('/api/recruit-entry', async (c) => {
   return c.json({ ok: true })
 })
 
-// ==================== Web予約（初診専用・1時間枠） ====================
+// ==================== Web予約（初診＝院長 / 初診メンテナンス＝歯科衛生士） ====================
+// コースの所要時間(30/45/60分)はクリニックごとに course_settings テーブルで設定可能。
+// 歯科衛生士は1〜5名程度で増減・休職があるため hygienists テーブルで管理し、
+// 患者側には「担当者」を見せず、時間だけを提示して裏側で自動的に空いている衛生士を割り当てる。
 
-// 15分間隔の開始時刻から終了時刻(+60分)を計算
-const addOneHour = (time: string): string => {
+const pad2 = (n: number): string => String(n).padStart(2, '0')
+
+// 開始時刻(HH:MM)から指定分数後の終了時刻を計算
+const addMinutes = (time: string, minutes: number): string => {
   const [h, m] = time.split(':').map(Number)
-  const total = h * 60 + m + 60
+  const total = h * 60 + m + minutes
   const hh = Math.floor(total / 60) % 24
   const mm = total % 60
-  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+  return `${pad2(hh)}:${pad2(mm)}`
 }
 
 const isValidDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)
 const isValidTime = (s: unknown): s is string => typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)
+const COURSE_TYPES = ['initial_doctor', 'initial_maintenance'] as const
+type CourseType = (typeof COURSE_TYPES)[number]
+const isValidCourseType = (s: unknown): s is CourseType => typeof s === 'string' && (COURSE_TYPES as readonly string[]).includes(s)
+const ALLOWED_DURATIONS = [30, 45, 60]
 
-// ---- 患者用: 指定日の予約可能な空き枠一覧 ----
+async function getCourseSetting(env: Bindings, courseType: CourseType) {
+  const row = await env.DB.prepare(
+    'SELECT course_type, duration_minutes, label FROM course_settings WHERE course_type = ?'
+  )
+    .bind(courseType)
+    .first()
+  return row as { course_type: string; duration_minutes: number; label: string } | null
+}
+
+// ---- 患者用・公開: コース一覧（種別・表示名・所要時間） ----
+app.get('/api/reserve/courses', async (c) => {
+  const { env } = c
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT course_type, label, duration_minutes FROM course_settings ORDER BY course_type'
+    ).all()
+    return c.json({ ok: true, courses: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 患者用: 指定コース・指定日の予約可能な時間一覧（担当者は見せず時間のみを集約表示） ----
 app.get('/api/reserve/slots', async (c) => {
   const { env } = c
   const date = c.req.query('date')
-  if (!isValidDate(date)) {
-    return c.json({ ok: false, error: 'invalid_date' }, 400)
+  const course = c.req.query('course')
+  if (!isValidDate(date) || !isValidCourseType(course)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
   try {
     const { results } = await env.DB.prepare(
-      `SELECT id, slot_date, start_time, end_time FROM reservation_slots
-       WHERE slot_date = ? AND status = 'open' ORDER BY start_time ASC`
+      `SELECT MIN(id) as id, slot_date, start_time, end_time FROM reservation_slots
+       WHERE slot_date = ? AND course_type = ? AND status = 'open'
+       GROUP BY start_time
+       ORDER BY start_time ASC`
     )
-      .bind(date)
+      .bind(date, course)
       .all()
     return c.json({ ok: true, slots: results })
   } catch (e) {
@@ -219,14 +253,20 @@ app.get('/api/reserve/slots', async (c) => {
   }
 })
 
-// ---- 患者用: 予約可能な日付一覧（今日以降、空き枠が1つ以上ある日付） ----
+// ---- 患者用: 指定コースの予約可能な日付一覧（今日以降、空き枠が1つ以上ある日付） ----
 app.get('/api/reserve/available-dates', async (c) => {
   const { env } = c
+  const course = c.req.query('course')
+  if (!isValidCourseType(course)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
   try {
     const { results } = await env.DB.prepare(
       `SELECT DISTINCT slot_date FROM reservation_slots
-       WHERE status = 'open' AND slot_date >= date('now', 'localtime') ORDER BY slot_date ASC`
-    ).all()
+       WHERE status = 'open' AND course_type = ? AND slot_date >= date('now', 'localtime') ORDER BY slot_date ASC`
+    )
+      .bind(course)
+      .all()
     return c.json({ ok: true, dates: (results as any[]).map((r) => r.slot_date) })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)
@@ -234,36 +274,51 @@ app.get('/api/reserve/available-dates', async (c) => {
 })
 
 // ---- 患者用: 予約登録 ----
+// 患者は「日付・時間・コース」だけを指定する。同じ日時に複数の歯科衛生士の枠が
+// 空いている場合は、裏側で自動的にどれか1つを選んで確保する（担当者名は患者に見せない）。
 app.post('/api/reserve', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => null)
-  if (!body || !body.slot_id || !body.name || !body.phone) {
+  if (
+    !body ||
+    !isValidDate(body.slot_date) ||
+    !isValidTime(body.start_time) ||
+    !isValidCourseType(body.course_type) ||
+    !body.name ||
+    !body.phone
+  ) {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
 
-  const slotId = Number(body.slot_id)
-  if (!Number.isInteger(slotId)) {
-    return c.json({ ok: false, error: 'invalid_slot' }, 400)
-  }
-
   try {
-    // 枠が現在も空いているか確認
-    const slot = await env.DB.prepare(`SELECT id, status FROM reservation_slots WHERE id = ?`).bind(slotId).first()
-    if (!slot) {
-      return c.json({ ok: false, error: 'slot_not_found' }, 404)
-    }
-    if ((slot as any).status !== 'open') {
+    // 同じ日付・時間・コースで「空き」になっている候補枠(複数の衛生士がいれば複数件)を取得
+    const { results: candidates } = await env.DB.prepare(
+      `SELECT id FROM reservation_slots
+       WHERE slot_date = ? AND start_time = ? AND course_type = ? AND status = 'open'
+       ORDER BY id ASC`
+    )
+      .bind(body.slot_date, body.start_time, body.course_type)
+      .all()
+
+    if (!candidates || candidates.length === 0) {
       return c.json({ ok: false, error: 'slot_unavailable' }, 409)
     }
 
-    // 枠をbookedに更新 → 予約レコード作成（レース対策として status='open' 条件付きUPDATE）
-    const updateResult = await env.DB.prepare(
-      `UPDATE reservation_slots SET status = 'booked' WHERE id = ? AND status = 'open'`
-    )
-      .bind(slotId)
-      .run()
+    // 候補を1件ずつ、レース対策の条件付きUPDATE(status='open'限定)で確保を試みる
+    let claimedSlotId: number | null = null
+    for (const row of candidates as any[]) {
+      const updateResult = await env.DB.prepare(
+        `UPDATE reservation_slots SET status = 'booked' WHERE id = ? AND status = 'open'`
+      )
+        .bind(row.id)
+        .run()
+      if (updateResult.meta && updateResult.meta.changes > 0) {
+        claimedSlotId = row.id
+        break
+      }
+    }
 
-    if (!updateResult.meta || updateResult.meta.changes === 0) {
+    if (claimedSlotId === null) {
       return c.json({ ok: false, error: 'slot_unavailable' }, 409)
     }
 
@@ -272,7 +327,7 @@ app.post('/api/reserve', async (c) => {
        VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
-        slotId,
+        claimedSlotId,
         body.name,
         body.kana || null,
         body.phone,
@@ -310,7 +365,121 @@ app.use('/admin', adminAuth)
 app.use('/admin/*', adminAuth)
 app.use('/api/admin/*', adminAuth)
 
-// ---- 管理用: 指定日の全枠＋予約者情報 ----
+// ---- 管理用: コース設定の取得・更新（所要時間を30/45/60分から選べる） ----
+app.get('/api/admin/course-settings', async (c) => {
+  const { env } = c
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT course_type, label, duration_minutes FROM course_settings ORDER BY course_type'
+    ).all()
+    return c.json({ ok: true, courses: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+app.put('/api/admin/course-settings/:courseType', async (c) => {
+  const { env } = c
+  const courseType = c.req.param('courseType')
+  if (!isValidCourseType(courseType)) {
+    return c.json({ ok: false, error: 'invalid_course' }, 400)
+  }
+  const body = await c.req.json().catch(() => null)
+  const duration = Number(body?.duration_minutes)
+  if (!ALLOWED_DURATIONS.includes(duration)) {
+    return c.json({ ok: false, error: 'invalid_duration' }, 400)
+  }
+  try {
+    await env.DB.prepare('UPDATE course_settings SET duration_minutes = ? WHERE course_type = ?')
+      .bind(duration, courseType)
+      .run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 歯科衛生士の一覧・追加・更新・削除（1〜5名程度、休職はis_activeで非表示にする） ----
+app.get('/api/admin/hygienists', async (c) => {
+  const { env } = c
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT id, name, is_active, sort_order FROM hygienists ORDER BY sort_order ASC, id ASC'
+    ).all()
+    return c.json({ ok: true, items: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+app.post('/api/admin/hygienists', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => null)
+  const name = String(body?.name || '').trim()
+  if (!name) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    const maxRow = await env.DB.prepare('SELECT COALESCE(MAX(sort_order), 0) as maxOrder FROM hygienists').first()
+    const nextOrder = ((maxRow as any)?.maxOrder || 0) + 1
+    const result = await env.DB.prepare(
+      'INSERT INTO hygienists (name, is_active, sort_order) VALUES (?, 1, ?)'
+    )
+      .bind(name, nextOrder)
+      .run()
+    return c.json({ ok: true, id: result.meta?.last_row_id })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+app.put('/api/admin/hygienists/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  const body = await c.req.json().catch(() => null)
+  if (!body) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    const existing = await env.DB.prepare('SELECT id, name, is_active FROM hygienists WHERE id = ?').bind(id).first()
+    if (!existing) {
+      return c.json({ ok: false, error: 'not_found' }, 404)
+    }
+    const name = body.name !== undefined ? String(body.name).trim() : (existing as any).name
+    const isActive = body.is_active !== undefined ? (body.is_active ? 1 : 0) : (existing as any).is_active
+    await env.DB.prepare('UPDATE hygienists SET name = ?, is_active = ? WHERE id = ?')
+      .bind(name, isActive, id)
+      .run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+app.delete('/api/admin/hygienists/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    const inUse = await env.DB.prepare('SELECT COUNT(*) as cnt FROM reservation_slots WHERE hygienist_id = ?')
+      .bind(id)
+      .first()
+    if (((inUse as any)?.cnt || 0) > 0) {
+      return c.json({ ok: false, error: 'hygienist_in_use' }, 409)
+    }
+    await env.DB.prepare('DELETE FROM hygienists WHERE id = ?').bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 指定日の全枠＋予約者情報（コース・担当衛生士も表示） ----
 app.get('/api/admin/reserve/slots', async (c) => {
   const { env } = c
   const date = c.req.query('date')
@@ -319,12 +488,14 @@ app.get('/api/admin/reserve/slots', async (c) => {
   }
   try {
     const { results } = await env.DB.prepare(
-      `SELECT s.id, s.slot_date, s.start_time, s.end_time, s.status,
+      `SELECT s.id, s.slot_date, s.start_time, s.end_time, s.status, s.course_type, s.duration_minutes,
+              s.hygienist_id, h.name as hygienist_name,
               r.id as reservation_id, r.name, r.kana, r.phone, r.email, r.birth_date, r.symptom, r.message
        FROM reservation_slots s
+       LEFT JOIN hygienists h ON h.id = s.hygienist_id
        LEFT JOIN reservations r ON r.slot_id = s.id
        WHERE s.slot_date = ?
-       ORDER BY s.start_time ASC`
+       ORDER BY s.start_time ASC, s.hygienist_id ASC`
     )
       .bind(date)
       .all()
@@ -334,21 +505,36 @@ app.get('/api/admin/reserve/slots', async (c) => {
   }
 })
 
-// ---- 管理用: 枠を新規追加(15分間隔の開始時刻を指定) ----
+// ---- 管理用: 枠を新規追加(15分間隔の開始時刻・コース・担当衛生士を指定) ----
 app.post('/api/admin/reserve/slots', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => null)
-  if (!body || !isValidDate(body.slot_date) || !isValidTime(body.start_time)) {
+  if (!body || !isValidDate(body.slot_date) || !isValidTime(body.start_time) || !isValidCourseType(body.course_type)) {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
 
-  const endTime = addOneHour(body.start_time)
+  // 初診メンテナンスは担当の歯科衛生士が必須
+  let hygienistId: number | null = null
+  if (body.course_type === 'initial_maintenance') {
+    hygienistId = Number(body.hygienist_id)
+    if (!Number.isInteger(hygienistId)) {
+      return c.json({ ok: false, error: 'hygienist_required' }, 400)
+    }
+  }
 
   try {
+    const courseSetting = await getCourseSetting(env, body.course_type)
+    if (!courseSetting) {
+      return c.json({ ok: false, error: 'invalid_course' }, 400)
+    }
+    const duration = courseSetting.duration_minutes
+    const endTime = addMinutes(body.start_time, duration)
+
     await env.DB.prepare(
-      `INSERT INTO reservation_slots (slot_date, start_time, end_time, status) VALUES (?, ?, ?, 'open')`
+      `INSERT INTO reservation_slots (slot_date, start_time, end_time, status, course_type, hygienist_id, duration_minutes)
+       VALUES (?, ?, ?, 'open', ?, ?, ?)`
     )
-      .bind(body.slot_date, body.start_time, endTime)
+      .bind(body.slot_date, body.start_time, endTime, body.course_type, hygienistId, duration)
       .run()
     return c.json({ ok: true })
   } catch (e: any) {
