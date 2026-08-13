@@ -1,3 +1,8 @@
+-- 本番DBには reservations.slot_id -> reservation_slots(id) の外部キー参照を持つ
+-- 既存データがあるため、テーブル再構築(DROP→RENAME)時にFK制約で失敗しないよう、
+-- このマイグレーション(トランザクション)内だけFKチェックをコミット時まで遅延させる。
+PRAGMA defer_foreign_keys = TRUE;
+
 -- 歯科衛生士マスタ（1〜5名程度、増減・休職に対応）
 CREATE TABLE IF NOT EXISTS hygienists (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
