@@ -214,7 +214,7 @@ export const SymptomDetailPage = ({ detail }: Props) => {
             上記はあくまで一例です。気になる症状がございましたら、まずはお気軽にご相談ください。
           </p>
           <div class="symptom-detail__cta-buttons">
-            <a href="/contact" class="btn btn-primary">
+            <a href="/reserve" class="btn btn-primary">
               <i class="fa-regular fa-calendar-check"></i>
               <span>Web予約・お問い合わせ</span>
             </a>

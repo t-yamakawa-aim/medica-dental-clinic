@@ -1,4 +1,5 @@
 import { Hono } from 'hono'
+import { basicAuth } from 'hono/basic-auth'
 import { renderer } from './renderer'
 import { Header } from './components/Header'
 import { Footer } from './components/Footer'
@@ -18,6 +19,9 @@ import { RecruitPage } from './components/RecruitPage'
 import { RecruitEntryPage } from './components/RecruitEntryPage'
 import { RecruitThanksPage } from './components/RecruitThanksPage'
 import { getSymptomDetail } from './data/symptomDetails'
+import { PrivacyPage } from './components/PrivacyPage'
+import { ReservePage } from './components/ReservePage'
+import { AdminReservePage } from './components/AdminReservePage'
 import { NewsListPage, type NewsListItem } from './components/NewsListPage'
 import { NewsDetailPage, type NewsDetailItem } from './components/NewsDetailPage'
 import { BlogListPage, type BlogListItem } from './components/BlogListPage'
@@ -27,6 +31,8 @@ export type Bindings = {
   DB: D1Database
   RESEND_API_KEY?: string
   RECRUIT_NOTIFY_EMAIL?: string
+  ADMIN_RESERVE_USER?: string
+  ADMIN_RESERVE_PASSWORD?: string
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -175,7 +181,222 @@ app.post('/api/recruit-entry', async (c) => {
   return c.json({ ok: true })
 })
 
-// ---- Top page ----
+// ==================== Web予約（初診専用・1時間枠） ====================
+
+// 15分間隔の開始時刻から終了時刻(+60分)を計算
+const addOneHour = (time: string): string => {
+  const [h, m] = time.split(':').map(Number)
+  const total = h * 60 + m + 60
+  const hh = Math.floor(total / 60) % 24
+  const mm = total % 60
+  return `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}`
+}
+
+const isValidDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)
+const isValidTime = (s: unknown): s is string => typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)
+
+// ---- 患者用: 指定日の予約可能な空き枠一覧 ----
+app.get('/api/reserve/slots', async (c) => {
+  const { env } = c
+  const date = c.req.query('date')
+  if (!isValidDate(date)) {
+    return c.json({ ok: false, error: 'invalid_date' }, 400)
+  }
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT id, slot_date, start_time, end_time FROM reservation_slots
+       WHERE slot_date = ? AND status = 'open' ORDER BY start_time ASC`
+    )
+      .bind(date)
+      .all()
+    return c.json({ ok: true, slots: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 患者用: 予約可能な日付一覧（今日以降、空き枠が1つ以上ある日付） ----
+app.get('/api/reserve/available-dates', async (c) => {
+  const { env } = c
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT DISTINCT slot_date FROM reservation_slots
+       WHERE status = 'open' AND slot_date >= date('now', 'localtime') ORDER BY slot_date ASC`
+    ).all()
+    return c.json({ ok: true, dates: (results as any[]).map((r) => r.slot_date) })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 患者用: 予約登録 ----
+app.post('/api/reserve', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => null)
+  if (!body || !body.slot_id || !body.name || !body.phone) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+
+  const slotId = Number(body.slot_id)
+  if (!Number.isInteger(slotId)) {
+    return c.json({ ok: false, error: 'invalid_slot' }, 400)
+  }
+
+  try {
+    // 枠が現在も空いているか確認
+    const slot = await env.DB.prepare(`SELECT id, status FROM reservation_slots WHERE id = ?`).bind(slotId).first()
+    if (!slot) {
+      return c.json({ ok: false, error: 'slot_not_found' }, 404)
+    }
+    if ((slot as any).status !== 'open') {
+      return c.json({ ok: false, error: 'slot_unavailable' }, 409)
+    }
+
+    // 枠をbookedに更新 → 予約レコード作成（レース対策として status='open' 条件付きUPDATE）
+    const updateResult = await env.DB.prepare(
+      `UPDATE reservation_slots SET status = 'booked' WHERE id = ? AND status = 'open'`
+    )
+      .bind(slotId)
+      .run()
+
+    if (!updateResult.meta || updateResult.meta.changes === 0) {
+      return c.json({ ok: false, error: 'slot_unavailable' }, 409)
+    }
+
+    await env.DB.prepare(
+      `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+      .bind(
+        slotId,
+        body.name,
+        body.kana || null,
+        body.phone,
+        body.email || null,
+        body.birth_date || null,
+        body.symptom || null,
+        body.message || null
+      )
+      .run()
+
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- クリニック側: 予約枠管理API・管理画面をBasic認証で保護 ----
+const adminReserveAuth = async (c: any, next: any) => {
+  const { env } = c
+  if (!env.ADMIN_RESERVE_PASSWORD) {
+    return c.text(
+      '管理画面のパスワードが設定されていません。Cloudflareのシークレット(ADMIN_RESERVE_USER / ADMIN_RESERVE_PASSWORD)を設定してください。',
+      503
+    )
+  }
+  const auth = basicAuth({
+    username: env.ADMIN_RESERVE_USER || 'admin',
+    password: env.ADMIN_RESERVE_PASSWORD,
+  })
+  return auth(c, next)
+}
+app.use('/admin/reserve', adminReserveAuth)
+app.use('/admin/reserve/*', adminReserveAuth)
+app.use('/api/admin/reserve/*', adminReserveAuth)
+
+// ---- 管理用: 指定日の全枠＋予約者情報 ----
+app.get('/api/admin/reserve/slots', async (c) => {
+  const { env } = c
+  const date = c.req.query('date')
+  if (!isValidDate(date)) {
+    return c.json({ ok: false, error: 'invalid_date' }, 400)
+  }
+  try {
+    const { results } = await env.DB.prepare(
+      `SELECT s.id, s.slot_date, s.start_time, s.end_time, s.status,
+              r.id as reservation_id, r.name, r.kana, r.phone, r.email, r.birth_date, r.symptom, r.message
+       FROM reservation_slots s
+       LEFT JOIN reservations r ON r.slot_id = s.id
+       WHERE s.slot_date = ?
+       ORDER BY s.start_time ASC`
+    )
+      .bind(date)
+      .all()
+    return c.json({ ok: true, slots: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 枠を新規追加(15分間隔の開始時刻を指定) ----
+app.post('/api/admin/reserve/slots', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => null)
+  if (!body || !isValidDate(body.slot_date) || !isValidTime(body.start_time)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+
+  const endTime = addOneHour(body.start_time)
+
+  try {
+    await env.DB.prepare(
+      `INSERT INTO reservation_slots (slot_date, start_time, end_time, status) VALUES (?, ?, ?, 'open')`
+    )
+      .bind(body.slot_date, body.start_time, endTime)
+      .run()
+    return c.json({ ok: true })
+  } catch (e: any) {
+    if (String(e?.message || '').includes('UNIQUE')) {
+      return c.json({ ok: false, error: 'slot_already_exists' }, 409)
+    }
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 枠を削除（予約が入っていない場合のみ） ----
+app.delete('/api/admin/reserve/slots/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    const slot = await env.DB.prepare(`SELECT status FROM reservation_slots WHERE id = ?`).bind(id).first()
+    if (!slot) {
+      return c.json({ ok: false, error: 'slot_not_found' }, 404)
+    }
+    if ((slot as any).status === 'booked') {
+      return c.json({ ok: false, error: 'slot_booked' }, 409)
+    }
+    await env.DB.prepare(`DELETE FROM reservation_slots WHERE id = ?`).bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 予約キャンセル（枠をopenに戻す） ----
+app.post('/api/admin/reserve/slots/:id/cancel', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    await env.DB.prepare(
+      `UPDATE reservations SET cancelled_at = CURRENT_TIMESTAMP WHERE slot_id = ? AND cancelled_at IS NULL`
+    )
+      .bind(id)
+      .run()
+    await env.DB.prepare(`DELETE FROM reservations WHERE slot_id = ?`).bind(id).run()
+    await env.DB.prepare(`UPDATE reservation_slots SET status = 'open' WHERE id = ?`).bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ==================== Top page ====================
 app.get('/', async (c) => {
   const { env } = c
   let newsItems: NewsItem[] = []
@@ -260,6 +481,49 @@ app.get('/service', (c) => {
       title: '診療のご案内',
       description:
         '金沢市の歯科医院メディカデンタルクリニックの「診療のご案内」ページ。ご予約方法やご持参いただくもの、診療の流れをご紹介しています。当院は原則予約制です。事前にご予約のうえご来院ください。',
+    }
+  )
+})
+
+// ---- Web予約（初診専用） ----
+app.get('/reserve', (c) => {
+  return c.render(
+    <>
+      <Header />
+      <ReservePage />
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: 'Web予約（初診専用）',
+      description: 'メディカデンタルクリニック（石川県金沢市）のWeb予約ページです。初診の方専用に、1時間単位でご予約いただけます。',
+    }
+  )
+})
+
+// ---- クリニック側: 予約枠管理画面（画面はAPIと同じBasic認証ミドルウェアで保護済み） ----
+app.get('/admin/reserve', (c) => {
+  return c.html(<AdminReservePage />)
+})
+
+// ---- プライバシーポリシー ----
+app.get('/privacy', (c) => {
+  return c.render(
+    <>
+      <Header />
+      <PrivacyPage />
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: 'プライバシーポリシー',
+      description: 'メディカデンタルクリニック（石川県金沢市）の個人情報保護方針・プライバシーポリシーについてご案内します。',
     }
   )
 })

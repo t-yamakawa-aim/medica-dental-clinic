@@ -3170,3 +3170,537 @@ h1, h2, h3, h4, p {
     border-radius: 8px;
   }
 }
+
+/* ============ プライバシーポリシー ============ */
+.privacy-section {
+  border-bottom: 1px solid #e5e5e5;
+}
+.privacy-section:last-of-type {
+  border-bottom: none;
+}
+.privacy-section__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-sub);
+  text-align: center;
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid var(--color-sub);
+  display: inline-block;
+}
+.privacy-page section.privacy-section > .privacy-section__title {
+  display: block;
+}
+.privacy-section__lead {
+  line-height: 1.9;
+  margin-bottom: 20px;
+}
+.privacy-list {
+  counter-reset: privacy-counter;
+  list-style: none;
+  padding: 0;
+}
+.privacy-list > li {
+  counter-increment: privacy-counter;
+  position: relative;
+  padding-left: 32px;
+  margin-bottom: 16px;
+  line-height: 1.9;
+}
+.privacy-list > li::before {
+  content: counter(privacy-counter) '.';
+  position: absolute;
+  left: 0;
+  top: 0;
+  color: var(--color-main);
+  font-weight: 700;
+}
+.privacy-table-wrap {
+  overflow-x: auto;
+  margin-bottom: 16px;
+}
+.privacy-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.privacy-table th,
+.privacy-table td {
+  border: 1px solid #e0e0e0;
+  padding: 12px 16px;
+  text-align: left;
+  line-height: 1.7;
+  vertical-align: top;
+}
+.privacy-table thead th {
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 700;
+  white-space: nowrap;
+}
+.privacy-table--info th {
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 700;
+  width: 180px;
+  white-space: nowrap;
+}
+.privacy-section__signoff {
+  text-align: right;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.8;
+  margin-top: 16px;
+}
+
+@media (max-width: 767px) {
+  .privacy-table--info th {
+    width: 110px;
+    white-space: normal;
+  }
+  .privacy-table th,
+  .privacy-table td {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+}
+
+/* ===== Web予約（初診専用） ===== */
+.reserve-section__lead {
+  line-height: 1.9;
+  margin-bottom: 12px;
+}
+.reserve-widget {
+  max-width: 720px;
+  margin: 0 auto;
+}
+.reserve-step__title {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 24px;
+}
+.reserve-step__num {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: var(--color-main);
+  color: #fff;
+  font-size: 15px;
+  flex-shrink: 0;
+}
+.reserve-step__selected-date {
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+.reserve-calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 20px;
+  margin-bottom: 16px;
+}
+.reserve-calendar__month {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-sub);
+  min-width: 120px;
+  text-align: center;
+}
+.reserve-calendar__nav {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: var(--color-main);
+  cursor: pointer;
+}
+.reserve-calendar__nav:hover {
+  background: var(--color-bg-blue);
+}
+.reserve-calendar__weekdays {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  text-align: center;
+  font-size: 13px;
+  color: #888;
+  margin-bottom: 8px;
+}
+.reserve-calendar__days {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+.reserve-calendar__day {
+  aspect-ratio: 1 / 1;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #fff;
+  font-size: 14px;
+  cursor: default;
+}
+.reserve-calendar__day.is-empty {
+  border: none;
+  background: transparent;
+}
+.reserve-calendar__day.is-none {
+  color: #ccc;
+  background: #f7f7f7;
+}
+.reserve-calendar__day.is-available {
+  color: var(--color-main);
+  font-weight: 700;
+  cursor: pointer;
+  border-color: var(--color-main);
+}
+.reserve-calendar__day.is-available:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+.reserve-calendar__legend {
+  margin-top: 16px;
+  font-size: 13px;
+  color: #666;
+  display: flex;
+  gap: 20px;
+  justify-content: center;
+}
+.reserve-calendar__legend-dot {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border-radius: 3px;
+  margin-right: 6px;
+  vertical-align: middle;
+}
+.reserve-calendar__legend-dot.is-available {
+  background: var(--color-main);
+}
+.reserve-calendar__legend-dot.is-none {
+  background: #ddd;
+}
+.reserve-time-list {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 24px;
+}
+.reserve-time-list__item {
+  padding: 12px 8px;
+  border: 1px solid var(--color-main);
+  border-radius: 8px;
+  background: #fff;
+  color: var(--color-main);
+  font-weight: 700;
+  font-size: 14px;
+  cursor: pointer;
+}
+.reserve-time-list__item:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+.reserve-time-list__empty,
+.reserve-loading {
+  grid-column: 1 / -1;
+  text-align: center;
+  color: #888;
+  padding: 24px 0;
+}
+.reserve-back-btn {
+  background: none;
+  border: none;
+  color: var(--color-main);
+  cursor: pointer;
+  font-size: 14px;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 0;
+}
+.reserve-form__group {
+  margin-bottom: 18px;
+}
+.reserve-form__label-row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+.reserve-form__label {
+  font-weight: 700;
+  color: var(--color-sub);
+  font-size: 14px;
+}
+.reserve-form__badge {
+  font-size: 11px;
+  background: #e6543c;
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+}
+.reserve-form__badge--optional {
+  background: #aaa;
+}
+.reserve-form__input,
+.reserve-form__textarea {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+  font-family: var(--font-jp);
+}
+.reserve-form__textarea {
+  resize: vertical;
+}
+.reserve-form__error {
+  background: #fdecea;
+  color: #c0392b;
+  padding: 12px 16px;
+  border-radius: 6px;
+  margin-bottom: 16px;
+  font-size: 14px;
+}
+.reserve-form__submit-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 24px;
+}
+.reserve-done {
+  text-align: center;
+  padding: 32px 0;
+}
+.reserve-done__icon {
+  font-size: 56px;
+  color: var(--color-main);
+  margin-bottom: 16px;
+}
+.reserve-done__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 16px;
+}
+.reserve-done__datetime {
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 700;
+  padding: 12px 16px;
+  border-radius: 8px;
+  display: inline-block;
+  margin-bottom: 20px;
+}
+.reserve-done__text {
+  line-height: 1.9;
+  color: #555;
+  margin-bottom: 24px;
+}
+
+@media (max-width: 767px) {
+  .reserve-time-list {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .reserve-form__submit-wrap {
+    flex-direction: column-reverse;
+    align-items: stretch;
+  }
+  .reserve-form__submit-wrap .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+/* ===== 管理画面: 予約枠管理 ===== */
+.admin-reserve {
+  font-family: var(--font-jp);
+  background: #f4f6f8;
+  min-height: 100vh;
+  padding: 24px 16px 60px;
+}
+.admin-reserve__header {
+  max-width: 800px;
+  margin: 0 auto 20px;
+}
+.admin-reserve__header h1 {
+  font-size: 22px;
+  color: var(--color-sub);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.admin-reserve__note {
+  color: #777;
+  font-size: 13px;
+  margin-top: 6px;
+}
+.admin-reserve__main {
+  max-width: 800px;
+  margin: 0 auto;
+}
+.admin-reserve__panel {
+  background: #fff;
+  border-radius: 10px;
+  padding: 24px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+.admin-reserve__date-nav {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.admin-reserve__nav-btn {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid #ddd;
+  background: #fff;
+  color: var(--color-main);
+  cursor: pointer;
+}
+.admin-reserve__nav-btn:hover {
+  background: var(--color-bg-blue);
+}
+.admin-reserve__date-input {
+  padding: 8px 12px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 15px;
+}
+.admin-reserve__today-btn {
+  padding: 8px 14px;
+  border: 1px solid var(--color-main);
+  color: var(--color-main);
+  background: #fff;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+}
+.admin-reserve__today-btn:hover {
+  background: var(--color-main);
+  color: #fff;
+}
+.admin-reserve__add-form,
+.admin-reserve__bulk-form {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--color-bg-blue);
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
+}
+.admin-reserve__add-form label {
+  color: var(--color-sub);
+  font-weight: 700;
+}
+.admin-reserve__add-form input[type='time'],
+.admin-reserve__bulk-form input[type='time'] {
+  padding: 6px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+}
+.admin-reserve__msg {
+  font-size: 13px;
+  font-weight: 700;
+}
+.admin-reserve__msg.is-success {
+  color: #1a8f4a;
+}
+.admin-reserve__msg.is-error {
+  color: #c0392b;
+}
+.admin-reserve__slots {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.admin-reserve__loading,
+.admin-reserve__empty {
+  text-align: center;
+  color: #888;
+  padding: 24px 0;
+}
+.admin-reserve__slot-item {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 14px 16px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+.admin-reserve__slot-item.is-booked {
+  border-color: var(--color-accent);
+  background: #fffaf0;
+  align-items: flex-start;
+}
+.admin-reserve__slot-time {
+  font-weight: 700;
+  color: var(--color-sub);
+  min-width: 140px;
+}
+.admin-reserve__slot-badge {
+  font-size: 12px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-weight: 700;
+}
+.admin-reserve__slot-badge.is-open {
+  background: var(--color-bg-blue);
+  color: var(--color-main);
+}
+.admin-reserve__slot-badge.is-booked {
+  background: var(--color-accent);
+  color: #fff;
+}
+.admin-reserve__slot-patient {
+  flex: 1 1 100%;
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 4px 16px;
+  font-size: 13px;
+  color: #555;
+  margin-top: 6px;
+}
+.admin-reserve__slot-patient-row {
+  display: flex;
+  gap: 6px;
+}
+.admin-reserve__slot-patient-label {
+  color: #888;
+  flex-shrink: 0;
+}
+.admin-reserve__slot-btn {
+  margin-left: auto;
+}
+
+@media (max-width: 767px) {
+  .admin-reserve__panel {
+    padding: 16px;
+  }
+  .admin-reserve__slot-patient {
+    grid-template-columns: 1fr;
+  }
+  .admin-reserve__slot-btn {
+    margin-left: 0;
+    width: 100%;
+  }
+}

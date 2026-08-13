@@ -92,7 +92,7 @@ export const HeroSection = () => {
           </p>
           <p class="hero__hours-contact">
             <i class="fa-solid fa-phone"></i> 電話予約: {SITE.phone}　
-            <a href="/contact" class="underline-link">
+            <a href="/reserve" class="underline-link">
               Web予約 <i class="fa-solid fa-arrow-up-right-from-square fa-xs"></i>
             </a>
           </p>

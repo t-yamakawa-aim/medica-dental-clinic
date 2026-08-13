@@ -688,6 +688,6 @@ export const FOOTER_NAV = [
   { label: '症状別で探す', href: '/symptoms' },
   { label: 'ブログ', href: '/blog' },
   { label: '新着情報', href: '/news' },
-  { label: 'お問い合わせ・Web予約', href: '/contact' },
+  { label: 'お問い合わせ・Web予約', href: '/reserve' },
   { label: 'プライバシーポリシー', href: '/privacy' },
 ]

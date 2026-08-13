@@ -45,7 +45,7 @@ export const Header = () => {
                 </span>
                 <span class="gnav__tel-hours">［受付時間］ {SITE.receptionHours}</span>
               </a>
-              <a href="/contact" class="btn btn-reserve">
+              <a href="/reserve" class="btn btn-reserve">
                 <i class="fa-regular fa-calendar-check"></i>
                 <span>Web予約・お問い合わせ</span>
               </a>
@@ -57,7 +57,7 @@ export const Header = () => {
 
       {/* スマホ用 固定フッターナビ */}
       <nav class="sp-fixed-nav">
-        <a href="/contact" class="sp-fixed-nav__item sp-fixed-nav__item--cta">
+        <a href="/reserve" class="sp-fixed-nav__item sp-fixed-nav__item--cta">
           <i class="fa-regular fa-calendar-check"></i>
           <span>Web予約</span>
         </a>
