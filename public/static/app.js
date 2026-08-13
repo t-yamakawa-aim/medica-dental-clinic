@@ -110,4 +110,85 @@ document.addEventListener('DOMContentLoaded', () => {
       slides[current].classList.add('active')
     }, 5000)
   }
+
+  /* ===== 採用エントリーフォーム ===== */
+  const recruitForm = document.getElementById('recruit-entry-form')
+  if (recruitForm) {
+    const inquiryChecks = Array.from(recruitForm.querySelectorAll('[data-required-track="inquiry"]'))
+    const fieldInputs = Array.from(recruitForm.querySelectorAll('[data-required-track="field"]'))
+    const remainingEl = document.getElementById('recruit-entry-remaining')
+    const totalEl = document.getElementById('recruit-entry-total')
+    const submitBtn = document.getElementById('recruit-entry-submit')
+    const submitLabel = document.getElementById('recruit-entry-submit-label')
+    const errorBox = document.getElementById('recruit-entry-form__error')
+
+    // 必須項目数 = 「お問い合わせ内容」チェック(1つ以上で1項目分カウント) + 各必須入力欄
+    const totalRequired = 1 + fieldInputs.length
+    if (totalEl) totalEl.textContent = String(totalRequired)
+
+    const updateCounter = () => {
+      let remaining = totalRequired
+      const inquiryChecked = inquiryChecks.some((el) => el.checked)
+      if (inquiryChecked) remaining -= 1
+
+      fieldInputs.forEach((el) => {
+        if (el.value && el.value.trim() !== '') remaining -= 1
+      })
+
+      if (remainingEl) remainingEl.textContent = String(Math.max(remaining, 0))
+
+      const isComplete = remaining <= 0
+      if (submitBtn) submitBtn.disabled = !isComplete
+      if (submitLabel) submitLabel.textContent = isComplete ? '送信する' : '入力が完了していません'
+    }
+
+    inquiryChecks.forEach((el) => el.addEventListener('change', updateCounter))
+    fieldInputs.forEach((el) => el.addEventListener('input', updateCounter))
+    updateCounter()
+
+    recruitForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      if (submitBtn && submitBtn.disabled) return
+
+      if (errorBox) {
+        errorBox.style.display = 'none'
+        errorBox.textContent = ''
+      }
+
+      const formData = new FormData(recruitForm)
+      const payload = {
+        inquiry_types: formData.getAll('inquiry_types'),
+        job_types: formData.getAll('job_types'),
+        name: formData.get('name'),
+        kana: formData.get('kana'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        message: formData.get('message'),
+      }
+
+      if (submitBtn) submitBtn.disabled = true
+      if (submitLabel) submitLabel.textContent = '送信中...'
+
+      try {
+        const res = await fetch('/api/recruit-entry', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json()
+        if (data.ok) {
+          window.location.href = '/recruit/entry/thanks'
+        } else {
+          throw new Error(data.error || 'unknown_error')
+        }
+      } catch (err) {
+        if (errorBox) {
+          errorBox.style.display = 'block'
+          errorBox.textContent = '送信に失敗しました。お手数ですが、しばらく経ってから再度お試しください。'
+        }
+        if (submitBtn) submitBtn.disabled = false
+        if (submitLabel) submitLabel.textContent = '送信する'
+      }
+    })
+  }
 })

@@ -1,0 +1,3 @@
+# Resend API (https://resend.com) - 採用エントリーフォーム送信時の通知メール送信用
+# Resendにpeacefultomorrow0528@gmail.comでアカウント登録し、発行されたAPIキーを設定してください
+RESEND_API_KEY=re_xxxxxxxxxxxxxxxx

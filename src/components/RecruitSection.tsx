@@ -13,7 +13,7 @@ export const RecruitSection = () => {
             <a href="/recruit" class="btn btn-secondary">
               募集要項を見る
             </a>
-            <a href="/contact" class="btn btn-primary">
+            <a href="/recruit/entry" class="btn btn-primary">
               <i class="fa-solid fa-file-pen"></i>
               <span>採用エントリー</span>
             </a>

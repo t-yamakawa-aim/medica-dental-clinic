@@ -2203,3 +2203,398 @@ h1, h2, h3, h4, p {
     width: 30%;
   }
 }
+
+/* =========================================================
+   Recruit Page (/recruit)
+   ========================================================= */
+.recruit-message__inner {
+  display: flex;
+  gap: 40px;
+  align-items: flex-start;
+}
+.recruit-message__image {
+  flex: 0 0 220px;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.recruit-message__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 3 / 4;
+}
+.recruit-message__body {
+  flex: 1;
+}
+.recruit-message__text {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #444;
+  margin-bottom: 16px;
+}
+.recruit-message__signoff {
+  text-align: right;
+  font-size: 14px;
+  color: var(--color-sub);
+  font-weight: 600;
+}
+
+.recruit-catch {
+  background: #f7f9fb;
+}
+.recruit-catch__title {
+  font-size: 22px;
+  font-weight: 700;
+  line-height: 1.6;
+  color: var(--color-sub);
+  text-align: center;
+  margin-bottom: 28px;
+}
+.recruit-catch__text {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #444;
+  margin-bottom: 16px;
+}
+
+.recruit-jobs__tabs {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 40px;
+  flex-wrap: wrap;
+}
+.recruit-jobs__tab {
+  padding: 10px 24px;
+  border-radius: 999px;
+  border: 1px solid var(--color-sub);
+  color: var(--color-sub);
+  font-size: 14px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: 0.2s;
+}
+.recruit-jobs__tab:hover,
+.recruit-jobs__tab.is-active {
+  background: var(--color-sub);
+  color: #fff;
+}
+
+.recruit-job {
+  margin-bottom: 64px;
+  padding-bottom: 48px;
+  border-bottom: 1px solid #e5e5e5;
+}
+.recruit-job:last-child {
+  border-bottom: none;
+  margin-bottom: 0;
+}
+.recruit-job__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 20px;
+  padding-left: 14px;
+  border-left: 4px solid var(--color-main);
+}
+.recruit-job__image {
+  border-radius: 12px;
+  overflow: hidden;
+  margin-bottom: 24px;
+}
+.recruit-job__image img {
+  width: 100%;
+  aspect-ratio: 16 / 7;
+  object-fit: cover;
+}
+.recruit-job__note-lead {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #444;
+  background: #f7f9fb;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 24px;
+}
+
+.recruit-job__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-bottom: 32px;
+}
+.recruit-job__table th,
+.recruit-job__table td {
+  border: 1px solid #e5e5e5;
+  padding: 18px 20px;
+  font-size: 14px;
+  text-align: left;
+  vertical-align: top;
+}
+.recruit-job__table th {
+  width: 22%;
+  background: #f7f9fb;
+  color: var(--color-sub);
+  font-weight: 600;
+}
+.recruit-job__heading {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin: 14px 0 6px;
+}
+.recruit-job__heading:first-child {
+  margin-top: 0;
+}
+.recruit-job__paragraph {
+  line-height: 1.8;
+  color: #444;
+  margin-bottom: 8px;
+}
+.recruit-job__note {
+  font-size: 13px;
+  color: #d9534f;
+  line-height: 1.8;
+  margin-bottom: 8px;
+}
+.recruit-job__list {
+  margin: 0 0 8px;
+  padding-left: 1.1em;
+  color: #444;
+  line-height: 1.8;
+}
+.recruit-job__list--num {
+  list-style: decimal;
+}
+.recruit-job__list li {
+  margin-bottom: 4px;
+}
+.recruit-job__buttons {
+  text-align: center;
+}
+
+.recruit-tour__box {
+  background: #f7f9fb;
+  border-radius: 16px;
+  padding: 48px 40px;
+  text-align: center;
+}
+.recruit-tour__title {
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 16px;
+}
+.recruit-tour__text {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #444;
+  margin-bottom: 28px;
+}
+.recruit-tour__buttons,
+.recruit-cta__buttons {
+  text-align: center;
+}
+.recruit-cta__text {
+  text-align: center;
+  font-size: 15px;
+  color: #444;
+  margin-bottom: 24px;
+}
+
+/* =========================================================
+   Recruit Entry Form (/recruit/entry)
+   ========================================================= */
+.recruit-entry__lead {
+  font-size: 14.5px;
+  line-height: 1.9;
+  color: #444;
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.recruit-entry-form__group {
+  margin-bottom: 32px;
+}
+.recruit-entry-form__label-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+}
+.recruit-entry-form__label {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-sub);
+}
+.recruit-entry-form__badge {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 4px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #fff;
+  background: #d9534f;
+  flex-shrink: 0;
+}
+.recruit-entry-form__badge--optional {
+  background: #aaa;
+}
+
+.recruit-entry-form__checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+.recruit-entry-form__checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 18px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 14px;
+  color: #444;
+  cursor: pointer;
+  transition: 0.2s;
+  user-select: none;
+}
+.recruit-entry-form__checkbox:hover {
+  border-color: var(--color-main);
+}
+.recruit-entry-form__checkbox input[type='checkbox'] {
+  width: 18px;
+  height: 18px;
+  accent-color: var(--color-main);
+  cursor: pointer;
+}
+.recruit-entry-form__checkbox:has(input:checked) {
+  border-color: var(--color-main);
+  background: #fff6ef;
+  color: var(--color-sub);
+  font-weight: 600;
+}
+
+.recruit-entry-form__input,
+.recruit-entry-form__textarea {
+  width: 100%;
+  padding: 14px 16px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  color: #333;
+  transition: 0.2s;
+}
+.recruit-entry-form__input:focus,
+.recruit-entry-form__textarea:focus {
+  outline: none;
+  border-color: var(--color-main);
+}
+.recruit-entry-form__textarea {
+  resize: vertical;
+}
+
+.recruit-entry-form__error {
+  background: #fdecea;
+  color: #d9534f;
+  border-radius: 8px;
+  padding: 14px 18px;
+  font-size: 13.5px;
+  margin-bottom: 24px;
+}
+
+.recruit-entry-form__submit-wrap {
+  text-align: center;
+  margin-top: 40px;
+}
+.recruit-entry-form__counter {
+  font-size: 13.5px;
+  color: #888;
+  margin-bottom: 16px;
+}
+.recruit-entry-form__counter span {
+  color: var(--color-main);
+  font-weight: 700;
+}
+.recruit-entry-form__submit {
+  min-width: 280px;
+}
+.recruit-entry-form__submit:disabled {
+  background: #ccc;
+  border-color: #ccc;
+  cursor: not-allowed;
+  opacity: 1;
+}
+.recruit-entry-form__submit:disabled:hover {
+  background: #ccc;
+}
+
+/* =========================================================
+   Recruit Thanks Page (/recruit/entry/thanks)
+   ========================================================= */
+.recruit-thanks {
+  text-align: center;
+}
+.recruit-thanks__icon {
+  font-size: 64px;
+  color: #4caf7d;
+  margin-bottom: 24px;
+}
+.recruit-thanks__title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 20px;
+}
+.recruit-thanks__text {
+  font-size: 15px;
+  line-height: 1.9;
+  color: #444;
+  margin-bottom: 24px;
+}
+.recruit-thanks__note {
+  font-size: 13.5px;
+  line-height: 1.9;
+  color: #888;
+  margin-bottom: 40px;
+}
+.recruit-thanks__note a {
+  color: var(--color-main);
+  font-weight: 600;
+}
+.recruit-thanks__buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 767px) {
+  .recruit-message__inner {
+    flex-direction: column;
+  }
+  .recruit-message__image {
+    flex: none;
+    width: 100%;
+    max-width: 220px;
+    margin: 0 auto;
+  }
+  .recruit-job__table th {
+    width: 32%;
+    font-size: 12.5px;
+  }
+  .recruit-job__table th,
+  .recruit-job__table td {
+    padding: 12px 14px;
+  }
+  .recruit-tour__box {
+    padding: 32px 20px;
+  }
+  .recruit-entry-form__checkboxes {
+    flex-direction: column;
+  }
+  .recruit-entry-form__submit {
+    width: 100%;
+    min-width: 0;
+  }
+}
