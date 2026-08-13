@@ -3850,6 +3850,9 @@ h1, h2, h3, h4, p {
   padding: 20px;
   z-index: 100;
 }
+.admin-modal[hidden] {
+  display: none;
+}
 .admin-modal__box {
   background: #fff;
   border-radius: 12px;
