@@ -299,6 +299,128 @@ export const STAFF_MEMBERS: StaffMember[] = [
   },
 ]
 
+// 診療のご案内：ご予約方法の比較テーブル
+export type ServiceReservationColumn = {
+  items: string[]
+  note?: string
+  empty?: string
+}
+
+export type ServiceReservationRow = {
+  label: string
+  columns: [ServiceReservationColumn, ServiceReservationColumn]
+}
+
+export const SERVICE_RESERVATION_TABLE: {
+  headerColumns: [ServiceReservationColumn, ServiceReservationColumn]
+  rows: ServiceReservationRow[]
+} = {
+  headerColumns: [
+    {
+      items: ['初診の方（他院からの転院を含む）', '前回の診察から6カ月以上間が空いた方', '急患の方'],
+    },
+    {
+      items: ['当院に通院中の方で、\n次回予約を取られていない方'],
+    },
+  ],
+  rows: [
+    {
+      label: 'ご予約方法',
+      columns: [
+        { items: ['お電話予約', 'WEB予約'] },
+        {
+          items: ['お電話予約'],
+          note: '（治療を継続中の方は治療内容によって必要な診療時間が変わるため、WEBではなく、必ずお電話にてご予約をお願いいたします。）',
+        },
+      ],
+    },
+    {
+      label: 'ご持参頂くもの',
+      columns: [
+        {
+          items: [
+            '健康保険証',
+            '紹介状（お持ちの方のみ）',
+            '外れ（欠け）てしまった被せもの',
+            '現在お使いの入れ歯やマウスピースなど',
+          ],
+        },
+        {
+          items: ['健康保険証（月に1回ご提示をお願いいたします）', '現在お使いの入れ歯やマウスピースなど'],
+        },
+      ],
+    },
+    {
+      label: '次回予約',
+      columns: [
+        {
+          items: [
+            'お帰りの際に「受付窓口」にてご予約できます。',
+            '「受付窓口」にてご予約されなかった場合、または、ご予約日時変更の際は「お電話」にてご連絡をお願い致します。WEBでの次回予約は承っておりません。',
+          ],
+        },
+        { items: [], empty: '－' },
+      ],
+    },
+  ],
+}
+
+// 診療のご案内：診療の流れ
+export type ServiceFlowStep = {
+  no: number
+  title: string
+  subtitle?: string
+  body: string[]
+  image: string
+}
+
+export const SERVICE_FLOW_STEPS: ServiceFlowStep[] = [
+  {
+    no: 1,
+    title: '初診・ヒアリング',
+    body: [
+      'ご来院後、問診票にご記入をお願いします。患者様の基礎データとして歯科医師・スタッフが目を通した上で診療を開始いたします。ヒアリングでは、患者様の実際の口腔内状況を直接確認し、症状の度合いやお口の健康に関わる普段の生活習慣など、診断に必要な事項をお伺いいたします。いま感じていらっしゃること、ご不安なことなど、遠慮なくお話しください。',
+      'また、もしこの時点で患部に痛みがある場合は、検査の前に痛みを抑える応急処置を優先的に行いますので、ご安心ください。',
+    ],
+    image: '/static/images/facility-01.jpg',
+  },
+  {
+    no: 2,
+    title: '検査',
+    body: [
+      '問診後の口腔内の確認とカウンセリングをもとに、口腔内写真の撮影、レントゲン、歯周検査（歯ぐきの検査）など、さらに正確な口腔内状況の把握のための精密検査を行います。',
+      '検査によって、歯や神経、顎の骨など、見えなかった組織内の状況を確認することができます。歯周検査では歯周ポケットの深さによって歯周病の進行度合いを把握します。',
+    ],
+    image: '/static/images/facility-02.jpg',
+  },
+  {
+    no: 3,
+    title: '診断・治療の選択肢のご案内',
+    body: [
+      '検査結果を踏まえ、患者様の患部を撮影した写真などをお見せし、歯科医師から考えられる治療の選択肢をご説明いたします。（初診時に応急処置を行なった場合には、検査と診断のご説明の一部について次回以降に行わせていただくことがあります）',
+      'ご案内する治療の選択肢は、医学的な視点と患者様のご希望（治療費用 / 治療期間 / 手術の有無・規模 / 治療期間中の見た目など）を患者様とよく話し合い決定していきます。保険診療・自由診療に関わらずご納得いただいた治療を行います。分かりにくい内容や疑問点がございましたら何度でもご質問ください。不安解消のためにご説明を尽くします。',
+    ],
+    image: '/static/images/facility-03.jpg',
+  },
+  {
+    no: 4,
+    title: '治療',
+    body: [
+      '当院理念にのっとり、できるだけ歯を残し、清掃のしやすさを考慮した治療、痛みに最大限配慮した治療をいたします。麻酔を使用する場合は、表面麻酔や細い注射針を採用しています。また麻酔液を注入する速度をコントロールすることで痛みをできる限り軽減いたします。',
+    ],
+    image: '/static/images/director.jpg',
+  },
+  {
+    no: 5,
+    title: '今後の予防策のご提案',
+    subtitle: '〜治療後の状態が長持ちするために〜',
+    body: [
+      '治療後、清掃しやすい口腔内環境が整った状態を長持ちさせるためには、それ以降のメンテナンスが必須となります。そのための大切なポイントやテクニックをお一人おひとりの患者様に合わせた方法でお伝えいたします。定期的なメンテナンス・健診も進めてまいります。',
+    ],
+    image: '/static/images/exterior.jpg',
+  },
+]
+
 // フッターナビ
 export const FOOTER_NAV = [
   { label: '当院について', href: '/medical' },

@@ -13,6 +13,7 @@ import { AccessSection } from './components/AccessSection'
 import { SymptomsListPage } from './components/SymptomsListPage'
 import { SymptomDetailPage } from './components/SymptomDetailPage'
 import { MedicalPage } from './components/MedicalPage'
+import { ServicePage } from './components/ServicePage'
 import { getSymptomDetail } from './data/symptomDetails'
 
 export type Bindings = {
@@ -138,6 +139,26 @@ app.get('/medical', (c) => {
       title: '当院について',
       description:
         '金沢市の歯科医院メディカデンタルクリニックの「当院について」ページ。私たちの目指すもの、院長紹介、当院概要、施設・設備紹介、感染症対策、スタッフ紹介をご案内しています。',
+    }
+  )
+})
+
+// ---- 診療のご案内 ----
+app.get('/service', (c) => {
+  return c.render(
+    <>
+      <Header />
+      <ServicePage />
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: '診療のご案内',
+      description:
+        '金沢市の歯科医院メディカデンタルクリニックの「診療のご案内」ページ。ご予約方法やご持参いただくもの、診療の流れをご紹介しています。当院は原則予約制です。事前にご予約のうえご来院ください。',
     }
   )
 })
