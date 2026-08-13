@@ -9,6 +9,7 @@ export type BlogItem = {
   title: string
   category: string | null
   published_at: string
+  thumbnail_url: string | null
 }
 
 const formatDate = (dateStr: string) => {
@@ -61,7 +62,11 @@ export const BlogSection = ({ items }: { items: BlogItem[] }) => {
             <article class="blog-card">
               <a href={`/blog/${item.id}`}>
                 <div class="blog-card__thumb">
-                  <i class="fa-solid fa-tooth"></i>
+                  {item.thumbnail_url ? (
+                    <img src={item.thumbnail_url} alt={item.title} loading="lazy" />
+                  ) : (
+                    <i class="fa-solid fa-tooth"></i>
+                  )}
                 </div>
                 <div class="blog-card__body">
                   {item.category && <span class="blog-card__cat">{item.category}</span>}

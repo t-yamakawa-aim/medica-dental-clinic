@@ -5,6 +5,7 @@ export type BlogListItem = {
   title: string
   category: string | null
   published_at: string
+  thumbnail_url: string | null
 }
 
 type CategoryCount = { category: string; count: number }
@@ -62,7 +63,11 @@ export const BlogListPage = ({
               <article class="blog-archive-item">
                 <a href={`/blog/${item.id}`} class="blog-archive-item__link">
                   <div class="blog-archive-item__thumb">
-                    <i class="fa-solid fa-tooth"></i>
+                    {item.thumbnail_url ? (
+                      <img src={item.thumbnail_url} alt={item.title} loading="lazy" />
+                    ) : (
+                      <i class="fa-solid fa-tooth"></i>
+                    )}
                   </div>
                   <div class="blog-archive-item__body">
                     {item.category && <span class="blog-card__cat">{item.category}</span>}

@@ -6,6 +6,25 @@ export type BlogDetailItem = {
   body: string | null
   category: string | null
   published_at: string
+  thumbnail_url: string | null
+}
+
+// 本文中に ![説明文](画像URL) と書くと、その位置に横長サイズの写真を挿入できる。
+// それ以外の行は通常の段落として表示する。
+const IMAGE_LINE_RE = /^!\[([^\]]*)\]\(([^)]+)\)$/
+
+const renderBodyLine = (line: string, key: number) => {
+  const match = line.match(IMAGE_LINE_RE)
+  if (match) {
+    const [, alt, src] = match
+    return (
+      <figure class="blog-detail-page__figure" key={key}>
+        <img src={src} alt={alt || ''} loading="lazy" />
+        {alt && <figcaption>{alt}</figcaption>}
+      </figure>
+    )
+  }
+  return line ? <p key={key}>{line}</p> : <br key={key} />
 }
 
 type Props = {
@@ -34,8 +53,15 @@ export const BlogDetailPage = ({ item, prev, next }: Props) => {
           )}
           <p class="news-detail-page__date">{formatDate(item.published_at)}</p>
           <h1 class="news-detail-page__title">{item.title}</h1>
+
+          {item.thumbnail_url && (
+            <figure class="blog-detail-page__eyecatch">
+              <img src={item.thumbnail_url} alt={item.title} />
+            </figure>
+          )}
+
           <div class="news-detail-page__body">
-            {(item.body || '').split('\n').map((line) => (line ? <p>{line}</p> : <br />))}
+            {(item.body || '').split('\n').map((line, i) => renderBodyLine(line, i))}
           </div>
         </article>
 

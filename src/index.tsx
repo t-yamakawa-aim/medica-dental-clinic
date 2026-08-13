@@ -50,7 +50,7 @@ app.get('/api/blog', async (c) => {
   const { env } = c
   try {
     const { results } = await env.DB.prepare(
-      'SELECT id, title, category, published_at FROM blog_posts WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4'
+      'SELECT id, title, category, thumbnail_url, published_at FROM blog_posts WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4'
     ).all()
     return c.json({ items: results })
   } catch (e) {
@@ -192,7 +192,7 @@ app.get('/', async (c) => {
 
   try {
     const blogRes = await env.DB.prepare(
-      'SELECT id, title, category, published_at FROM blog_posts WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4'
+      'SELECT id, title, category, thumbnail_url, published_at FROM blog_posts WHERE is_published = 1 ORDER BY published_at DESC LIMIT 4'
     ).all<BlogItem>()
     blogItems = blogRes.results
   } catch (e) {
@@ -590,7 +590,7 @@ async function renderBlogList(
     totalCount = countRes?.cnt || 0
 
     const listRes = await env.DB.prepare(
-      `SELECT id, title, category, published_at FROM blog_posts ${whereClause} ORDER BY published_at DESC, id DESC LIMIT ? OFFSET ?`
+      `SELECT id, title, category, thumbnail_url, published_at FROM blog_posts ${whereClause} ORDER BY published_at DESC, id DESC LIMIT ? OFFSET ?`
     )
       .bind(...bindArgs, BLOG_PAGE_SIZE, offset)
       .all<BlogListItem>()
@@ -710,7 +710,7 @@ app.get('/blog/:id', async (c) => {
 
   try {
     item = await env.DB.prepare(
-      'SELECT id, title, body, category, published_at FROM blog_posts WHERE id = ? AND is_published = 1'
+      'SELECT id, title, body, category, thumbnail_url, published_at FROM blog_posts WHERE id = ? AND is_published = 1'
     )
       .bind(id)
       .first<BlogDetailItem>()
