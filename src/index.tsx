@@ -22,6 +22,9 @@ import { getSymptomDetail } from './data/symptomDetails'
 import { PrivacyPage } from './components/PrivacyPage'
 import { ReservePage } from './components/ReservePage'
 import { AdminReservePage } from './components/AdminReservePage'
+import { AdminDashboardPage } from './components/AdminDashboardPage'
+import { AdminNewsPage } from './components/AdminNewsPage'
+import { AdminBlogPage } from './components/AdminBlogPage'
 import { NewsListPage, type NewsListItem } from './components/NewsListPage'
 import { NewsDetailPage, type NewsDetailItem } from './components/NewsDetailPage'
 import { BlogListPage, type BlogListItem } from './components/BlogListPage'
@@ -29,6 +32,7 @@ import { BlogDetailPage, type BlogDetailItem } from './components/BlogDetailPage
 
 export type Bindings = {
   DB: D1Database
+  MEDIA: R2Bucket
   RESEND_API_KEY?: string
   RECRUIT_NOTIFY_EMAIL?: string
   ADMIN_RESERVE_USER?: string
@@ -285,8 +289,10 @@ app.post('/api/reserve', async (c) => {
   }
 })
 
-// ---- クリニック側: 予約枠管理API・管理画面をBasic認証で保護 ----
-const adminReserveAuth = async (c: any, next: any) => {
+// ---- クリニック側: 管理画面(予約枠・お知らせ・ブログ)・管理APIをBasic認証で保護 ----
+// 予約枠管理から使っていたシークレット(ADMIN_RESERVE_USER / ADMIN_RESERVE_PASSWORD)を
+// お知らせ・ブログ管理画面でも共通の管理者アカウントとして使い回す。
+const adminAuth = async (c: any, next: any) => {
   const { env } = c
   if (!env.ADMIN_RESERVE_PASSWORD) {
     return c.text(
@@ -300,9 +306,9 @@ const adminReserveAuth = async (c: any, next: any) => {
   })
   return auth(c, next)
 }
-app.use('/admin/reserve', adminReserveAuth)
-app.use('/admin/reserve/*', adminReserveAuth)
-app.use('/api/admin/reserve/*', adminReserveAuth)
+app.use('/admin', adminAuth)
+app.use('/admin/*', adminAuth)
+app.use('/api/admin/*', adminAuth)
 
 // ---- 管理用: 指定日の全枠＋予約者情報 ----
 app.get('/api/admin/reserve/slots', async (c) => {
@@ -393,6 +399,275 @@ app.post('/api/admin/reserve/slots/:id/cancel', async (c) => {
     return c.json({ ok: true })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ============================================================
+// クリニック側: お知らせ管理API（Basic認証は上の app.use('/api/admin/*', adminAuth) で保護済み）
+// ============================================================
+
+// ---- 一覧取得（非公開も含む・最新順） ----
+app.get('/api/admin/news', async (c) => {
+  const { env } = c
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT id, title, body, published_at, is_published FROM news ORDER BY published_at DESC, id DESC'
+    ).all()
+    return c.json({ ok: true, items: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 1件取得 ----
+app.get('/api/admin/news/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    const item = await env.DB.prepare(
+      'SELECT id, title, body, published_at, is_published FROM news WHERE id = ?'
+    )
+      .bind(id)
+      .first()
+    if (!item) {
+      return c.json({ ok: false, error: 'not_found' }, 404)
+    }
+    return c.json({ ok: true, item })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 新規作成 ----
+app.post('/api/admin/news', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => null)
+  if (!body || !body.title || !isValidDate(body.published_at)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    const result = await env.DB.prepare(
+      'INSERT INTO news (title, body, published_at, is_published) VALUES (?, ?, ?, ?)'
+    )
+      .bind(body.title, body.body || null, body.published_at, body.is_published === false ? 0 : 1)
+      .run()
+    return c.json({ ok: true, id: result.meta.last_row_id })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 更新 ----
+app.put('/api/admin/news/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  const body = await c.req.json().catch(() => null)
+  if (!Number.isInteger(id) || !body || !body.title || !isValidDate(body.published_at)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    await env.DB.prepare(
+      'UPDATE news SET title = ?, body = ?, published_at = ?, is_published = ? WHERE id = ?'
+    )
+      .bind(body.title, body.body || null, body.published_at, body.is_published === false ? 0 : 1, id)
+      .run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 削除 ----
+app.delete('/api/admin/news/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    await env.DB.prepare('DELETE FROM news WHERE id = ?').bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ============================================================
+// クリニック側: ブログ管理API（Basic認証は上の app.use('/api/admin/*', adminAuth) で保護済み）
+// ============================================================
+
+// ---- 一覧取得 ----
+app.get('/api/admin/blog', async (c) => {
+  const { env } = c
+  try {
+    const { results } = await env.DB.prepare(
+      'SELECT id, title, body, category, thumbnail_url, published_at, is_published FROM blog_posts ORDER BY published_at DESC, id DESC'
+    ).all()
+    return c.json({ ok: true, items: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 1件取得 ----
+app.get('/api/admin/blog/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    const item = await env.DB.prepare(
+      'SELECT id, title, body, category, thumbnail_url, published_at, is_published FROM blog_posts WHERE id = ?'
+    )
+      .bind(id)
+      .first()
+    if (!item) {
+      return c.json({ ok: false, error: 'not_found' }, 404)
+    }
+    return c.json({ ok: true, item })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 新規作成 ----
+app.post('/api/admin/blog', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => null)
+  if (!body || !body.title || !isValidDate(body.published_at)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    const result = await env.DB.prepare(
+      'INSERT INTO blog_posts (title, body, category, thumbnail_url, published_at, is_published) VALUES (?, ?, ?, ?, ?, ?)'
+    )
+      .bind(
+        body.title,
+        body.body || null,
+        body.category || null,
+        body.thumbnail_url || null,
+        body.published_at,
+        body.is_published === false ? 0 : 1
+      )
+      .run()
+    return c.json({ ok: true, id: result.meta.last_row_id })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 更新 ----
+app.put('/api/admin/blog/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  const body = await c.req.json().catch(() => null)
+  if (!Number.isInteger(id) || !body || !body.title || !isValidDate(body.published_at)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    await env.DB.prepare(
+      'UPDATE blog_posts SET title = ?, body = ?, category = ?, thumbnail_url = ?, published_at = ?, is_published = ? WHERE id = ?'
+    )
+      .bind(
+        body.title,
+        body.body || null,
+        body.category || null,
+        body.thumbnail_url || null,
+        body.published_at,
+        body.is_published === false ? 0 : 1,
+        id
+      )
+      .run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 削除 ----
+app.delete('/api/admin/blog/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    await env.DB.prepare('DELETE FROM blog_posts WHERE id = ?').bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ============================================================
+// クリニック側: 画像アップロードAPI（Cloudflare R2に保存）
+// ブログのサムネイル画像などに利用する。Basic認証は /api/admin/* で保護済み。
+// ============================================================
+const ALLOWED_IMAGE_TYPES: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+  'image/gif': 'gif',
+}
+const MAX_IMAGE_SIZE = 5 * 1024 * 1024 // 5MB
+
+app.post('/api/admin/upload-image', async (c) => {
+  const { env } = c
+  const contentType = c.req.header('content-type') || ''
+  if (!contentType.includes('multipart/form-data')) {
+    return c.json({ ok: false, error: 'invalid_content_type' }, 400)
+  }
+
+  try {
+    const form = await c.req.formData()
+    const file = form.get('file')
+    if (!file || typeof file === 'string') {
+      return c.json({ ok: false, error: 'file_required' }, 400)
+    }
+
+    const ext = ALLOWED_IMAGE_TYPES[file.type]
+    if (!ext) {
+      return c.json({ ok: false, error: 'unsupported_type' }, 400)
+    }
+    if (file.size > MAX_IMAGE_SIZE) {
+      return c.json({ ok: false, error: 'file_too_large' }, 400)
+    }
+
+    const key = `uploads/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.${ext}`
+    await env.MEDIA.put(key, await file.arrayBuffer(), {
+      httpMetadata: { contentType: file.type },
+    })
+
+    return c.json({ ok: true, url: `/media/${key}` })
+  } catch (e) {
+    return c.json({ ok: false, error: 'upload_failed' }, 500)
+  }
+})
+
+// ---- アップロードした画像の配信（R2から読み出し。キャッシュ付き） ----
+app.get('/media/*', async (c) => {
+  const { env } = c
+  const key = c.req.path.replace(/^\/media\//, '')
+  if (!key) {
+    return c.notFound()
+  }
+  try {
+    const object = await env.MEDIA.get(key)
+    if (!object) {
+      return c.notFound()
+    }
+    return new Response(object.body, {
+      headers: {
+        'Content-Type': object.httpMetadata?.contentType || 'application/octet-stream',
+        'Cache-Control': 'public, max-age=31536000, immutable',
+      },
+    })
+  } catch (e) {
+    return c.notFound()
   }
 })
 
@@ -504,9 +779,24 @@ app.get('/reserve', (c) => {
   )
 })
 
-// ---- クリニック側: 予約枠管理画面（画面はAPIと同じBasic認証ミドルウェアで保護済み） ----
+// ---- クリニック側: 管理トップ（画面はAPIと同じBasic認証ミドルウェアで保護済み） ----
+app.get('/admin', (c) => {
+  return c.html(<AdminDashboardPage />)
+})
+
+// ---- クリニック側: 予約枠管理画面 ----
 app.get('/admin/reserve', (c) => {
   return c.html(<AdminReservePage />)
+})
+
+// ---- クリニック側: お知らせ管理画面 ----
+app.get('/admin/news', (c) => {
+  return c.html(<AdminNewsPage />)
+})
+
+// ---- クリニック側: ブログ管理画面 ----
+app.get('/admin/blog', (c) => {
+  return c.html(<AdminBlogPage />)
 })
 
 // ---- プライバシーポリシー ----

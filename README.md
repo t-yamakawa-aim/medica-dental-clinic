@@ -17,11 +17,15 @@
   - スマホ用固定フッターナビ（Web予約・電話・アクセス）
   - プライバシーポリシーページ
   - Web予約システム（初診専用・1時間枠、患者向け予約フォーム＋クリニック向け予約枠管理画面）
+  - お知らせ・ブログ管理画面（クリニック側でブラウザから記事の追加・編集・削除、サムネイル画像アップロードが可能）
 
 ## URLs
 - **開発中プレビュー**: PM2 + wrangler pages dev（ローカルサンドボックス）
 - **本番URL**: https://medica-dental-clinic.pages.dev
-- **Web予約管理画面（本番）**: https://medica-dental-clinic.pages.dev/admin/reserve（Basic認証。ID/パスワードはCloudflareのシークレットとして設定済み。忘れた場合は下記コマンドで再設定可能）
+- **クリニック管理トップ（本番）**: https://medica-dental-clinic.pages.dev/admin（Basic認証。ID/パスワードはCloudflareのシークレットとして設定済み。忘れた場合は下記コマンドで再設定可能）
+  - `/admin/reserve` — Web予約枠管理
+  - `/admin/news` — お知らせ管理
+  - `/admin/blog` — ブログ管理（サムネイル画像アップロード対応）
 
 ## 現在完成している機能
 - [x] トップページ全体のレイアウト・デザイン実装
@@ -44,6 +48,10 @@
   - `/reserve` — 患者向け予約ウィザード（①日付選択（カレンダー、空きがある日のみ選択可）→②時間選択（その日の空き枠一覧）→③お客様情報入力（氏名・電話番号は必須、フリガナ・メール・生年月日・症状・備考は任意）→④予約完了）
   - `/admin/reserve` — クリニック向け予約枠管理画面（Basic認証で保護）。日付ナビ、単発での枠追加（開始時刻を15分間隔で指定、自動で1時間後を終了時刻に設定）、指定した時間帯を1時間ごとに一括追加、その日の枠一覧表示（予約が入っている枠は患者情報を表示しキャンセル可能、空き枠は削除可能）
   - 予約確定処理はダブルブッキング防止のため「空いている場合のみ更新（`status='open'`条件付きUPDATE）」というレース対策済みのロジックで実装
+- [x] **クリニック管理トップ（`/admin`）・お知らせ管理（`/admin/news`）・ブログ管理（`/admin/blog`）**（いずれもBasic認証で保護）
+  - お知らせ・ブログとも一覧表示（非公開記事も薄く表示）、新規追加・編集・削除がブラウザ上のモーダルフォームから可能
+  - 公開/非公開の切り替えチェックボックス（非公開にするとサイトの一覧・トップページから即時非表示）
+  - ブログのみサムネイル画像のアップロード機能付き（Cloudflare R2に保存。JPEG/PNG/WEBP/GIF、5MBまで）
 - [x] 「当院について」ページ（`/medical`）：1枚物構成、各セクションにid付与、グローバルナビ・トップページからのアンカーリンク遷移に対応
   - 私たちの目指すもの（3つの約束）／院長紹介（挨拶・経歴・所属研究会・講演実績・修了コース）／当院概要／施設・設備紹介／当院の感染症対策／スタッフ紹介
 - [x] 「診療のご案内」ページ（`/service`）：1枚物構成、各セクションにid付与、グローバルナビ・トップページ・フッターナビからのアンカーリンク遷移に対応
@@ -81,11 +89,26 @@
 | GET | `/api/reserve/available-dates` | 予約可能な日付一覧取得（空き枠が1つ以上ある今日以降の日付、JSON） |
 | GET | `/api/reserve/slots?date=YYYY-MM-DD` | 指定日の空き枠一覧取得（JSON） |
 | POST | `/api/reserve` | 予約登録（JSON: slot_id, name, phone は必須。kana, email, birth_date, symptom, message は任意） |
+| GET | `/admin` | 【Basic認証必須】クリニック管理トップ（予約枠・お知らせ・ブログ管理への入り口） |
 | GET | `/admin/reserve` | 【Basic認証必須】クリニック向け予約枠管理画面 |
 | GET | `/api/admin/reserve/slots?date=YYYY-MM-DD` | 【Basic認証必須】指定日の全枠＋予約者情報取得（JSON） |
 | POST | `/api/admin/reserve/slots` | 【Basic認証必須】枠を新規追加（JSON: slot_date, start_time。終了時刻は自動で+1時間） |
 | DELETE | `/api/admin/reserve/slots/:id` | 【Basic認証必須】枠を削除（予約が入っている場合は409エラーで拒否） |
 | POST | `/api/admin/reserve/slots/:id/cancel` | 【Basic認証必須】予約をキャンセルし枠を空きに戻す |
+| GET | `/admin/news` | 【Basic認証必須】お知らせ管理画面 |
+| GET | `/api/admin/news` | 【Basic認証必須】お知らせ一覧取得（非公開含む全件、JSON） |
+| GET | `/api/admin/news/:id` | 【Basic認証必須】お知らせ1件取得（JSON） |
+| POST | `/api/admin/news` | 【Basic認証必須】お知らせ新規作成（JSON: title, published_at必須。body, is_published任意） |
+| PUT | `/api/admin/news/:id` | 【Basic認証必須】お知らせ更新 |
+| DELETE | `/api/admin/news/:id` | 【Basic認証必須】お知らせ削除 |
+| GET | `/admin/blog` | 【Basic認証必須】ブログ管理画面 |
+| GET | `/api/admin/blog` | 【Basic認証必須】ブログ一覧取得（非公開含む全件、JSON） |
+| GET | `/api/admin/blog/:id` | 【Basic認証必須】ブログ1件取得（JSON） |
+| POST | `/api/admin/blog` | 【Basic認証必須】ブログ新規作成（JSON: title, published_at必須。body, category, thumbnail_url, is_published任意） |
+| PUT | `/api/admin/blog/:id` | 【Basic認証必須】ブログ更新 |
+| DELETE | `/api/admin/blog/:id` | 【Basic認証必須】ブログ削除 |
+| POST | `/api/admin/upload-image` | 【Basic認証必須】画像アップロード（multipart/form-data、フィールド名`file`。JPEG/PNG/WEBP/GIF、5MBまで。Cloudflare R2に保存し`{ ok, url }`を返す） |
+| GET | `/media/*` | アップロードした画像の配信（認証不要。R2から読み出し、長期キャッシュ付き） |
 | GET | `/recruit` | 採用情報（1枚物、`#message` `#catch` `#jobs` `#tour` の各セクションIDにアンカー遷移可能、`#job-dentist` `#job-hygienist` `#job-assistant` で各職種タブへ遷移可能） |
 | GET | `/recruit/entry` | 採用エントリーフォーム |
 | GET | `/recruit/entry/thanks` | 応募完了ページ |
@@ -120,6 +143,7 @@
   - `reservation_slots` — Web予約の予約枠（id, slot_date, start_time, end_time, status['open'/'booked'], created_at。`(slot_date, start_time)`にUNIQUE制約あり）
   - `reservations` — Web予約の予約者情報（id, slot_id[UNIQUE], name, kana, phone, email, birth_date, symptom, message, created_at, cancelled_at）
 - **マイグレーション**: `migrations/0001_initial_schema.sql`, `migrations/0002_contact.sql`, `migrations/0003_recruit_entries.sql`, `migrations/0004_reservations.sql`
+- **ファイルストレージ**: Cloudflare R2（バインディング名`MEDIA`、バケット名`medica-dental-clinic-media`）。ブログのサムネイル画像アップロード先として使用
 - **シードデータ**: `seed.sql`（お知らせ23件・ブログ10件。年別/月別アーカイブとページネーションの動作確認ができるよう複数年・複数カテゴリのサンプルデータを用意）
 - **ローカル開発**: `--local`フラグでSQLiteをローカルに自動生成（`.wrangler/state/v3/d1`）
 
@@ -210,7 +234,7 @@ Basic認証で保護された管理画面から、以下の操作が可能です
 - **年別アーカイブ** → `WHERE substr(published_at,1,4) = ?`（お知らせ）
 - **月別アーカイブ・カテゴリ集計** → `GROUP BY substr(published_at,1,7)` / `GROUP BY category`でサイドバーの件数も自動集計（ブログ）
 - WordPress/PHPよりもCloudflareのエッジで高速に配信でき、サーバー管理・プラグイン更新の手間も不要という利点があります。
-- 記事の追加・編集は現時点では`wrangler d1 execute`コマンドでのSQL直接実行、または`seed.sql`への追記で行います（下記「未実装の機能」に記載の管理画面が実装されればブラウザから投稿できるようになります）。
+- 記事の追加・編集は`/admin/news`（お知らせ）・`/admin/blog`（ブログ）の管理画面からブラウザ上で行えます（Basic認証で保護）。SQL直接実行や`seed.sql`への追記も引き続き利用可能です。
 
 ## お知らせ・ブログ本文への写真・リンク・ボタンの入れ方
 `news.body` / `blog_posts.body` のテキストに、以下の専用記法を1行だけで書くと、その位置に写真・リンク・ボタンが挿入されます（それ以外の行は通常の段落として表示）。
@@ -241,21 +265,19 @@ INSERT INTO blog_posts (title, body, category, thumbnail_url, published_at) VALU
 ```
 
 - 画像URLは外部の画像ホスティング（Cloudflare R2、Genspark AI Drive公開URL等）を利用する想定です（Cloudflare Pagesはランタイムでのファイルアップロード保存に対応していないため）。
-- 現時点では記事投稿・画像URLの設定は`wrangler d1 execute`コマンドでのSQL実行、または`seed.sql`への追記で行います。ブラウザから直接、写真をアップロードして投稿できる管理画面は「未実装の機能」に記載の通り、今後の実装予定です。
+- サムネイル画像（`thumbnail_url`）は`/admin/blog`の管理画面から直接アップロードでき、Cloudflare R2（バケット名`medica-dental-clinic-media`）に保存されます。本文中の`![説明文](画像URL)`用の画像は、アップロードした画像のURL（`/media/...`）を使うか、外部の画像ホスティングURLを利用してください。
 
 ## 未実装の機能・今後の開発予定
 1. **残りの下層ページの実装**（ユーザーからの情報提供待ち）
    - `/contact`（お問い合わせページ、フォームUI）※症状別で探すページは6/6完了、プライバシーポリシー・Web予約は実装完了
-2. **お知らせ・ブログの管理画面**（簡易パスワード保護付きの投稿・編集・削除UI。現在はSQL直接実行でのみ投稿可能）
-3. **本番Cloudflare D1データベースの作成・マイグレーション適用**
-4. **本番Cloudflare Pagesへのデプロイ**
-5. **お問い合わせフォームのフロントエンドUI実装**（現在APIのみ実装済み）
-6. **診療カレンダーのGoogleカレンダー連携**（現在は静的な休診日案内のみ）
-7. **RESEND_API_KEYの設定**（採用エントリーメール通知を実際に有効化するため。上記「メール通知機能について」参照）
-8. **Web予約の確認メール送信機能**（現在は予約完了時のメール・SMS通知は行っていません。ご希望であればResend APIで実装可能）
-9. **本番用ADMIN_RESERVE_USER / ADMIN_RESERVE_PASSWORDの設定**（下記「Web予約管理画面のBasic認証について」参照）
+2. **メンテナンスコース45分の追加**（Web予約システムに新しい予約枠種別として追加予定）
+3. **本番Cloudflare R2バケットの作成**（`medica-dental-clinic-media`。現在のCloudflare APIトークンにR2権限（Workers R2 Storage:Edit）が不足しているため、トークンへの権限追加が必要）
+4. **お問い合わせフォームのフロントエンドUI実装**（現在APIのみ実装済み）
+5. **診療カレンダーのGoogleカレンダー連携**（現在は静的な休診日案内のみ）
+6. **RESEND_API_KEYの設定**（採用エントリーメール通知を実際に有効化するため。上記「メール通知機能について」参照）
+7. **Web予約の確認メール送信機能**（現在は予約完了時のメール・SMS通知は行っていません。ご希望であればResend APIで実装可能）
 
 ## デプロイ状況
-- **プラットフォーム**: Cloudflare Pages（予定）
-- **現在の状態**: ❌ 未デプロイ（ローカル開発環境でのみ動作確認済み）
-- **最終更新**: 2026-08-13（プライバシーポリシー`/privacy`とWeb予約システム`/reserve`・`/admin/reserve`を追加実装。D1マイグレーション`0004_reservations.sql`を追加し、`reservation_slots`/`reservations`テーブルを作成。全ページの`/contact`リンクを`/reserve`に変更。実装中にHonoミドルウェアのワイルドカードパターン誤りにより管理画面が未認証でアクセス可能になる不具合を発見・修正済み）
+- **プラットフォーム**: Cloudflare Pages
+- **現在の状態**: ✅ 本番デプロイ済み（Web予約システムまで稼働確認済み）／お知らせ・ブログ管理画面＋画像アップロード機能はローカル開発環境で動作確認済み、本番反映は次回デプロイ時
+- **最終更新**: 2026-08-13（クリニック管理トップ`/admin`・お知らせ管理`/admin/news`・ブログ管理`/admin/blog`を追加実装。ブログのサムネイル画像アップロード機能（Cloudflare R2保存）を実装。Basic認証の保護範囲を`/admin`配下・`/api/admin`配下全体に統一）

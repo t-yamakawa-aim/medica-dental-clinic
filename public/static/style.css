@@ -3704,3 +3704,235 @@ h1, h2, h3, h4, p {
     width: 100%;
   }
 }
+
+/* ===== 管理画面: 共通ナビゲーション ===== */
+.admin-nav {
+  max-width: 800px;
+  margin: 0 auto 16px;
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.admin-nav__link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: #fff;
+  color: #555;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: background 0.15s, color 0.15s;
+}
+.admin-nav__link:hover {
+  background: #eef2f5;
+}
+.admin-nav__link.is-active {
+  background: var(--color-sub);
+  color: #fff;
+}
+
+/* ===== 管理画面: 管理トップ（ダッシュボード） ===== */
+.admin-dashboard__cards {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 20px;
+}
+.admin-dashboard__card {
+  display: block;
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px 22px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  text-decoration: none;
+  color: inherit;
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+.admin-dashboard__card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.1);
+}
+.admin-dashboard__card i {
+  font-size: 28px;
+  color: var(--color-main);
+  margin-bottom: 12px;
+  display: block;
+}
+.admin-dashboard__card h2 {
+  font-size: 16px;
+  color: var(--color-sub);
+  margin-bottom: 8px;
+}
+.admin-dashboard__card p {
+  font-size: 13px;
+  color: #777;
+  line-height: 1.7;
+}
+
+/* ===== 管理画面: お知らせ・ブログ共通リスト ===== */
+.admin-post__list {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 16px;
+}
+.admin-post__item {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 16px;
+  border: 1px solid #e5e8eb;
+  border-radius: 8px;
+}
+.admin-post__item.is-hidden {
+  opacity: 0.55;
+  background: #f7f7f7;
+}
+.admin-post__item-thumb {
+  width: 56px;
+  height: 56px;
+  object-fit: cover;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.admin-post__item-main {
+  flex: 1;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+}
+.admin-post__date {
+  color: #888;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+.admin-post__category {
+  background: #eef2f5;
+  color: var(--color-sub);
+  font-size: 11px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.admin-post__title {
+  font-weight: 600;
+  color: #333;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.admin-post__badge {
+  background: #999;
+  color: #fff;
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  flex-shrink: 0;
+}
+.admin-post__item-actions {
+  display: flex;
+  gap: 8px;
+  flex-shrink: 0;
+}
+
+/* ===== 管理画面: モーダル(お知らせ・ブログ編集) ===== */
+.admin-modal {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  z-index: 100;
+}
+.admin-modal__box {
+  background: #fff;
+  border-radius: 12px;
+  padding: 28px;
+  max-width: 560px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+.admin-modal__box h2 {
+  font-size: 18px;
+  color: var(--color-sub);
+  margin-bottom: 18px;
+}
+.admin-modal__box form {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+.admin-modal__box label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #555;
+  margin-top: 12px;
+}
+.admin-modal__box input[type='text'],
+.admin-modal__box input[type='date'],
+.admin-modal__box textarea {
+  border: 1px solid #ccd2d6;
+  border-radius: 6px;
+  padding: 10px 12px;
+  font-size: 14px;
+  font-family: inherit;
+  width: 100%;
+}
+.admin-modal__box textarea {
+  resize: vertical;
+}
+.admin-required {
+  color: #d9534f;
+  font-size: 11px;
+  margin-left: 4px;
+  font-weight: 400;
+}
+.admin-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: 400 !important;
+  margin-top: 14px !important;
+}
+.admin-checkbox input {
+  width: auto;
+}
+.admin-post__thumb-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.admin-post__thumb-preview {
+  width: 80px;
+  height: 80px;
+  object-fit: cover;
+  border-radius: 6px;
+  border: 1px solid #e5e8eb;
+}
+.admin-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 22px;
+}
+
+@media (max-width: 767px) {
+  .admin-dashboard__cards {
+    grid-template-columns: 1fr;
+  }
+  .admin-post__item {
+    flex-wrap: wrap;
+  }
+  .admin-post__item-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}

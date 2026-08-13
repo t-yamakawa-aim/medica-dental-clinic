@@ -1,3 +1,5 @@
+import { AdminNav } from './AdminLayout'
+
 export const AdminReservePage = () => {
   return (
     <html lang="ja">
@@ -14,6 +16,7 @@ export const AdminReservePage = () => {
       </head>
       <body>
         <div class="admin-reserve">
+          <AdminNav active="reserve" />
           <header class="admin-reserve__header">
             <h1><i class="fa-regular fa-calendar-check"></i> Web予約枠管理</h1>
             <p class="admin-reserve__note">初診専用・1時間枠（開始時刻は15分間隔で登録できます）</p>

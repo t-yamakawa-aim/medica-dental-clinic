@@ -12,5 +12,11 @@
       "database_name": "webapp-production",
       "database_id": "2193313d-81ba-4aca-9463-c53d662d64fd"
     }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "MEDIA",
+      "bucket_name": "medica-dental-clinic-media"
+    }
   ]
 }
