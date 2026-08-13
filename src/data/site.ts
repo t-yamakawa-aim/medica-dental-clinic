@@ -84,39 +84,50 @@ export const NAV_ITEMS: NavItem[] = [
 export type SymptomItem = {
   icon: string
   title: string
+  titleShort?: string
+  slug: string
   href: string
+  /** 詳細ページを実装済みかどうか */
+  ready?: boolean
 }
 
 export const SYMPTOMS: SymptomItem[] = [
   {
     icon: 'fa-solid fa-tooth',
     title: '痛い・しみる・腫れた・血が出た・歯がぐらぐらする',
-    href: '/symptoms#pain',
-  },
-  {
-    icon: 'fa-solid fa-teeth-open',
-    title: '歯や被せ物が欠けた・取れた',
-    href: '/symptoms#broken',
+    slug: 'pain',
+    href: '/symptoms/pain',
+    ready: true,
   },
   {
     icon: 'fa-solid fa-face-smile',
     title: '審美・歯並び・ホワイトニング',
-    href: '/symptoms#beauty',
+    slug: 'beauty',
+    href: '/symptoms/beauty',
+  },
+  {
+    icon: 'fa-solid fa-teeth-open',
+    title: '歯や被せ物が欠けた・取れた',
+    slug: 'broken',
+    href: '/symptoms/broken',
   },
   {
     icon: 'fa-solid fa-teeth',
     title: '噛み合わせが悪い・歯が無い（少ない）',
-    href: '/symptoms#bite',
+    slug: 'bite',
+    href: '/symptoms/bite',
   },
   {
     icon: 'fa-solid fa-clipboard-check',
     title: 'メンテナンスを受けたい・お口の状況を知りたい',
-    href: '/symptoms#maintenance',
+    slug: 'maintenance',
+    href: '/symptoms/maintenance',
   },
   {
     icon: 'fa-solid fa-comment-medical',
     title: 'その他のお悩み・ご相談',
-    href: '/symptoms#other',
+    slug: 'other',
+    href: '/symptoms/other',
   },
 ]
 

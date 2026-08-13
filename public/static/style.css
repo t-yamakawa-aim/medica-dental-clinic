@@ -1236,3 +1236,411 @@ h1, h2, h3, h4, p {
     gap: 4px;
   }
 }
+
+/* =========================================================
+   Page Header (下層ページ共通ヘッダー・パンくず)
+   ========================================================= */
+.page-header {
+  position: relative;
+  height: 260px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-size: cover;
+  background-position: center;
+  background-color: var(--color-sub);
+}
+
+.page-header__overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(26, 53, 82, 0.55), rgba(26, 53, 82, 0.72));
+}
+
+.page-header__inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  color: #fff;
+}
+
+.page-header__title-ja {
+  font-size: 32px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  letter-spacing: 0.05em;
+}
+
+.page-header__title-en {
+  display: block;
+  font-family: var(--font-en);
+  font-size: 13px;
+  letter-spacing: 0.2em;
+  opacity: 0.85;
+}
+
+.breadcrumbs {
+  background: #f5f8fa;
+  border-bottom: 1px solid var(--color-border);
+}
+
+.breadcrumbs__list {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 6px;
+  padding: 12px 0;
+  font-size: 13px;
+  color: #777;
+}
+
+.breadcrumbs__item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breadcrumbs__item a {
+  color: var(--color-main);
+}
+.breadcrumbs__item a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumbs__sep {
+  font-size: 10px;
+  color: #aaa;
+}
+
+/* 下層ページの上下余白共通クラス */
+.section_pdg {
+  padding: 64px 0;
+}
+
+/* =========================================================
+   Symptoms List Page (症状別で探す：一覧)
+   ========================================================= */
+.symptoms-list-page {
+  padding-top: 72px;
+  padding-bottom: 96px;
+}
+
+.symptoms-list-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.symptoms-list-card {
+  position: relative;
+  background: #fff;
+  border: 1px solid var(--color-border);
+  border-radius: 16px;
+  padding: 36px 20px;
+  text-align: center;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+.symptoms-list-card:hover {
+  transform: translateY(-6px);
+  box-shadow: 0 10px 28px rgba(0, 133, 191, 0.18);
+  border-color: var(--color-main);
+}
+
+.symptoms-list-card__icon {
+  width: 72px;
+  height: 72px;
+  margin: 0 auto 18px;
+  border-radius: 50%;
+  background: var(--color-bg-blue);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: var(--color-main);
+}
+
+.symptoms-list-card__title {
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--color-sub);
+  line-height: 1.7;
+}
+
+.symptoms-list-card__badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  background: var(--color-accent);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 10px;
+  border-radius: 999px;
+}
+
+/* =========================================================
+   Symptom Detail Page (症状別詳細ページ)
+   ========================================================= */
+.symptom-detail__intro {
+  padding-bottom: 32px;
+}
+
+.symptom-detail__title {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-sub);
+  text-align: center;
+  line-height: 1.6;
+  margin-bottom: 32px;
+}
+
+.symptom-detail__lead p {
+  margin-bottom: 16px;
+  color: #444;
+  font-size: 15px;
+  line-height: 1.9;
+}
+
+.symptom-detail__jump-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 40px;
+}
+
+.symptom-detail__jump-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  padding: 16px 12px;
+  border-radius: 999px;
+  background: var(--color-main);
+  color: #fff;
+  font-weight: 600;
+  font-size: 14px;
+  transition: background 0.25s ease, transform 0.2s ease;
+}
+.symptom-detail__jump-btn:hover {
+  background: var(--color-main-dark);
+  transform: translateY(-2px);
+}
+
+.symptom-detail__causes-heading {
+  padding-top: 0;
+  padding-bottom: 0;
+}
+
+.symptom-detail__section-title {
+  text-align: center;
+  font-size: 26px;
+  font-weight: 700;
+  color: var(--color-sub);
+  position: relative;
+  padding-bottom: 16px;
+}
+.symptom-detail__section-title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: var(--color-main);
+  border-radius: 2px;
+}
+
+.symptom-detail__cause {
+  padding: 48px 0;
+  scroll-margin-top: 100px;
+}
+.symptom-detail__cause:nth-child(odd) {
+  background: var(--color-bg-blue);
+}
+
+.symptom-detail__cause-title {
+  text-align: center;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 28px;
+}
+
+.symptom-detail__cause-title-sub {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #777;
+  margin-top: 4px;
+}
+
+.symptom-detail__cause-box {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+
+.symptom-detail__cause-lead {
+  color: #444;
+  font-size: 15px;
+  line-height: 1.9;
+  margin-bottom: 24px;
+}
+
+.symptom-detail__cause-image {
+  margin: 0 0 24px;
+  text-align: center;
+}
+.symptom-detail__cause-image img {
+  max-width: 480px;
+  width: 100%;
+  border-radius: 12px;
+  margin: 0 auto;
+}
+
+.symptom-detail__treatment {
+  border-top: 1px dashed var(--color-border);
+  padding-top: 24px;
+  margin-bottom: 24px;
+}
+
+.symptom-detail__treatment-heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-main);
+  margin-bottom: 16px;
+}
+
+.symptom-detail__treatment-block {
+  margin-bottom: 16px;
+}
+.symptom-detail__treatment-block:last-child {
+  margin-bottom: 0;
+}
+
+.symptom-detail__treatment-sub {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 8px;
+}
+
+.symptom-detail__treatment-block p {
+  color: #444;
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+.symptom-detail__table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 8px;
+  font-size: 14px;
+}
+.symptom-detail__table th,
+.symptom-detail__table td {
+  border: 1px solid var(--color-border);
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+.symptom-detail__table th {
+  width: 30%;
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 600;
+  text-align: center;
+  white-space: nowrap;
+}
+.symptom-detail__table td {
+  color: #444;
+  line-height: 1.8;
+}
+
+.symptom-detail__note {
+  margin-top: 16px;
+  font-size: 13.5px;
+  color: #777;
+}
+
+.symptom-detail__cta {
+  text-align: center;
+}
+
+.symptom-detail__cta-text {
+  color: #444;
+  margin-bottom: 24px;
+}
+
+.symptom-detail__cta-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+/* =========================================================
+   Symptoms / Page Header - レスポンシブ
+   ========================================================= */
+@media (max-width: 900px) {
+  .symptoms-list-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .symptom-detail__jump-buttons {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 767px) {
+  .page-header {
+    height: 180px;
+  }
+  .page-header__title-ja {
+    font-size: 24px;
+  }
+
+  .symptoms-list-page {
+    padding-top: 48px;
+    padding-bottom: 64px;
+  }
+  .symptoms-list-card {
+    padding: 24px 14px;
+  }
+  .symptoms-list-card__icon {
+    width: 56px;
+    height: 56px;
+    font-size: 24px;
+    margin-bottom: 12px;
+  }
+  .symptoms-list-card__title {
+    font-size: 13px;
+  }
+
+  .symptom-detail__title {
+    font-size: 22px;
+  }
+  .symptom-detail__jump-buttons {
+    grid-template-columns: 1fr 1fr;
+  }
+  .symptom-detail__jump-btn {
+    font-size: 13px;
+    padding: 14px 8px;
+  }
+  .symptom-detail__cause-box {
+    padding: 20px;
+  }
+  .symptom-detail__cause-title {
+    font-size: 19px;
+  }
+  .symptom-detail__table th {
+    width: 34%;
+    font-size: 12.5px;
+  }
+}

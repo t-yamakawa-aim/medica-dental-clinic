@@ -10,6 +10,9 @@ import { SymptomsSection } from './components/SymptomsSection'
 import { FacilitySection } from './components/FacilitySection'
 import { RecruitSection } from './components/RecruitSection'
 import { AccessSection } from './components/AccessSection'
+import { SymptomsListPage } from './components/SymptomsListPage'
+import { SymptomDetailPage } from './components/SymptomDetailPage'
+import { getSymptomDetail } from './data/symptomDetails'
 
 export type Bindings = {
   DB: D1Database
@@ -115,6 +118,71 @@ app.get('/', async (c) => {
       </a>
     </>,
     { title: undefined }
+  )
+})
+
+// ---- 症状別で探す：一覧ページ ----
+app.get('/symptoms', (c) => {
+  return c.render(
+    <>
+      <Header />
+      <main id="top">
+        <SymptomsListPage />
+      </main>
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: '症状別で探す',
+      description:
+        '虫歯・矯正・インプラント治療など、メンテナンスや審美のお悩みならメディカデンタルクリニック(石川県金沢市)へ。症状別に治療方法をご紹介しています。お気軽にご相談ください。',
+    }
+  )
+})
+
+// ---- 症状別で探す：詳細ページ ----
+app.get('/symptoms/:slug', (c) => {
+  const slug = c.req.param('slug')
+  const detail = getSymptomDetail(slug)
+
+  if (!detail) {
+    return c.render(
+      <>
+        <Header />
+        <main id="top">
+          <div class="container container-sm section_pdg" style="text-align:center;">
+            <h1 class="section-title-lg">準備中です</h1>
+            <p style="margin-bottom:32px;">このページは現在準備中です。恐れ入りますが、症状別一覧ページよりお探しください。</p>
+            <a href="/symptoms" class="btn btn-primary">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>症状別で探すトップへ</span>
+            </a>
+          </div>
+        </main>
+        <AccessSection />
+        <Footer />
+        <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+          <i class="fa-solid fa-arrow-up"></i>
+        </a>
+      </>,
+      { title: '準備中' }
+    )
+  }
+
+  return c.render(
+    <>
+      <Header />
+      <SymptomDetailPage detail={detail} />
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    { title: detail.title, description: detail.metaDescription }
   )
 })
 
