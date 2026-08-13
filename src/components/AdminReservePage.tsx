@@ -46,6 +46,51 @@ export const AdminReservePage = () => {
               </div>
             </section>
 
+            {/* ---- スタッフの休み管理パネル（日付・時間帯単位） ---- */}
+            <section class="admin-reserve__panel admin-reserve__panel--timeoff">
+              <h2 class="admin-reserve__panel-title"><i class="fa-solid fa-calendar-xmark"></i> スタッフの休み管理</h2>
+              <p class="admin-reserve__note">
+                有給休暇や午後から出勤など、日付・時間帯単位でお休みを登録できます。終日休みの場合は「開始・終了時刻」を空欄のままにしてください。
+              </p>
+
+              <div class="admin-timeoff__add-form">
+                <div class="admin-timeoff__field">
+                  <label for="admin-timeoff-hygienist">スタッフ</label>
+                  <select id="admin-timeoff-hygienist"></select>
+                </div>
+                <div class="admin-timeoff__field">
+                  <label for="admin-timeoff-date">日付</label>
+                  <input type="date" id="admin-timeoff-date" />
+                </div>
+                <div class="admin-timeoff__field admin-timeoff__field--checkbox">
+                  <label>
+                    <input type="checkbox" id="admin-timeoff-allday" checked />
+                    終日休み
+                  </label>
+                </div>
+                <div id="admin-timeoff-time-range" class="admin-timeoff__field admin-timeoff__field--range" style="display:none;">
+                  <label>時間帯</label>
+                  <span class="admin-timeoff__range-inputs">
+                    <input type="time" id="admin-timeoff-start" step="900" value="10:00" />
+                    <span>〜</span>
+                    <input type="time" id="admin-timeoff-end" step="900" value="12:00" />
+                  </span>
+                </div>
+                <div class="admin-timeoff__field">
+                  <label for="admin-timeoff-reason">理由（任意）</label>
+                  <input type="text" id="admin-timeoff-reason" placeholder="例：有給休暇、通院 など" />
+                </div>
+                <button type="button" id="admin-timeoff-add-btn" class="btn btn-secondary btn-sm">
+                  <i class="fa-solid fa-plus"></i> 休みを追加
+                </button>
+                <span id="admin-timeoff-msg" class="admin-reserve__msg"></span>
+              </div>
+
+              <div id="admin-timeoff-list" class="admin-timeoff__list">
+                <p class="admin-reserve__loading">読み込み中...</p>
+              </div>
+            </section>
+
             {/* ---- 予約枠管理パネル ---- */}
             <section class="admin-reserve__panel">
               <div class="admin-reserve__course-select">
@@ -92,6 +137,53 @@ export const AdminReservePage = () => {
               </div>
             </section>
           </main>
+        </div>
+
+        {/* ---- 受付予約登録モーダル（2回目以降の方などをスタッフが直接登録） ---- */}
+        <div id="admin-book-modal" class="admin-book-modal" style="display:none;">
+          <div class="admin-book-modal__overlay" id="admin-book-modal-overlay"></div>
+          <div class="admin-book-modal__box">
+            <h3 class="admin-book-modal__title"><i class="fa-solid fa-user-plus"></i> 受付での予約登録</h3>
+            <p class="admin-book-modal__slot-info" id="admin-book-modal-slot-info"></p>
+
+            <form id="admin-book-form" class="admin-book-form">
+              <div class="admin-book-form__group">
+                <label>お名前 <span class="admin-book-form__req">必須</span></label>
+                <input type="text" id="admin-book-name" placeholder="山田 太郎" required />
+              </div>
+              <div class="admin-book-form__group">
+                <label>フリガナ</label>
+                <input type="text" id="admin-book-kana" placeholder="ヤマダ タロウ" />
+              </div>
+              <div class="admin-book-form__group">
+                <label>電話番号 <span class="admin-book-form__req">必須</span></label>
+                <input type="tel" id="admin-book-phone" placeholder="09012345678" required />
+              </div>
+              <div class="admin-book-form__group">
+                <label>メールアドレス</label>
+                <input type="email" id="admin-book-email" placeholder="example@example.com" />
+              </div>
+              <div class="admin-book-form__group">
+                <label>生年月日</label>
+                <input type="date" id="admin-book-birth" />
+              </div>
+              <div class="admin-book-form__group">
+                <label>症状・ご相談内容</label>
+                <input type="text" id="admin-book-symptom" placeholder="例：歯が痛い、詰め物が取れた など" />
+              </div>
+              <div class="admin-book-form__group">
+                <label>備考</label>
+                <textarea id="admin-book-message" rows={3}></textarea>
+              </div>
+              <div id="admin-book-form-error" class="admin-book-form__error" style="display:none;"></div>
+              <div class="admin-book-form__actions">
+                <button type="button" id="admin-book-cancel-btn" class="btn btn-outline btn-sm">キャンセル</button>
+                <button type="submit" id="admin-book-submit-btn" class="btn btn-primary btn-sm">
+                  <i class="fa-regular fa-calendar-check"></i> この内容で登録する
+                </button>
+              </div>
+            </form>
+          </div>
         </div>
 
         <script src="/static/admin-reserve.js"></script>

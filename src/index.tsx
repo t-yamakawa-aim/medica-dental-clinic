@@ -203,6 +203,35 @@ const addMinutes = (time: string, minutes: number): string => {
 
 const isValidDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)
 const isValidTime = (s: unknown): s is string => typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)
+
+// 歯科衛生士の「日付・時間帯単位の休み」を考慮したSQL条件（NOT EXISTS句）を生成する。
+// hygienist_time_off に、対象枠(slot_date, start_time〜end_time)と重なる休みがあれば除外する。
+// - start_time/end_timeが両方NULLの休み = 終日休み
+// - それ以外は時間帯の重複判定（開始 < 相手の終了 AND 終了 > 相手の開始）
+// - hygienist_id が NULL の枠（院長担当の初診など）は対象外＝常に通過する
+const notOnTimeOffSql = (alias: string): string => `
+  NOT EXISTS (
+    SELECT 1 FROM hygienist_time_off t
+    WHERE t.hygienist_id = ${alias}.hygienist_id
+      AND t.off_date = ${alias}.slot_date
+      AND (
+        (t.start_time IS NULL AND t.end_time IS NULL)
+        OR (t.start_time < ${alias}.end_time AND t.end_time > ${alias}.start_time)
+      )
+  )
+`
+
+const isValidTimeOffRange = (startTime: unknown, endTime: unknown): boolean => {
+  // どちらも未指定(終日) or どちらも指定(時間帯)のみ許可。片方だけの指定は不可。
+  if (startTime === undefined || startTime === null) {
+    return endTime === undefined || endTime === null
+  }
+  if (!isValidTime(startTime) || !isValidTime(endTime)) {
+    return false
+  }
+  return (startTime as string) < (endTime as string)
+}
+
 const COURSE_TYPES = ['initial_doctor', 'initial_maintenance'] as const
 type CourseType = (typeof COURSE_TYPES)[number]
 const isValidCourseType = (s: unknown): s is CourseType => typeof s === 'string' && (COURSE_TYPES as readonly string[]).includes(s)
@@ -242,6 +271,7 @@ app.get('/api/reserve/slots', async (c) => {
     const { results } = await env.DB.prepare(
       `SELECT MIN(id) as id, slot_date, start_time, end_time FROM reservation_slots
        WHERE slot_date = ? AND course_type = ? AND status = 'open'
+         AND ${notOnTimeOffSql('reservation_slots')}
        GROUP BY start_time
        ORDER BY start_time ASC`
     )
@@ -263,7 +293,9 @@ app.get('/api/reserve/available-dates', async (c) => {
   try {
     const { results } = await env.DB.prepare(
       `SELECT DISTINCT slot_date FROM reservation_slots
-       WHERE status = 'open' AND course_type = ? AND slot_date >= date('now', 'localtime') ORDER BY slot_date ASC`
+       WHERE status = 'open' AND course_type = ? AND slot_date >= date('now', 'localtime')
+         AND ${notOnTimeOffSql('reservation_slots')}
+       ORDER BY slot_date ASC`
     )
       .bind(course)
       .all()
@@ -292,9 +324,11 @@ app.post('/api/reserve', async (c) => {
 
   try {
     // 同じ日付・時間・コースで「空き」になっている候補枠(複数の衛生士がいれば複数件)を取得
+    // 担当の歯科衛生士がその日その時間帯に休みの場合は候補から除外する
     const { results: candidates } = await env.DB.prepare(
       `SELECT id FROM reservation_slots
        WHERE slot_date = ? AND start_time = ? AND course_type = ? AND status = 'open'
+         AND ${notOnTimeOffSql('reservation_slots')}
        ORDER BY id ASC`
     )
       .bind(body.slot_date, body.start_time, body.course_type)
@@ -479,6 +513,89 @@ app.delete('/api/admin/hygienists/:id', async (c) => {
   }
 })
 
+// ---- 管理用: 歯科衛生士の「日付・時間帯単位の休み」一覧取得・追加・削除 ----
+// 「稼働中/休職中」のような固定フラグではなく、
+// 「Aさんは8/20は終日有給」「Bさんは8/21の10:00〜12:00だけお休み」のように
+// 日によって異なる勤務パターン（有給、午前休、時短出勤など）を管理する。
+app.get('/api/admin/hygienist-time-off', async (c) => {
+  const { env } = c
+  const hygienistId = c.req.query('hygienist_id')
+  const from = c.req.query('from') // 一覧表示の絞り込み用（この日付以降のみ返す）
+  try {
+    let query = `SELECT id, hygienist_id, off_date, start_time, end_time, reason, created_at FROM hygienist_time_off`
+    const conditions: string[] = []
+    const params: (string | number)[] = []
+    if (hygienistId !== undefined) {
+      const hid = Number(hygienistId)
+      if (!Number.isInteger(hid)) {
+        return c.json({ ok: false, error: 'invalid_hygienist_id' }, 400)
+      }
+      conditions.push('hygienist_id = ?')
+      params.push(hid)
+    }
+    if (from !== undefined) {
+      if (!isValidDate(from)) {
+        return c.json({ ok: false, error: 'invalid_from' }, 400)
+      }
+      conditions.push('off_date >= ?')
+      params.push(from)
+    }
+    if (conditions.length > 0) {
+      query += ' WHERE ' + conditions.join(' AND ')
+    }
+    query += ' ORDER BY off_date ASC, start_time ASC'
+    const stmt = env.DB.prepare(query)
+    const { results } = params.length > 0 ? await stmt.bind(...params).all() : await stmt.all()
+    return c.json({ ok: true, items: results })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+app.post('/api/admin/hygienist-time-off', async (c) => {
+  const { env } = c
+  const body = await c.req.json().catch(() => null)
+  const hygienistId = Number(body?.hygienist_id)
+  if (!body || !Number.isInteger(hygienistId) || !isValidDate(body.off_date)) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  // start_time/end_timeは両方省略(終日休み) or 両方指定(時間帯休み)のみ許可
+  const startTime = body.start_time === '' ? undefined : body.start_time
+  const endTime = body.end_time === '' ? undefined : body.end_time
+  if (!isValidTimeOffRange(startTime, endTime)) {
+    return c.json({ ok: false, error: 'invalid_time_range' }, 400)
+  }
+  try {
+    const hygienist = await env.DB.prepare('SELECT id FROM hygienists WHERE id = ?').bind(hygienistId).first()
+    if (!hygienist) {
+      return c.json({ ok: false, error: 'hygienist_not_found' }, 404)
+    }
+    const result = await env.DB.prepare(
+      `INSERT INTO hygienist_time_off (hygienist_id, off_date, start_time, end_time, reason)
+       VALUES (?, ?, ?, ?, ?)`
+    )
+      .bind(hygienistId, body.off_date, startTime || null, endTime || null, body.reason || null)
+      .run()
+    return c.json({ ok: true, id: result.meta?.last_row_id })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+app.delete('/api/admin/hygienist-time-off/:id', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  try {
+    await env.DB.prepare('DELETE FROM hygienist_time_off WHERE id = ?').bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
 // ---- 管理用: 指定日の全枠＋予約者情報（コース・担当衛生士も表示） ----
 app.get('/api/admin/reserve/slots', async (c) => {
   const { env } = c
@@ -490,7 +607,16 @@ app.get('/api/admin/reserve/slots', async (c) => {
     const { results } = await env.DB.prepare(
       `SELECT s.id, s.slot_date, s.start_time, s.end_time, s.status, s.course_type, s.duration_minutes,
               s.hygienist_id, h.name as hygienist_name,
-              r.id as reservation_id, r.name, r.kana, r.phone, r.email, r.birth_date, r.symptom, r.message
+              r.id as reservation_id, r.name, r.kana, r.phone, r.email, r.birth_date, r.symptom, r.message,
+              EXISTS (
+                SELECT 1 FROM hygienist_time_off t
+                WHERE t.hygienist_id = s.hygienist_id
+                  AND t.off_date = s.slot_date
+                  AND (
+                    (t.start_time IS NULL AND t.end_time IS NULL)
+                    OR (t.start_time < s.end_time AND t.end_time > s.start_time)
+                  )
+              ) as hygienist_is_off
        FROM reservation_slots s
        LEFT JOIN hygienists h ON h.id = s.hygienist_id
        LEFT JOIN reservations r ON r.slot_id = s.id
@@ -561,6 +687,81 @@ app.delete('/api/admin/reserve/slots/:id', async (c) => {
       return c.json({ ok: false, error: 'slot_booked' }, 409)
     }
     await env.DB.prepare(`DELETE FROM reservation_slots WHERE id = ?`).bind(id).run()
+    return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 受付スタッフが既存の空き枠に直接、患者情報を入力して予約登録する ----
+// （2回目以降の来院者や電話予約など、Web予約フォームを使わない予約をこの管理画面から登録できるようにする）
+app.post('/api/admin/reserve/slots/:id/book', async (c) => {
+  const { env } = c
+  const id = Number(c.req.param('id'))
+  if (!Number.isInteger(id)) {
+    return c.json({ ok: false, error: 'invalid_id' }, 400)
+  }
+  const body = await c.req.json().catch(() => null)
+  if (!body || !body.name || !body.phone) {
+    return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+  try {
+    const slot = await env.DB.prepare(
+      `SELECT id, status, slot_date, start_time, end_time, hygienist_id FROM reservation_slots WHERE id = ?`
+    )
+      .bind(id)
+      .first()
+    if (!slot) {
+      return c.json({ ok: false, error: 'slot_not_found' }, 404)
+    }
+    if ((slot as any).status !== 'open') {
+      return c.json({ ok: false, error: 'slot_unavailable' }, 409)
+    }
+
+    // 担当の歯科衛生士がその日その時間帯に休みの場合は登録させない
+    if ((slot as any).hygienist_id) {
+      const offRow = await env.DB.prepare(
+        `SELECT 1 FROM hygienist_time_off
+         WHERE hygienist_id = ? AND off_date = ?
+           AND (
+             (start_time IS NULL AND end_time IS NULL)
+             OR (start_time < ? AND end_time > ?)
+           )
+         LIMIT 1`
+      )
+        .bind((slot as any).hygienist_id, (slot as any).slot_date, (slot as any).end_time, (slot as any).start_time)
+        .first()
+      if (offRow) {
+        return c.json({ ok: false, error: 'hygienist_on_time_off' }, 409)
+      }
+    }
+
+    // レース対策の条件付きUPDATE(status='open'限定)で確保
+    const updateResult = await env.DB.prepare(
+      `UPDATE reservation_slots SET status = 'booked' WHERE id = ? AND status = 'open'`
+    )
+      .bind(id)
+      .run()
+    if (!updateResult.meta || updateResult.meta.changes === 0) {
+      return c.json({ ok: false, error: 'slot_unavailable' }, 409)
+    }
+
+    await env.DB.prepare(
+      `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+    )
+      .bind(
+        id,
+        body.name,
+        body.kana || null,
+        body.phone,
+        body.email || null,
+        body.birth_date || null,
+        body.symptom || null,
+        body.message || null
+      )
+      .run()
+
     return c.json({ ok: true })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)

@@ -21,13 +21,25 @@ document.addEventListener('DOMContentLoaded', () => {
   const addHygienistBtn = document.getElementById('admin-add-hygienist-btn')
   const hygienistMsg = document.getElementById('admin-hygienist-msg')
 
+  const timeoffHygienistSelect = document.getElementById('admin-timeoff-hygienist')
+  const timeoffDateInput = document.getElementById('admin-timeoff-date')
+  const timeoffAllDayCheckbox = document.getElementById('admin-timeoff-allday')
+  const timeoffTimeRangeWrap = document.getElementById('admin-timeoff-time-range')
+  const timeoffStartInput = document.getElementById('admin-timeoff-start')
+  const timeoffEndInput = document.getElementById('admin-timeoff-end')
+  const timeoffReasonInput = document.getElementById('admin-timeoff-reason')
+  const timeoffAddBtn = document.getElementById('admin-timeoff-add-btn')
+  const timeoffMsg = document.getElementById('admin-timeoff-msg')
+  const timeoffList = document.getElementById('admin-timeoff-list')
+
   if (!dateInput || !slotsList) return
 
   const ALLOWED_DURATIONS = [30, 45, 60]
 
-  // メモリ上に保持する現在のコース設定一覧・スタッフ一覧
+  // メモリ上に保持する現在のコース設定一覧・スタッフ一覧・休み一覧
   let courses = [] // [{ course_type, label, duration_minutes }]
   let hygienists = [] // [{ id, name, is_active, sort_order }]
+  let timeOffs = [] // [{ id, hygienist_id, off_date, start_time, end_time, reason }]
 
   const pad2 = (n) => String(n).padStart(2, '0')
 
@@ -302,6 +314,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     renderHygienistsPanel()
     renderCourseHygienistSelect()
+    renderTimeoffHygienistSelect()
     updateHygienistVisibility()
   }
 
@@ -331,6 +344,164 @@ document.addEventListener('DOMContentLoaded', () => {
         showMsg(hygienistMsg, '通信エラーが発生しました', true)
       } finally {
         addHygienistBtn.disabled = false
+      }
+    })
+
+  // ============================================================
+  // スタッフの休み管理（日付・時間帯単位）
+  // 「稼働中/休職中」の固定フラグではなく、
+  // 「Aさんは8/20は終日有給」「Bさんは8/21の10:00〜12:00だけお休み」のように
+  // 日によって異なる勤務パターンを登録できるようにする。
+  // ============================================================
+  const renderTimeoffHygienistSelect = () => {
+    if (!timeoffHygienistSelect) return
+    const prevValue = timeoffHygienistSelect.value
+    timeoffHygienistSelect.innerHTML = ''
+    hygienists.forEach((h) => {
+      const opt = document.createElement('option')
+      opt.value = String(h.id)
+      opt.textContent = h.name
+      timeoffHygienistSelect.appendChild(opt)
+    })
+    if (prevValue && hygienists.some((h) => String(h.id) === prevValue)) {
+      timeoffHygienistSelect.value = prevValue
+    }
+  }
+
+  const hygienistName = (id) => {
+    const h = hygienists.find((x) => String(x.id) === String(id))
+    return h ? h.name : `スタッフ#${id}`
+  }
+
+  const timeoffDateLabel = (dateStr) => {
+    const [y, m, d] = dateStr.split('-').map(Number)
+    const dt = new Date(y, m - 1, d)
+    const w = ['日', '月', '火', '水', '木', '金', '土'][dt.getDay()]
+    return `${y}年${m}月${d}日（${w}）`
+  }
+
+  const renderTimeoffList = () => {
+    if (!timeoffList) return
+    timeoffList.innerHTML = ''
+    if (timeOffs.length === 0) {
+      timeoffList.innerHTML = '<p class="admin-reserve__empty">登録されている休みはありません。</p>'
+      return
+    }
+    timeOffs.forEach((t) => {
+      const row = document.createElement('div')
+      row.className = 'admin-timeoff__row'
+
+      const nameEl = document.createElement('span')
+      nameEl.className = 'admin-timeoff__row-name'
+      nameEl.textContent = hygienistName(t.hygienist_id)
+      row.appendChild(nameEl)
+
+      const dateEl = document.createElement('span')
+      dateEl.className = 'admin-timeoff__row-date'
+      dateEl.textContent = timeoffDateLabel(t.off_date)
+      row.appendChild(dateEl)
+
+      const isAllDay = !t.start_time && !t.end_time
+      const rangeEl = document.createElement('span')
+      rangeEl.className = `admin-timeoff__row-range ${isAllDay ? 'is-allday' : ''}`
+      rangeEl.textContent = isAllDay ? '終日' : `${t.start_time}〜${t.end_time}`
+      row.appendChild(rangeEl)
+
+      if (t.reason) {
+        const reasonEl = document.createElement('span')
+        reasonEl.className = 'admin-timeoff__row-reason'
+        reasonEl.textContent = t.reason
+        row.appendChild(reasonEl)
+      }
+
+      const delBtn = document.createElement('button')
+      delBtn.type = 'button'
+      delBtn.className = 'btn btn-outline btn-sm'
+      delBtn.textContent = '削除'
+      delBtn.addEventListener('click', async () => {
+        if (!window.confirm('この休みの登録を削除しますか？')) return
+        try {
+          const res = await fetch(`/api/admin/hygienist-time-off/${t.id}`, { method: 'DELETE' })
+          const data = await res.json().catch(() => ({ ok: false }))
+          if (data.ok) {
+            await loadTimeoffs()
+            showMsg(timeoffMsg, '削除しました', false)
+          } else {
+            showMsg(timeoffMsg, '削除に失敗しました', true)
+          }
+        } catch (e) {
+          showMsg(timeoffMsg, '通信エラーが発生しました', true)
+        }
+      })
+      row.appendChild(delBtn)
+
+      timeoffList.appendChild(row)
+    })
+  }
+
+  const loadTimeoffs = async () => {
+    if (!timeoffList) return
+    try {
+      const todayStr = toDateStr(new Date())
+      const res = await fetch(`/api/admin/hygienist-time-off?from=${encodeURIComponent(todayStr)}`)
+      const data = await res.json()
+      timeOffs = data.ok ? data.items : []
+    } catch (e) {
+      timeOffs = []
+    }
+    renderTimeoffList()
+  }
+
+  timeoffAllDayCheckbox &&
+    timeoffAllDayCheckbox.addEventListener('change', () => {
+      timeoffTimeRangeWrap.style.display = timeoffAllDayCheckbox.checked ? 'none' : ''
+    })
+
+  timeoffAddBtn &&
+    timeoffAddBtn.addEventListener('click', async () => {
+      const hygienistId = Number(timeoffHygienistSelect.value)
+      const offDate = timeoffDateInput.value
+      if (!hygienistId || !offDate) {
+        showMsg(timeoffMsg, 'スタッフと日付を指定してください', true)
+        return
+      }
+      const isAllDay = timeoffAllDayCheckbox.checked
+      const body = { hygienist_id: hygienistId, off_date: offDate, reason: timeoffReasonInput.value.trim() || undefined }
+      if (!isAllDay) {
+        const start = timeoffStartInput.value
+        const end = timeoffEndInput.value
+        if (!start || !end) {
+          showMsg(timeoffMsg, '時間帯を指定してください', true)
+          return
+        }
+        if (end <= start) {
+          showMsg(timeoffMsg, '終了時刻は開始時刻より後にしてください', true)
+          return
+        }
+        body.start_time = start
+        body.end_time = end
+      }
+
+      timeoffAddBtn.disabled = true
+      try {
+        const res = await fetch('/api/admin/hygienist-time-off', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        })
+        const data = await res.json().catch(() => ({ ok: false }))
+        if (data.ok) {
+          showMsg(timeoffMsg, '追加しました', false)
+          timeoffReasonInput.value = ''
+          await loadTimeoffs()
+          loadSlots(dateInput.value)
+        } else {
+          showMsg(timeoffMsg, '追加に失敗しました', true)
+        }
+      } catch (e) {
+        showMsg(timeoffMsg, '通信エラーが発生しました', true)
+      } finally {
+        timeoffAddBtn.disabled = false
       }
     })
 
@@ -377,6 +548,13 @@ document.addEventListener('DOMContentLoaded', () => {
       statusBadge.textContent = isBooked ? '予約あり' : '空き'
       item.appendChild(statusBadge)
 
+      if (slot.hygienist_is_off) {
+        const offBadge = document.createElement('span')
+        offBadge.className = 'admin-reserve__slot-badge is-hygienist-off'
+        offBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 担当者が休みです'
+        item.appendChild(offBadge)
+      }
+
       if (isBooked) {
         const info = document.createElement('div')
         info.className = 'admin-reserve__slot-patient'
@@ -419,9 +597,21 @@ document.addEventListener('DOMContentLoaded', () => {
         })
         item.appendChild(cancelBtn)
       } else {
+        const btnGroup = document.createElement('div')
+        btnGroup.className = 'admin-reserve__slot-btn admin-reserve__slot-btn-group'
+
+        const bookBtn = document.createElement('button')
+        bookBtn.type = 'button'
+        bookBtn.className = 'btn btn-secondary btn-sm'
+        bookBtn.innerHTML = '<i class="fa-solid fa-user-plus"></i> 受付で予約登録'
+        bookBtn.addEventListener('click', () => {
+          openBookModal(slot)
+        })
+        btnGroup.appendChild(bookBtn)
+
         const delBtn = document.createElement('button')
         delBtn.type = 'button'
-        delBtn.className = 'btn btn-outline btn-sm admin-reserve__slot-btn'
+        delBtn.className = 'btn btn-outline btn-sm'
         delBtn.textContent = '削除'
         delBtn.addEventListener('click', async () => {
           if (!window.confirm('この枠を削除しますか？')) return
@@ -439,7 +629,9 @@ document.addEventListener('DOMContentLoaded', () => {
             window.alert('通信エラーが発生しました。')
           }
         })
-        item.appendChild(delBtn)
+        btnGroup.appendChild(delBtn)
+
+        item.appendChild(btnGroup)
       }
 
       slotsList.appendChild(item)
@@ -584,6 +776,106 @@ document.addEventListener('DOMContentLoaded', () => {
       loadSlots(dateStr)
     })
 
+  // ============================================================
+  // 受付予約登録モーダル（2回目以降の方をスタッフが直接登録する）
+  // ============================================================
+  const bookModal = document.getElementById('admin-book-modal')
+  const bookModalOverlay = document.getElementById('admin-book-modal-overlay')
+  const bookModalSlotInfo = document.getElementById('admin-book-modal-slot-info')
+  const bookForm = document.getElementById('admin-book-form')
+  const bookNameInput = document.getElementById('admin-book-name')
+  const bookKanaInput = document.getElementById('admin-book-kana')
+  const bookPhoneInput = document.getElementById('admin-book-phone')
+  const bookEmailInput = document.getElementById('admin-book-email')
+  const bookBirthInput = document.getElementById('admin-book-birth')
+  const bookSymptomInput = document.getElementById('admin-book-symptom')
+  const bookMessageInput = document.getElementById('admin-book-message')
+  const bookFormError = document.getElementById('admin-book-form-error')
+  const bookCancelBtn = document.getElementById('admin-book-cancel-btn')
+  const bookSubmitBtn = document.getElementById('admin-book-submit-btn')
+
+  let currentBookSlot = null
+
+  const resetBookForm = () => {
+    bookForm && bookForm.reset()
+    if (bookFormError) {
+      bookFormError.style.display = 'none'
+      bookFormError.textContent = ''
+    }
+  }
+
+  const openBookModal = (slot) => {
+    if (!bookModal) return
+    currentBookSlot = slot
+    resetBookForm()
+    const weekday = weekdayLabel(slot.slot_date)
+    const courseText = slot.hygienist_name ? `${courseLabel(slot.course_type)}（${slot.hygienist_name}）` : courseLabel(slot.course_type)
+    bookModalSlotInfo.textContent = `${weekday} ${slot.start_time}〜${slot.end_time}｜${courseText}`
+    bookModal.style.display = 'flex'
+    window.setTimeout(() => bookNameInput && bookNameInput.focus(), 50)
+  }
+
+  const closeBookModal = () => {
+    if (!bookModal) return
+    bookModal.style.display = 'none'
+    currentBookSlot = null
+  }
+
+  bookModalOverlay && bookModalOverlay.addEventListener('click', closeBookModal)
+  bookCancelBtn && bookCancelBtn.addEventListener('click', closeBookModal)
+
+  bookForm &&
+    bookForm.addEventListener('submit', async (e) => {
+      e.preventDefault()
+      if (!currentBookSlot) return
+
+      const name = bookNameInput.value.trim()
+      const phone = bookPhoneInput.value.trim()
+      if (!name || !phone) {
+        bookFormError.textContent = 'お名前と電話番号は必須です。'
+        bookFormError.style.display = 'block'
+        return
+      }
+
+      const payload = {
+        name,
+        phone,
+        kana: bookKanaInput.value.trim() || undefined,
+        email: bookEmailInput.value.trim() || undefined,
+        birth_date: bookBirthInput.value || undefined,
+        symptom: bookSymptomInput.value.trim() || undefined,
+        message: bookMessageInput.value.trim() || undefined,
+      }
+
+      bookSubmitBtn.disabled = true
+      try {
+        const res = await fetch(`/api/admin/reserve/slots/${currentBookSlot.id}/book`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(payload),
+        })
+        const data = await res.json().catch(() => ({ ok: false }))
+        if (data.ok) {
+          closeBookModal()
+          loadSlots(dateInput.value)
+        } else if (data.error === 'slot_unavailable') {
+          bookFormError.textContent = 'この枠は既に予約済みか、利用できなくなっています。'
+          bookFormError.style.display = 'block'
+        } else if (data.error === 'hygienist_on_time_off') {
+          bookFormError.textContent = '担当スタッフがこの日時はお休みのため登録できません。'
+          bookFormError.style.display = 'block'
+        } else {
+          bookFormError.textContent = '登録に失敗しました。'
+          bookFormError.style.display = 'block'
+        }
+      } catch (e) {
+        bookFormError.textContent = '通信エラーが発生しました。'
+        bookFormError.style.display = 'block'
+      } finally {
+        bookSubmitBtn.disabled = false
+      }
+    })
+
   // ---- 初期化 ----
   prevBtn && prevBtn.addEventListener('click', () => shiftDate(-1))
   nextBtn && nextBtn.addEventListener('click', () => shiftDate(1))
@@ -592,9 +884,13 @@ document.addEventListener('DOMContentLoaded', () => {
     if (dateInput.value) loadSlots(dateInput.value)
   })
 
+  // 休み管理の日付入力の初期値を今日に設定
+  if (timeoffDateInput) timeoffDateInput.value = toDateStr(new Date())
+
   ;(async () => {
     await loadHygienists()
     await loadCourseSettings()
+    await loadTimeoffs()
     setDate(toDateStr(new Date()))
   })()
 })

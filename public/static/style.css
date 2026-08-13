@@ -3719,6 +3719,95 @@ h1, h2, h3, h4, p {
   font-size: 14px;
   flex: 1 1 200px;
 }
+
+/* ---- スタッフの休み管理パネル（日付・時間帯単位） ---- */
+.admin-timeoff__add-form {
+  display: flex;
+  align-items: flex-end;
+  gap: 14px;
+  flex-wrap: wrap;
+  padding: 14px 16px;
+  background: var(--color-bg-blue);
+  border-radius: 8px;
+  margin-bottom: 14px;
+}
+.admin-timeoff__field {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13px;
+}
+.admin-timeoff__field label {
+  color: var(--color-sub);
+  font-weight: 700;
+}
+.admin-timeoff__field select,
+.admin-timeoff__field input[type='date'],
+.admin-timeoff__field input[type='time'],
+.admin-timeoff__field input[type='text'] {
+  padding: 7px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.admin-timeoff__field--checkbox label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 700;
+  color: var(--color-sub);
+  cursor: pointer;
+}
+.admin-timeoff__field--checkbox input[type='checkbox'] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+.admin-timeoff__range-inputs {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-timeoff__list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.admin-timeoff__row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  padding: 10px 14px;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+}
+.admin-timeoff__row-name {
+  font-weight: 700;
+  color: var(--color-sub);
+  min-width: 100px;
+}
+.admin-timeoff__row-date {
+  color: var(--color-main-dark);
+  font-weight: 700;
+}
+.admin-timeoff__row-range {
+  font-size: 13px;
+  padding: 3px 10px;
+  border-radius: 12px;
+  background: #eee;
+  color: #666;
+}
+.admin-timeoff__row-range.is-allday {
+  background: var(--color-bg-blue);
+  color: var(--color-main);
+}
+.admin-timeoff__row-reason {
+  font-size: 13px;
+  color: #888;
+  flex: 1 1 auto;
+}
+
 .admin-reserve__date-nav {
   display: flex;
   align-items: center;
@@ -3833,6 +3922,10 @@ h1, h2, h3, h4, p {
   background: var(--color-accent);
   color: #fff;
 }
+.admin-reserve__slot-badge.is-hygienist-off {
+  background: #ffe1e1;
+  color: #c0392b;
+}
 .admin-reserve__slot-patient {
   flex: 1 1 100%;
   display: grid;
@@ -3853,6 +3946,10 @@ h1, h2, h3, h4, p {
 .admin-reserve__slot-btn {
   margin-left: auto;
 }
+.admin-reserve__slot-btn-group {
+  display: flex;
+  gap: 8px;
+}
 
 @media (max-width: 767px) {
   .admin-reserve__panel {
@@ -3865,12 +3962,123 @@ h1, h2, h3, h4, p {
     margin-left: 0;
     width: 100%;
   }
+  .admin-reserve__slot-btn-group {
+    margin-left: 0;
+    width: 100%;
+    flex-direction: column;
+  }
   .admin-hygienists__row {
     flex-direction: column;
     align-items: stretch;
   }
   .admin-hygienists__name-input {
     flex: 1 1 auto;
+  }
+}
+
+/* ---- 受付予約登録モーダル ---- */
+.admin-book-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+.admin-book-modal__overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+}
+.admin-book-modal__box {
+  position: relative;
+  background: #fff;
+  border-radius: 14px;
+  padding: 28px 26px;
+  max-width: 480px;
+  width: 100%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+}
+.admin-book-modal__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-sub);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.admin-book-modal__title i {
+  color: var(--color-main);
+}
+.admin-book-modal__slot-info {
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 700;
+  font-size: 14px;
+  padding: 10px 14px;
+  border-radius: 8px;
+  margin-bottom: 18px;
+}
+.admin-book-form__group {
+  margin-bottom: 14px;
+}
+.admin-book-form__group label {
+  display: block;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 6px;
+}
+.admin-book-form__req {
+  font-size: 11px;
+  background: var(--color-main);
+  color: #fff;
+  padding: 2px 8px;
+  border-radius: 4px;
+  margin-left: 4px;
+  font-weight: 600;
+}
+.admin-book-form__group input,
+.admin-book-form__group textarea {
+  width: 100%;
+  padding: 9px 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  font-family: var(--font-jp);
+}
+.admin-book-form__group textarea {
+  resize: vertical;
+}
+.admin-book-form__error {
+  background: #fdecea;
+  color: #c0392b;
+  padding: 10px 14px;
+  border-radius: 6px;
+  margin-bottom: 14px;
+  font-size: 13px;
+}
+.admin-book-form__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+@media (max-width: 480px) {
+  .admin-book-modal__box {
+    padding: 22px 18px;
+  }
+  .admin-book-form__actions {
+    flex-direction: column-reverse;
+  }
+  .admin-book-form__actions .btn {
+    width: 100%;
+    justify-content: center;
   }
 }
 
