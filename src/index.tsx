@@ -12,6 +12,7 @@ import { RecruitSection } from './components/RecruitSection'
 import { AccessSection } from './components/AccessSection'
 import { SymptomsListPage } from './components/SymptomsListPage'
 import { SymptomDetailPage } from './components/SymptomDetailPage'
+import { MedicalPage } from './components/MedicalPage'
 import { getSymptomDetail } from './data/symptomDetails'
 
 export type Bindings = {
@@ -118,6 +119,26 @@ app.get('/', async (c) => {
       </a>
     </>,
     { title: undefined }
+  )
+})
+
+// ---- 当院について ----
+app.get('/medical', (c) => {
+  return c.render(
+    <>
+      <Header />
+      <MedicalPage />
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: '当院について',
+      description:
+        '金沢市の歯科医院メディカデンタルクリニックの「当院について」ページ。私たちの目指すもの、院長紹介、当院概要、施設・設備紹介、感染症対策、スタッフ紹介をご案内しています。',
+    }
   )
 })
 

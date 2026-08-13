@@ -1644,3 +1644,374 @@ h1, h2, h3, h4, p {
     font-size: 12.5px;
   }
 }
+
+/* =========================================================
+   Medical Page (当院について /medical)
+   ========================================================= */
+.medical-page {
+  padding-top: 0;
+}
+
+.medical-section {
+  overflow: hidden;
+}
+
+.medical-section.bg-blue {
+  background: var(--color-bg-blue);
+}
+
+.medical-section__title {
+  text-align: center;
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--color-sub);
+  position: relative;
+  padding-bottom: 20px;
+  margin-bottom: 40px;
+}
+.medical-section__title::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 40px;
+  height: 3px;
+  background: var(--color-main);
+  border-radius: 2px;
+}
+
+.medical-section__lead {
+  text-align: center;
+  color: #444;
+  font-size: 15px;
+  line-height: 1.9;
+  margin-bottom: 16px;
+}
+
+.medical-section__body {
+  color: #444;
+  font-size: 14.5px;
+  line-height: 1.9;
+  text-align: center;
+  max-width: 860px;
+  margin: 0 auto;
+}
+
+/* ---- 私たちの目指すもの：3つの約束 ---- */
+.medical-promise {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  margin: 64px auto;
+}
+.medical-promise--reverse {
+  flex-direction: row-reverse;
+}
+.medical-promise__img {
+  flex: 0 0 46%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.medical-promise__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  aspect-ratio: 3 / 2;
+}
+.medical-promise__body {
+  flex: 1;
+}
+.medical-promise__title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--color-sub);
+  line-height: 1.5;
+  margin-bottom: 16px;
+}
+.medical-promise__no {
+  color: var(--color-main);
+  font-family: var(--font-en);
+}
+.medical-promise__body p {
+  color: #444;
+  font-size: 14.5px;
+  line-height: 1.9;
+}
+
+.medical-jump-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 14px;
+  margin-top: 56px;
+}
+.medical-jump-buttons .btn {
+  flex: 0 1 auto;
+}
+
+/* ---- 院長紹介 ---- */
+.medical-director__intro {
+  display: flex;
+  align-items: flex-start;
+  gap: 48px;
+  margin-bottom: 56px;
+}
+.medical-director__img {
+  flex: 0 0 42%;
+  border-radius: 12px;
+  overflow: hidden;
+}
+.medical-director__img img {
+  width: 100%;
+  object-fit: cover;
+  aspect-ratio: 3 / 2;
+}
+.medical-director__body {
+  flex: 1;
+}
+.medical-director__body p {
+  color: #444;
+  font-size: 14.5px;
+  line-height: 1.9;
+  margin-bottom: 12px;
+}
+
+.medical-director__beliefs {
+  background: #fff;
+  border-radius: 16px;
+  padding: 40px;
+  margin-bottom: 48px;
+}
+.medical-director__belief {
+  margin-bottom: 32px;
+}
+.medical-director__belief:last-of-type {
+  margin-bottom: 24px;
+}
+.medical-director__belief-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--color-main);
+  margin-bottom: 14px;
+  padding-bottom: 8px;
+  border-bottom: 2px solid var(--color-border);
+}
+.medical-director__belief p {
+  color: #444;
+  font-size: 14.5px;
+  line-height: 1.9;
+  margin-bottom: 14px;
+}
+.medical-director__signoff {
+  text-align: right;
+  color: #444;
+  font-size: 14.5px;
+  line-height: 1.8;
+}
+
+.medical-director__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+}
+
+.medical-info-box {
+  background: transparent;
+}
+.medical-info-box--white {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.medical-info-box__title {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--color-sub);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 2px solid var(--color-main);
+  display: inline-block;
+}
+
+.medical-list li {
+  position: relative;
+  padding-left: 18px;
+  color: #444;
+  font-size: 14px;
+  line-height: 1.9;
+  margin-bottom: 8px;
+}
+.medical-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-main);
+}
+
+.medical-course-box {
+  margin-bottom: 16px;
+}
+.medical-course-box:last-child {
+  margin-bottom: 0;
+}
+.medical-course-box h5 {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-main-dark);
+  margin-bottom: 8px;
+}
+
+.medical-attention {
+  color: #d9534f;
+  font-weight: 600;
+}
+
+/* ---- テーブル共通 ---- */
+.medical-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+}
+.medical-table th,
+.medical-table td {
+  border: 1px solid var(--color-border);
+  padding: 12px 16px;
+  text-align: left;
+  vertical-align: top;
+}
+.medical-table th {
+  width: 30%;
+  background: var(--color-bg-blue);
+  color: var(--color-sub);
+  font-weight: 600;
+  white-space: nowrap;
+}
+.medical-table td {
+  color: #444;
+  line-height: 1.8;
+  background: #fff;
+}
+.medical-table--outline th {
+  width: 22%;
+}
+
+/* ---- 施設・設備紹介 ---- */
+.medical-facility-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  margin-top: 32px;
+  margin-bottom: 8px;
+}
+.medical-facility-card {
+  background: #fff;
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.05);
+}
+.medical-facility-card__img {
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+}
+.medical-facility-card__img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s ease;
+}
+.medical-facility-card:hover .medical-facility-card__img img {
+  transform: scale(1.06);
+}
+.medical-facility-card__title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-sub);
+  padding: 14px 16px 4px;
+}
+.medical-facility-card p {
+  color: #555;
+  font-size: 13px;
+  line-height: 1.8;
+  padding: 0 16px 16px;
+}
+
+/* ---- 感染症対策 ---- */
+.medical-hygiene-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 24px;
+  margin-top: 40px;
+}
+
+/* =========================================================
+   Medical Page - レスポンシブ
+   ========================================================= */
+@media (max-width: 900px) {
+  .medical-facility-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .medical-director__grid {
+    grid-template-columns: 1fr;
+  }
+  .medical-hygiene-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 767px) {
+  .medical-section__title {
+    font-size: 22px;
+  }
+
+  .medical-promise {
+    flex-direction: column;
+    gap: 20px;
+    margin: 40px auto;
+  }
+  .medical-promise--reverse {
+    flex-direction: column;
+  }
+  .medical-promise__img {
+    flex: none;
+    width: 100%;
+  }
+
+  .medical-jump-buttons {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  .medical-jump-buttons .btn {
+    width: 100%;
+  }
+
+  .medical-director__intro {
+    flex-direction: column;
+    gap: 20px;
+    margin-bottom: 40px;
+  }
+  .medical-director__img {
+    flex: none;
+    width: 100%;
+  }
+  .medical-director__beliefs {
+    padding: 24px;
+  }
+
+  .medical-facility-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .medical-table th {
+    width: 34%;
+    font-size: 12.5px;
+  }
+  .medical-table--outline th {
+    width: 30%;
+  }
+}
