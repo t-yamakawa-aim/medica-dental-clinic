@@ -1711,7 +1711,7 @@ h1, h2, h3, h4, p {
 @media (max-width: 767px) {
   .page-header {
     height: 180px;
-    padding-top: 65px;
+    padding-top: 66px;
   }
   .page-header__title-ja {
     font-size: 24px;
