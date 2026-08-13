@@ -18,6 +18,10 @@ import { RecruitPage } from './components/RecruitPage'
 import { RecruitEntryPage } from './components/RecruitEntryPage'
 import { RecruitThanksPage } from './components/RecruitThanksPage'
 import { getSymptomDetail } from './data/symptomDetails'
+import { NewsListPage, type NewsListItem } from './components/NewsListPage'
+import { NewsDetailPage, type NewsDetailItem } from './components/NewsDetailPage'
+import { BlogListPage, type BlogListItem } from './components/BlogListPage'
+import { BlogDetailPage, type BlogDetailItem } from './components/BlogDetailPage'
 
 export type Bindings = {
   DB: D1Database
@@ -378,6 +382,393 @@ app.get('/symptoms/:slug', (c) => {
       </a>
     </>,
     { title: detail.title, description: detail.metaDescription }
+  )
+})
+
+// ============================================================
+// お知らせ (News) - 投稿型ページ
+// D1の news テーブルをWordPressの投稿タイプ/アーカイブ相当として利用する。
+// ============================================================
+const NEWS_PAGE_SIZE = 10
+
+// 指定した年フィルタ・ページで新着情報一覧を描画する共通処理
+async function renderNewsList(
+  c: any,
+  env: Bindings,
+  opts: { year?: number; page: number; basePath: string }
+) {
+  const { year, page, basePath } = opts
+  const offset = (page - 1) * NEWS_PAGE_SIZE
+
+  const yearFilter = year ? 'WHERE is_published = 1 AND substr(published_at,1,4) = ?' : 'WHERE is_published = 1'
+  const bindArgs: (string | number)[] = year ? [String(year)] : []
+
+  let items: NewsListItem[] = []
+  let totalCount = 0
+  let years: number[] = []
+
+  try {
+    const countStmt = env.DB.prepare(`SELECT COUNT(*) as cnt FROM news ${yearFilter}`)
+    const countRes = await (bindArgs.length ? countStmt.bind(...bindArgs) : countStmt).first<{ cnt: number }>()
+    totalCount = countRes?.cnt || 0
+
+    const listStmt = env.DB.prepare(
+      `SELECT id, title, published_at FROM news ${yearFilter} ORDER BY published_at DESC, id DESC LIMIT ? OFFSET ?`
+    )
+    const listRes = await listStmt.bind(...bindArgs, NEWS_PAGE_SIZE, offset).all<NewsListItem>()
+    items = listRes.results
+
+    const yearsRes = await env.DB.prepare(
+      "SELECT DISTINCT substr(published_at,1,4) as y FROM news WHERE is_published = 1 ORDER BY y DESC"
+    ).all<{ y: string }>()
+    years = yearsRes.results.map((r) => parseInt(r.y, 10)).filter((n) => !isNaN(n))
+  } catch (e) {
+    // DB未初期化時は空表示
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / NEWS_PAGE_SIZE))
+
+  return c.render(
+    <>
+      <Header />
+      <main id="top">
+        <NewsListPage
+          items={items}
+          years={years}
+          currentYear={year}
+          currentPage={page}
+          totalPages={totalPages}
+          basePath={basePath}
+        />
+      </main>
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: year ? `新着情報 ${year}年` : '新着情報',
+      description:
+        '金沢市の歯科医院メディカデンタルクリニックの新着情報です。休診日のお知らせや当院からの重要なお知らせをご紹介します。',
+    }
+  )
+}
+
+// ---- お知らせ一覧 ----
+app.get('/news', async (c) => {
+  return renderNewsList(c, c.env, { page: 1, basePath: '/news' })
+})
+
+app.get('/news/page/:page', async (c) => {
+  const page = parseInt(c.req.param('page'), 10) || 1
+  return renderNewsList(c, c.env, { page, basePath: '/news' })
+})
+
+// ---- お知らせ 年別アーカイブ ----
+app.get('/news/date/:year', async (c) => {
+  const year = parseInt(c.req.param('year'), 10)
+  return renderNewsList(c, c.env, { year, page: 1, basePath: `/news/date/${year}` })
+})
+
+app.get('/news/date/:year/page/:page', async (c) => {
+  const year = parseInt(c.req.param('year'), 10)
+  const page = parseInt(c.req.param('page'), 10) || 1
+  return renderNewsList(c, c.env, { year, page, basePath: `/news/date/${year}` })
+})
+
+// ---- お知らせ詳細 ----
+app.get('/news/:id', async (c) => {
+  const { env } = c
+  const id = parseInt(c.req.param('id'), 10)
+  if (isNaN(id)) {
+    return c.notFound()
+  }
+
+  let item: NewsDetailItem | null = null
+  let prev: { id: number; title: string } | null = null
+  let next: { id: number; title: string } | null = null
+
+  try {
+    item = await env.DB.prepare(
+      'SELECT id, title, body, published_at FROM news WHERE id = ? AND is_published = 1'
+    )
+      .bind(id)
+      .first<NewsDetailItem>()
+
+    if (item) {
+      // 一つ新しい記事（次へ）・一つ古い記事（前へ）を取得
+      next = await env.DB.prepare(
+        'SELECT id, title FROM news WHERE is_published = 1 AND (published_at > ? OR (published_at = ? AND id > ?)) ORDER BY published_at ASC, id ASC LIMIT 1'
+      )
+        .bind(item.published_at, item.published_at, item.id)
+        .first<{ id: number; title: string }>()
+
+      prev = await env.DB.prepare(
+        'SELECT id, title FROM news WHERE is_published = 1 AND (published_at < ? OR (published_at = ? AND id < ?)) ORDER BY published_at DESC, id DESC LIMIT 1'
+      )
+        .bind(item.published_at, item.published_at, item.id)
+        .first<{ id: number; title: string }>()
+    }
+  } catch (e) {
+    // no-op
+  }
+
+  if (!item) {
+    return c.render(
+      <>
+        <Header />
+        <main id="top">
+          <div class="container container-sm section_pdg" style="text-align:center;">
+            <h1 class="section-title-lg">記事が見つかりません</h1>
+            <p style="margin-bottom:32px;">お探しのお知らせは存在しないか、削除された可能性があります。</p>
+            <a href="/news" class="btn btn-primary">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>新着情報一覧へ</span>
+            </a>
+          </div>
+        </main>
+        <AccessSection />
+        <Footer />
+        <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+          <i class="fa-solid fa-arrow-up"></i>
+        </a>
+      </>,
+      { title: '記事が見つかりません' }
+    )
+  }
+
+  return c.render(
+    <>
+      <Header />
+      <main id="top">
+        <NewsDetailPage item={item} prev={prev} next={next} />
+      </main>
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    { title: item.title }
+  )
+})
+
+// ============================================================
+// ブログ (Blog) - 投稿型ページ（カテゴリ・月別アーカイブ対応）
+// ============================================================
+const BLOG_PAGE_SIZE = 6
+
+async function renderBlogList(
+  c: any,
+  env: Bindings,
+  opts: { category?: string; ym?: string; page: number; basePath: string; headingLabel?: string }
+) {
+  const { category, ym, page, basePath, headingLabel } = opts
+  const offset = (page - 1) * BLOG_PAGE_SIZE
+
+  let whereClause = 'WHERE is_published = 1'
+  const bindArgs: (string | number)[] = []
+  if (category) {
+    whereClause += ' AND category = ?'
+    bindArgs.push(category)
+  }
+  if (ym) {
+    whereClause += " AND substr(published_at,1,7) = ?"
+    bindArgs.push(ym)
+  }
+
+  let items: BlogListItem[] = []
+  let totalCount = 0
+  let categories: { category: string; count: number }[] = []
+  let archiveMonths: { ym: string; count: number }[] = []
+
+  try {
+    const countRes = await env.DB.prepare(`SELECT COUNT(*) as cnt FROM blog_posts ${whereClause}`)
+      .bind(...bindArgs)
+      .first<{ cnt: number }>()
+    totalCount = countRes?.cnt || 0
+
+    const listRes = await env.DB.prepare(
+      `SELECT id, title, category, published_at FROM blog_posts ${whereClause} ORDER BY published_at DESC, id DESC LIMIT ? OFFSET ?`
+    )
+      .bind(...bindArgs, BLOG_PAGE_SIZE, offset)
+      .all<BlogListItem>()
+    items = listRes.results
+
+    const catRes = await env.DB.prepare(
+      "SELECT category, COUNT(*) as count FROM blog_posts WHERE is_published = 1 AND category IS NOT NULL AND category != '' GROUP BY category ORDER BY category ASC"
+    ).all<{ category: string; count: number }>()
+    categories = catRes.results
+
+    const archRes = await env.DB.prepare(
+      "SELECT substr(published_at,1,7) as ym, COUNT(*) as count FROM blog_posts WHERE is_published = 1 GROUP BY ym ORDER BY ym DESC"
+    ).all<{ ym: string; count: number }>()
+    archiveMonths = archRes.results
+  } catch (e) {
+    // DB未初期化時は空表示
+  }
+
+  const totalPages = Math.max(1, Math.ceil(totalCount / BLOG_PAGE_SIZE))
+
+  return c.render(
+    <>
+      <Header />
+      <main id="top">
+        <BlogListPage
+          items={items}
+          categories={categories}
+          archiveMonths={archiveMonths}
+          currentCategory={category}
+          currentPage={page}
+          totalPages={totalPages}
+          basePath={basePath}
+          headingLabel={headingLabel}
+        />
+      </main>
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    {
+      title: headingLabel ? `ブログ - ${headingLabel}` : 'ブログ',
+      description:
+        '金沢市の歯科医院メディカデンタルクリニックのブログです。虫歯・矯正・インプラント治療など歯に関するさまざまな知識をご紹介します。',
+    }
+  )
+}
+
+// ---- ブログ一覧 ----
+app.get('/blog', async (c) => {
+  return renderBlogList(c, c.env, { page: 1, basePath: '/blog' })
+})
+
+app.get('/blog/page/:page', async (c) => {
+  const page = parseInt(c.req.param('page'), 10) || 1
+  return renderBlogList(c, c.env, { page, basePath: '/blog' })
+})
+
+// ---- ブログ カテゴリ別 ----
+app.get('/blog/category/:cat', async (c) => {
+  const category = decodeURIComponent(c.req.param('cat'))
+  return renderBlogList(c, c.env, {
+    category,
+    page: 1,
+    basePath: `/blog/category/${encodeURIComponent(category)}`,
+    headingLabel: `カテゴリ：${category}`,
+  })
+})
+
+app.get('/blog/category/:cat/page/:page', async (c) => {
+  const category = decodeURIComponent(c.req.param('cat'))
+  const page = parseInt(c.req.param('page'), 10) || 1
+  return renderBlogList(c, c.env, {
+    category,
+    page,
+    basePath: `/blog/category/${encodeURIComponent(category)}`,
+    headingLabel: `カテゴリ：${category}`,
+  })
+})
+
+// ---- ブログ 月別アーカイブ ----
+app.get('/blog/archive/:ym', async (c) => {
+  const ym = c.req.param('ym') // 'YYYY-MM'
+  const [y, m] = ym.split('-')
+  return renderBlogList(c, c.env, {
+    ym,
+    page: 1,
+    basePath: `/blog/archive/${ym}`,
+    headingLabel: `${y}年${parseInt(m, 10)}月の記事`,
+  })
+})
+
+app.get('/blog/archive/:ym/page/:page', async (c) => {
+  const ym = c.req.param('ym')
+  const [y, m] = ym.split('-')
+  const page = parseInt(c.req.param('page'), 10) || 1
+  return renderBlogList(c, c.env, {
+    ym,
+    page,
+    basePath: `/blog/archive/${ym}`,
+    headingLabel: `${y}年${parseInt(m, 10)}月の記事`,
+  })
+})
+
+// ---- ブログ詳細 ----
+app.get('/blog/:id', async (c) => {
+  const { env } = c
+  const id = parseInt(c.req.param('id'), 10)
+  if (isNaN(id)) {
+    return c.notFound()
+  }
+
+  let item: BlogDetailItem | null = null
+  let prev: { id: number; title: string } | null = null
+  let next: { id: number; title: string } | null = null
+
+  try {
+    item = await env.DB.prepare(
+      'SELECT id, title, body, category, published_at FROM blog_posts WHERE id = ? AND is_published = 1'
+    )
+      .bind(id)
+      .first<BlogDetailItem>()
+
+    if (item) {
+      next = await env.DB.prepare(
+        'SELECT id, title FROM blog_posts WHERE is_published = 1 AND (published_at > ? OR (published_at = ? AND id > ?)) ORDER BY published_at ASC, id ASC LIMIT 1'
+      )
+        .bind(item.published_at, item.published_at, item.id)
+        .first<{ id: number; title: string }>()
+
+      prev = await env.DB.prepare(
+        'SELECT id, title FROM blog_posts WHERE is_published = 1 AND (published_at < ? OR (published_at = ? AND id < ?)) ORDER BY published_at DESC, id DESC LIMIT 1'
+      )
+        .bind(item.published_at, item.published_at, item.id)
+        .first<{ id: number; title: string }>()
+    }
+  } catch (e) {
+    // no-op
+  }
+
+  if (!item) {
+    return c.render(
+      <>
+        <Header />
+        <main id="top">
+          <div class="container container-sm section_pdg" style="text-align:center;">
+            <h1 class="section-title-lg">記事が見つかりません</h1>
+            <p style="margin-bottom:32px;">お探しのブログ記事は存在しないか、削除された可能性があります。</p>
+            <a href="/blog" class="btn btn-primary">
+              <i class="fa-solid fa-arrow-left"></i>
+              <span>ブログ一覧へ</span>
+            </a>
+          </div>
+        </main>
+        <AccessSection />
+        <Footer />
+        <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+          <i class="fa-solid fa-arrow-up"></i>
+        </a>
+      </>,
+      { title: '記事が見つかりません' }
+    )
+  }
+
+  return c.render(
+    <>
+      <Header />
+      <main id="top">
+        <BlogDetailPage item={item} prev={prev} next={next} />
+      </main>
+      <AccessSection />
+      <Footer />
+      <a href="#top" id="page-top" aria-label="ページトップへ戻る">
+        <i class="fa-solid fa-arrow-up"></i>
+      </a>
+    </>,
+    { title: item.title }
   )
 })
 

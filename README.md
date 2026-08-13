@@ -40,6 +40,21 @@
   - 私たちの目指すもの（3つの約束）／院長紹介（挨拶・経歴・所属研究会・講演実績・修了コース）／当院概要／施設・設備紹介／当院の感染症対策／スタッフ紹介
 - [x] 「診療のご案内」ページ（`/service`）：1枚物構成、各セクションにid付与、グローバルナビ・トップページ・フッターナビからのアンカーリンク遷移に対応
   - ご予約案内（予約制についての案内文、初診・急患の方／通院中で次回予約未定の方の比較テーブル：ご予約方法・ご持参頂くもの・次回予約）／診療の流れ（5ステップ：初診・ヒアリング→検査→診断・治療の選択肢のご案内→治療→今後の予防策のご提案）
+- [x] 「採用情報」「採用エントリーフォーム」「応募完了」ページ（`/recruit`, `/recruit/entry`, `/recruit/entry/thanks`）
+- [x] **「新着情報（お知らせ）」投稿型ページ群**（Cloudflare D1をWordPressの投稿タイプ相当として利用し、一覧・詳細・年別アーカイブ・ページネーションをSQLで実装）
+  - `/news` — 一覧（10件/ページ、新しい順）
+  - `/news/page/:page` — 一覧のページネーション
+  - `/news/date/:year` — 年別アーカイブ（年フィルタのプルダウン付き）
+  - `/news/date/:year/page/:page` — 年別アーカイブのページネーション
+  - `/news/:id` — 詳細ページ（前の記事・次の記事への遷移ナビあり）
+- [x] **「ブログ」投稿型ページ群**（カテゴリ・月別アーカイブ対応の2カラムレイアウト。サイドバーの件数はD1のGROUP BYで自動集計）
+  - `/blog` — 一覧（6件/ページ、新しい順）＋サイドバー（カテゴリ一覧・過去記事アーカイブ）
+  - `/blog/page/:page` — 一覧のページネーション
+  - `/blog/category/:cat` — カテゴリ別一覧
+  - `/blog/category/:cat/page/:page` — カテゴリ別一覧のページネーション
+  - `/blog/archive/:ym`（`ym`は`YYYY-MM`形式） — 月別アーカイブ
+  - `/blog/archive/:ym/page/:page` — 月別アーカイブのページネーション
+  - `/blog/:id` — 詳細ページ（カテゴリタグ表示、前の記事・次の記事への遷移ナビあり）
 
 ## 機能エントリーURI一覧
 | メソッド | パス | 説明 |
@@ -47,15 +62,27 @@
 | GET | `/` | トップページ |
 | GET | `/medical` | 当院について（1枚物、`#vision` `#director` `#outline` `#facility` `#hygiene` `#staff` の各セクションIDにアンカー遷移可能） |
 | GET | `/service` | 診療のご案内（1枚物、`#reservation` `#flow` の各セクションIDにアンカー遷移可能） |
-| GET | `/api/news` | お知らせ一覧取得（最大5件、JSON） |
-| GET | `/api/blog` | ブログ一覧取得（最大4件、JSON） |
+| GET | `/api/news` | お知らせ一覧取得（最大5件、JSON。トップページのプレビュー表示用） |
+| GET | `/api/blog` | ブログ一覧取得（最大4件、JSON。トップページのプレビュー表示用） |
 | POST | `/api/contact` | お問い合わせ・Web予約フォーム送信（JSON: name, kana, phone, email, message, type） |
 | GET | `/recruit` | 採用情報（1枚物、`#message` `#catch` `#jobs` `#tour` の各セクションIDにアンカー遷移可能、`#job-dentist` `#job-hygienist` `#job-assistant` で各職種タブへ遷移可能） |
 | GET | `/recruit/entry` | 採用エントリーフォーム |
 | GET | `/recruit/entry/thanks` | 応募完了ページ |
 | POST | `/api/recruit-entry` | 採用エントリーフォーム送信（JSON: inquiry_types[], job_types[], name, kana, phone, email, message）。D1保存後、Resend API経由で`peacefultomorrow0528@gmail.com`宛に通知メールを送信（`RESEND_API_KEY`環境変数が必要。未設定時は送信スキップ） |
+| GET | `/news` | お知らせ一覧（10件/ページ、年フィルタのプルダウンあり） |
+| GET | `/news/page/:page` | お知らせ一覧のページ番号指定 |
+| GET | `/news/date/:year` | お知らせ 年別アーカイブ（例: `/news/date/2025`） |
+| GET | `/news/date/:year/page/:page` | お知らせ 年別アーカイブのページ番号指定 |
+| GET | `/news/:id` | お知らせ詳細（存在しないIDは「記事が見つかりません」表示） |
+| GET | `/blog` | ブログ一覧（6件/ページ、カテゴリ・過去記事アーカイブのサイドバーあり） |
+| GET | `/blog/page/:page` | ブログ一覧のページ番号指定 |
+| GET | `/blog/category/:cat` | ブログ カテゴリ別一覧（`:cat`はカテゴリ名をURLエンコード） |
+| GET | `/blog/category/:cat/page/:page` | ブログ カテゴリ別一覧のページ番号指定 |
+| GET | `/blog/archive/:ym` | ブログ 月別アーカイブ（`:ym`は`YYYY-MM`形式、例: `/blog/archive/2026-07`） |
+| GET | `/blog/archive/:ym/page/:page` | ブログ 月別アーカイブのページ番号指定 |
+| GET | `/blog/:id` | ブログ詳細（存在しないIDは「記事が見つかりません」表示） |
 
-※ 下層ページ（`/symptoms`, `/news`, `/news/:id`, `/blog`, `/blog/:id`, `/contact`, `/privacy`）は現在ヘッダー・フッターのリンク先として用意されていますが、ページ自体は未実装です（今後、下層ページの情報提供後に実装予定）。
+※ 下層ページ（`/symptoms`, `/contact`, `/privacy`, `/reserve`（Web予約））は現在ヘッダー・フッターのリンク先として用意されていますが、ページ自体は未実装です（今後、情報提供後に実装予定）。
 
 ## データアーキテクチャ
 - **データベース**: Cloudflare D1（SQLite互換）
@@ -65,7 +92,7 @@
   - `contact_messages` — お問い合わせ・Web予約フォームの送信内容（id, name, kana, phone, email, message, type, created_at）
   - `recruit_entries` — 採用エントリーフォームの送信内容（id, inquiry_types[JSON配列文字列], job_types[JSON配列文字列], name, kana, phone, email, message, created_at）
 - **マイグレーション**: `migrations/0001_initial_schema.sql`, `migrations/0002_contact.sql`, `migrations/0003_recruit_entries.sql`
-- **シードデータ**: `seed.sql`（お知らせ3件、ブログ4件のサンプルデータ）
+- **シードデータ**: `seed.sql`（お知らせ23件・ブログ10件。年別/月別アーカイブとページネーションの動作確認ができるよう複数年・複数カテゴリのサンプルデータを用意）
 - **ローカル開発**: `--local`フラグでSQLiteをローカルに自動生成（`.wrangler/state/v3/d1`）
 
 ## 画像素材について
@@ -116,14 +143,21 @@ curl http://localhost:3000
   4. 本番: `npx wrangler pages secret put RESEND_API_KEY` でCloudflare Secretsに設定
 - ※ 独自ドメインのDNS認証をしていない場合、Resendの制約上「アカウント登録したメールアドレス宛」にのみ送信可能です。今回は送信先が `peacefultomorrow0528@gmail.com` 固定のため、ドメイン認証なしでも送信可能です。
 
+## お知らせ・ブログの投稿型ページ実装について（WordPress不要の理由）
+参考にした秋川臨床デンタルクリニック様のサイトは「お知らせ」「ブログ」がWordPressのカスタム投稿タイプ・アーカイブ・`wp-pagenavi`プラグインで実装されていましたが、本サイトではCloudflare D1のSQLクエリで同等の機能を実現しています。
+- **一覧・新しい順表示** → `ORDER BY published_at DESC`
+- **ページネーション** → `LIMIT`/`OFFSET`でページ番号ごとにSQLを再実行（`wp-pagenavi`相当）
+- **年別アーカイブ** → `WHERE substr(published_at,1,4) = ?`（お知らせ）
+- **月別アーカイブ・カテゴリ集計** → `GROUP BY substr(published_at,1,7)` / `GROUP BY category`でサイドバーの件数も自動集計（ブログ）
+- WordPress/PHPよりもCloudflareのエッジで高速に配信でき、サーバー管理・プラグイン更新の手間も不要という利点があります。
+- 記事の追加・編集は現時点では`wrangler d1 execute`コマンドでのSQL直接実行、または`seed.sql`への追記で行います（下記「未実装の機能」に記載の管理画面が実装されればブラウザから投稿できるようになります）。
+
 ## 未実装の機能・今後の開発予定
-1. **下層ページの実装**（ユーザーからの情報提供待ち）
-   - `/symptoms`（症状別で探す：各症状の詳細ページ）
-   - `/news`, `/news/:id`（お知らせ一覧・詳細ページ）
-   - `/blog`, `/blog/:id`（ブログ一覧・詳細ページ）
-   - `/contact`（お問い合わせ・Web予約フォームページ）
+1. **残りの下層ページの実装**（ユーザーからの情報提供待ち）
+   - `/symptoms/:slug`（症状別で探す：現在1つのみ実装済み。残り5つの詳細ページ）
+   - `/reserve` または `/contact`（Web予約ページ）
    - `/privacy`（プライバシーポリシー）
-2. **お知らせ・ブログの管理画面**（簡易パスワード保護付きの投稿・編集・削除UI）
+2. **お知らせ・ブログの管理画面**（簡易パスワード保護付きの投稿・編集・削除UI。現在はSQL直接実行でのみ投稿可能）
 3. **本番Cloudflare D1データベースの作成・マイグレーション適用**
 4. **本番Cloudflare Pagesへのデプロイ**
 5. **お問い合わせフォームのフロントエンドUI実装**（現在APIのみ実装済み）
@@ -133,4 +167,4 @@ curl http://localhost:3000
 ## デプロイ状況
 - **プラットフォーム**: Cloudflare Pages（予定）
 - **現在の状態**: ❌ 未デプロイ（ローカル開発環境でのみ動作確認済み）
-- **最終更新**: 2026-08-13（「採用情報」「採用エントリーフォーム」「応募完了」ページ追加、採用エントリーメール通知機能を実装）
+- **最終更新**: 2026-08-13（「新着情報（お知らせ）」「ブログ」の投稿型ページ群を追加：一覧・詳細・年別/月別アーカイブ・カテゴリ別一覧・ページネーションをCloudflare D1のSQLで実装）
