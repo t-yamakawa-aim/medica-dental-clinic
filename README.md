@@ -53,6 +53,8 @@
   - `/admin/reserve` — クリニック向け予約枠管理画面（Basic認証で保護）。コース設定パネル（所要時間の変更）、担当スタッフ（歯科衛生士）管理パネル（追加・名前変更・休職切替・削除）、日付ナビ、コース・担当スタッフを指定した枠追加（単発／コースの所要時間ごとの一括追加）、その日の枠一覧表示（コース・担当スタッフ名を表示。予約が入っている枠は患者情報を表示しキャンセル可能、空き枠は削除可能）
   - 予約確定処理は「同じ日時・同じコースの空き枠候補を1件ずつ、`status='open'`である場合のみ更新（条件付きUPDATE）」というレース対策済みの自動割当ロジックで実装（同時アクセスでも二重予約・競合が発生しない）
   - 既存の初診専用データはすべて`course_type='initial_doctor'`（初診・院長）として引き続き利用可能
+- [x] **受付での予約登録**（`/admin/reserve`管理画面から、2回目以降の来院者などをスタッフが直接予約登録できる機能。「受付で予約登録」ボタン→モーダルフォームで氏名・電話番号（必須）等を入力し即時登録。担当スタッフが休み中の枠には登録できないようガード）
+- [x] **スタッフの日付・時間帯単位の休み管理**（`hygienist_time_off`テーブル。「稼働中/休職中」の固定フラグに加え、「Aさんは8/20は終日有給」「Bさんは8/21の10:00〜12:00だけお休み」のように日ごとに異なる勤務パターンを登録可能。患者向けの空き枠検索・空き日付検索・予約確定処理のすべてで休み時間帯を自動的に除外し、管理画面の枠一覧には「担当者が休みです」の警告バッジを表示）
 - [x] **クリニック管理トップ（`/admin`）・お知らせ管理（`/admin/news`）・ブログ管理（`/admin/blog`）**（いずれもBasic認証で保護）
   - お知らせ・ブログとも一覧表示（非公開記事も薄く表示）、新規追加・編集・削除がブラウザ上のモーダルフォームから可能
   - 公開/非公開の切り替えチェックボックス（非公開にするとサイトの一覧・トップページから即時非表示）
@@ -103,8 +105,12 @@
 | POST | `/api/admin/hygienists` | 【Basic認証必須】歯科衛生士を新規追加（JSON: name） |
 | PUT | `/api/admin/hygienists/:id` | 【Basic認証必須】歯科衛生士の名前・稼働状態を更新（JSON: name, is_active） |
 | DELETE | `/api/admin/hygienists/:id` | 【Basic認証必須】歯科衛生士を削除（予約枠で使用中の場合は409エラーで拒否。休職中への切替を推奨） |
-| GET | `/api/admin/reserve/slots?date=YYYY-MM-DD` | 【Basic認証必須】指定日の全枠＋コース・担当スタッフ・予約者情報取得（JSON） |
+| GET | `/api/admin/hygienist-time-off?hygienist_id=&from=` | 【Basic認証必須】スタッフの日付・時間帯単位の休み一覧取得（JSON。hygienist_id/fromは任意の絞り込み条件） |
+| POST | `/api/admin/hygienist-time-off` | 【Basic認証必須】休みを新規登録（JSON: hygienist_id, off_date必須。start_time/end_timeは両方指定で時間帯休み、両方省略で終日休み。reasonは任意） |
+| DELETE | `/api/admin/hygienist-time-off/:id` | 【Basic認証必須】休みの登録を削除 |
+| GET | `/api/admin/reserve/slots?date=YYYY-MM-DD` | 【Basic認証必須】指定日の全枠＋コース・担当スタッフ・予約者情報・`hygienist_is_off`（担当者が当該枠の日時に休み中かどうか）を取得（JSON） |
 | POST | `/api/admin/reserve/slots` | 【Basic認証必須】枠を新規追加（JSON: slot_date, start_time, course_type必須。initial_maintenanceはhygienist_idも必須。終了時刻はコース設定の所要時間から自動計算） |
+| POST | `/api/admin/reserve/slots/:id/book` | 【Basic認証必須】受付での予約登録。2回目以降の来院者などをスタッフが直接予約登録（JSON: name, phoneは必須。kana, email, birth_date, symptom, messageは任意。担当スタッフが休み中の場合は`hygienist_on_time_off`エラーで拒否） |
 | DELETE | `/api/admin/reserve/slots/:id` | 【Basic認証必須】枠を削除（予約が入っている場合は409エラーで拒否） |
 | POST | `/api/admin/reserve/slots/:id/cancel` | 【Basic認証必須】予約をキャンセルし枠を空きに戻す |
 | GET | `/admin/news` | 【Basic認証必須】お知らせ管理画面 |
