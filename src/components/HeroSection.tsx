@@ -69,7 +69,20 @@ export const HeroSection = () => {
       </div>
 
       <section class="hero__hours" id="hero-hours">
-        <div class="hero__hours-inner">
+        <button
+          type="button"
+          class="hero__hours-toggle"
+          id="hero-hours-toggle"
+          aria-expanded="true"
+          aria-controls="hero-hours-inner"
+          aria-label="診療時間パネルの開閉"
+        >
+          <i class="fa-solid fa-chevron-right hero__hours-toggle-icon"></i>
+          <span class="hero__hours-toggle-text">
+            <i class="fa-regular fa-clock"></i>診療時間
+          </span>
+        </button>
+        <div class="hero__hours-inner" id="hero-hours-inner">
           <h2 class="hero__hours-title">
             <i class="fa-regular fa-clock"></i>診療時間
           </h2>

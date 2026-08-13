@@ -90,6 +90,16 @@ document.addEventListener('DOMContentLoaded', () => {
     })
   }
 
+  /* ===== Hero hours panel toggle ===== */
+  const heroHours = document.getElementById('hero-hours')
+  const heroHoursToggle = document.getElementById('hero-hours-toggle')
+  if (heroHours && heroHoursToggle) {
+    heroHoursToggle.addEventListener('click', () => {
+      const collapsed = heroHours.classList.toggle('is-collapsed')
+      heroHoursToggle.setAttribute('aria-expanded', collapsed ? 'false' : 'true')
+    })
+  }
+
   /* ===== Hero slideshow ===== */
   const slides = document.querySelectorAll('.hero__slide')
   if (slides.length > 1) {

@@ -11,6 +11,10 @@ export const SITE = {
   addressFull: '〒921-8021 石川県金沢市疋田1-33',
   mapQuery: encodeURIComponent('石川県金沢市疋田1-33'),
   receptionHours: '9:00〜18:30',
+  // Googleカレンダー埋め込み用のカレンダーID
+  // 例: 'xxxxxxxxxxxx@group.calendar.google.com'
+  // ※ Googleカレンダー側で「予定の公開」設定をONにしてから設定してください
+  googleCalendarId: '',
 } as const
 
 // 診療時間テーブル用データ
