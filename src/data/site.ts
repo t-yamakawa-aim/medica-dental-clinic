@@ -105,18 +105,21 @@ export const SYMPTOMS: SymptomItem[] = [
     title: '審美・歯並び・ホワイトニング',
     slug: 'beauty',
     href: '/symptoms/beauty',
+    ready: true,
   },
   {
     icon: 'fa-solid fa-teeth-open',
     title: '歯や被せ物が欠けた・取れた',
     slug: 'broken',
     href: '/symptoms/broken',
+    ready: true,
   },
   {
     icon: 'fa-solid fa-teeth',
     title: '噛み合わせが悪い・歯が無い（少ない）',
     slug: 'bite',
     href: '/symptoms/bite',
+    ready: true,
   },
   {
     icon: 'fa-solid fa-clipboard-check',

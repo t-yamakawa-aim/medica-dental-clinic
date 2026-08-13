@@ -50,7 +50,11 @@ export const SymptomDetailPage = ({ detail }: Props) => {
               </h3>
 
               <div class="symptom-detail__cause-box">
-                <p class="symptom-detail__cause-lead">{cause.lead}</p>
+                {cause.lead.split('\n\n').map((p) => (
+                  <p class="symptom-detail__cause-lead">{p}</p>
+                ))}
+
+                {cause.leadNote && <p class="symptom-detail__cause-lead">{cause.leadNote}</p>}
 
                 {cause.image && (
                   <figure class="symptom-detail__cause-image">
@@ -83,6 +87,120 @@ export const SymptomDetailPage = ({ detail }: Props) => {
                       ))}
                     </tbody>
                   </table>
+                )}
+
+                {cause.blocks && cause.blocks.length > 0 && (
+                  <div class="symptom-detail__blocks">
+                    {cause.blocks.map((block) => (
+                      <div class="symptom-detail__block">
+                        <h4 class="symptom-detail__block-heading">
+                          {block.heading}
+                          {block.headingNote && <span class="symptom-detail__block-heading-note">{block.headingNote}</span>}
+                        </h4>
+
+                        {block.body &&
+                          block.body.split('\n\n').map((p) => <p class="symptom-detail__block-body">{p}</p>)}
+
+                        {block.bulletList && block.bulletList.length > 0 && (
+                          <ul class="symptom-detail__block-list">
+                            {block.bulletList.map((item) => (
+                              <li>{item}</li>
+                            ))}
+                          </ul>
+                        )}
+
+                        {block.image && (
+                          <figure class="symptom-detail__cause-image">
+                            <img src={block.image.src} alt={block.image.alt} loading="lazy" />
+                          </figure>
+                        )}
+
+                        {block.beforeAfter && (
+                          <div class="symptom-detail__before-after">
+                            <figure>
+                              <img src={block.beforeAfter.before.src} alt={block.beforeAfter.before.alt} loading="lazy" />
+                              <figcaption>治療前</figcaption>
+                            </figure>
+                            <figure>
+                              <img src={block.beforeAfter.after.src} alt={block.beforeAfter.after.alt} loading="lazy" />
+                              <figcaption>治療後</figcaption>
+                            </figure>
+                          </div>
+                        )}
+
+                        {block.table && block.table.length > 0 && (
+                          <table class="symptom-detail__table">
+                            <tbody>
+                              {block.table.map((row) => (
+                                <tr>
+                                  <th>{row.label}</th>
+                                  <td>{row.value}</td>
+                                </tr>
+                              ))}
+                            </tbody>
+                          </table>
+                        )}
+
+                        {block.subBlocks && block.subBlocks.length > 0 && (
+                          <div class="symptom-detail__subblocks">
+                            {block.subBlocks.map((sub) => (
+                              <div class="symptom-detail__subblock">
+                                <h5 class="symptom-detail__subblock-heading">
+                                  {sub.heading}
+                                  {sub.headingNote && (
+                                    <span class="symptom-detail__block-heading-note">{sub.headingNote}</span>
+                                  )}
+                                </h5>
+
+                                {sub.body &&
+                                  sub.body.split('\n\n').map((p) => <p class="symptom-detail__block-body">{p}</p>)}
+
+                                {sub.bulletList && sub.bulletList.length > 0 && (
+                                  <ul class="symptom-detail__block-list">
+                                    {sub.bulletList.map((item) => (
+                                      <li>{item}</li>
+                                    ))}
+                                  </ul>
+                                )}
+
+                                {sub.image && (
+                                  <figure class="symptom-detail__cause-image">
+                                    <img src={sub.image.src} alt={sub.image.alt} loading="lazy" />
+                                  </figure>
+                                )}
+
+                                {sub.beforeAfter && (
+                                  <div class="symptom-detail__before-after">
+                                    <figure>
+                                      <img src={sub.beforeAfter.before.src} alt={sub.beforeAfter.before.alt} loading="lazy" />
+                                      <figcaption>治療前</figcaption>
+                                    </figure>
+                                    <figure>
+                                      <img src={sub.beforeAfter.after.src} alt={sub.beforeAfter.after.alt} loading="lazy" />
+                                      <figcaption>治療後</figcaption>
+                                    </figure>
+                                  </div>
+                                )}
+
+                                {sub.table && sub.table.length > 0 && (
+                                  <table class="symptom-detail__table">
+                                    <tbody>
+                                      {sub.table.map((row) => (
+                                        <tr>
+                                          <th>{row.label}</th>
+                                          <td>{row.value}</td>
+                                        </tr>
+                                      ))}
+                                    </tbody>
+                                  </table>
+                                )}
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 )}
 
                 {cause.note && <p class="symptom-detail__note">{cause.note}</p>}
