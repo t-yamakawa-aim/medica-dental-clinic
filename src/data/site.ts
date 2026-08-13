@@ -126,12 +126,14 @@ export const SYMPTOMS: SymptomItem[] = [
     title: 'メンテナンスを受けたい・お口の状況を知りたい',
     slug: 'maintenance',
     href: '/symptoms/maintenance',
+    ready: true,
   },
   {
     icon: 'fa-solid fa-comment-medical',
     title: 'その他のお悩み・ご相談',
     slug: 'other',
     href: '/symptoms/other',
+    ready: true,
   },
 ]
 
