@@ -14,7 +14,7 @@ export const SITE = {
   // Googleカレンダー埋め込み用のカレンダーID
   // 例: 'xxxxxxxxxxxx@group.calendar.google.com'
   // ※ Googleカレンダー側で「予定の公開」設定をONにしてから設定してください
-  googleCalendarId: '',
+  googleCalendarId: 'c870ed19936b6ff4938157d79506b790c6d8b44ea0c94e794860e9b100ad63c3@group.calendar.google.com',
 } as const
 
 // 診療時間テーブル用データ
