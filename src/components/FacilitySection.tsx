@@ -24,13 +24,13 @@ export const FacilitySection = () => {
 
       <div class="facility-gallery">
         <div class="facility-gallery__item">
-          <img src="/static/images/facility-01.png" alt="施設紹介" />
+          <img src="/static/images/facility-01.png" alt="メディカデンタルクリニック外観" />
         </div>
         <div class="facility-gallery__item">
-          <img src="/static/images/facility-02.png" alt="施設紹介" />
+          <img src="/static/images/facility-02.png" alt="メディカデンタルクリニック待合室" />
         </div>
         <div class="facility-gallery__item">
-          <img src="/static/images/facility-03.png" alt="施設紹介" />
+          <img src="/static/images/facility-03.png" alt="メディカデンタルクリニックデンタルユニット" />
         </div>
       </div>
     </section>
