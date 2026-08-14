@@ -76,6 +76,14 @@ export const NAV_ITEMS: NavItem[] = [
   {
     label: '症状別で探す',
     href: '/symptoms',
+    children: [
+      { label: '痛い・しみる、など', href: '/symptoms/pain' },
+      { label: '歯並び・ホワイトニング', href: '/symptoms/beauty' },
+      { label: 'かぶせもの', href: '/symptoms/broken' },
+      { label: '噛み合わせが悪い・歯がない', href: '/symptoms/bite' },
+      { label: 'お口のメンテナンス', href: '/symptoms/maintenance' },
+      { label: 'その他のお悩み・ご相談', href: '/symptoms/other' },
+    ],
   },
   { label: '採用情報', href: '/recruit' },
   { label: 'アクセス', href: '/#access' },
