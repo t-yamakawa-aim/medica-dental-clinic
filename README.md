@@ -48,10 +48,8 @@
 ## デプロイ状況
 - **プラットフォーム**: Cloudflare Pages（`medica-dental-clinic` プロジェクト）
 - **技術スタック**: Hono + TypeScript + Cloudflare D1、フロントはCDN配信のTailwind/FontAwesome不使用（独自CSS `style.css`）
-- **状態**: 予約専用へのリファクタリング完了、ローカルビルド・起動確認済み。本番への再デプロイは未実施（次回作業）
+- **状態**: ✅ 予約専用へのリファクタリング完了、本番デプロイ済み、GitHubプッシュ済み
 - **最終更新**: 2026-08-15
 
 ## 今後の作業（未実施）
-- Cloudflare Pages本番への再デプロイ（`wrangler pages deploy`）
-- GitHubへのプッシュ
 - 旧カスタムドメイン `clinic.tomyama.com` の削除（Cloudflare側・Xserver DNS側）
