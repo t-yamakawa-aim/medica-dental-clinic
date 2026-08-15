@@ -1,0 +1,933 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0"
+    xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+    xmlns:content="http://purl.org/rss/1.0/modules/content/"
+    xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+    xmlns:dc="http://purl.org/dc/elements/1.1/"
+    xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+  <title>メディカデンタルクリニック</title>
+  <link>https://medica-clinic.tomyama.com</link>
+  <description>medica-dental-clinic データ移行</description>
+  <pubDate>Sat, 15 Aug 2026 00:19:31 +0000</pubDate>
+  <language>ja</language>
+  <wp:wxr_version>1.2</wp:wxr_version>
+  <wp:base_site_url>https://medica-clinic.tomyama.com</wp:base_site_url>
+  <wp:base_blog_url>https://medica-clinic.tomyama.com</wp:base_blog_url>
+  <wp:author>
+    <wp:author_id>1</wp:author_id>
+    <wp:author_login><![CDATA[admin]]></wp:author_login>
+    <wp:author_email><![CDATA[admin@example.com]]></wp:author_email>
+    <wp:author_display_name><![CDATA[admin]]></wp:author_display_name>
+  </wp:author>
+  <wp:category>
+    <wp:term_id>1</wp:term_id>
+    <wp:category_nicename><![CDATA[news]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[お知らせ]]></wp:cat_name>
+  </wp:category>
+  <wp:category>
+    <wp:term_id>2</wp:term_id>
+    <wp:category_nicename><![CDATA[blog]]></wp:category_nicename>
+    <wp:category_parent><![CDATA[]]></wp:category_parent>
+    <wp:cat_name><![CDATA[ブログ]]></wp:cat_name>
+  </wp:category>
+  <item>
+    <title><![CDATA[ホームページ完成しました]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1024</link>
+    <pubDate>Thu, 13 Aug 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1024</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>コーディング修行の成果物として、完成させました。<br />
+https://medica-dental-clinic.pages.dev/</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1024</wp:post_id>
+    <wp:post_date><![CDATA[2026-08-13 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-08-13 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-08-13 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-08-13 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-24]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[2026年〈8月・9月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1001</link>
+    <pubDate>Sat, 01 Aug 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1001</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>夏季休診日についてご案内いたします。8月14日(金)〜8月16日(日)は休診いたします。<br />
+<p><a href="/contact" class="button">Web予約・お問い合わせはこちら</a></p></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1001</wp:post_id>
+    <wp:post_date><![CDATA[2026-08-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-08-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-08-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-08-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-1]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[ゴールデンウィーク休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1002</link>
+    <pubDate>Sat, 25 Apr 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1002</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>ゴールデンウィーク期間中の診療についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1002</wp:post_id>
+    <wp:post_date><![CDATA[2026-04-25 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-04-25 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-04-25 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-04-25 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-2]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[2026年〈2月・3月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1004</link>
+    <pubDate>Sun, 01 Feb 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1004</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>2月・3月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1004</wp:post_id>
+    <wp:post_date><![CDATA[2026-02-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-02-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-02-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-02-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-4]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[【求人のお知らせ】歯科衛生士・歯科助手]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1005</link>
+    <pubDate>Mon, 19 Jan 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1005</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>歯科衛生士・歯科助手を募集しております。詳細は採用情報ページをご覧ください。<br />
+<p><a href="/recruit" class="button">採用情報を見る</a></p></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1005</wp:post_id>
+    <wp:post_date><![CDATA[2026-01-19 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-01-19 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-01-19 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-01-19 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-5]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[新型コロナウイルス感染対策について]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1003</link>
+    <pubDate>Sat, 10 Jan 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1003</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>当院での感染対策の取り組みについてご案内いたします。<br />
+<img src="[[IMAGE:body-4c0e0602b9.jpg]]" alt="受付での感染対策の様子" /><br />
+引き続き、患者様に安心してご来院いただけるよう努めてまいります。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1003</wp:post_id>
+    <wp:post_date><![CDATA[2026-01-10 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-01-10 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-01-10 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-01-10 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-3]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈12月・1月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1006</link>
+    <pubDate>Mon, 01 Dec 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1006</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>年末年始の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1006</wp:post_id>
+    <wp:post_date><![CDATA[2025-12-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-12-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-12-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-12-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-6]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈10月・11月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1007</link>
+    <pubDate>Sun, 07 Sep 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1007</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>10月・11月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1007</wp:post_id>
+    <wp:post_date><![CDATA[2025-09-07 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-09-07 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-09-07 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-09-07 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-7]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈8月・9月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1008</link>
+    <pubDate>Sun, 20 Jul 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1008</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>8月・9月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1008</wp:post_id>
+    <wp:post_date><![CDATA[2025-07-20 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-07-20 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-07-20 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-07-20 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-8]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈6月・7月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1009</link>
+    <pubDate>Fri, 16 May 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1009</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>6月・7月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1009</wp:post_id>
+    <wp:post_date><![CDATA[2025-05-16 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-05-16 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-05-16 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-05-16 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-9]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈4月・5月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1010</link>
+    <pubDate>Wed, 05 Mar 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1010</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>4月・5月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1010</wp:post_id>
+    <wp:post_date><![CDATA[2025-03-05 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-03-05 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-03-05 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-03-05 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-10]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈2月・3月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1011</link>
+    <pubDate>Sat, 01 Feb 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1011</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>2月・3月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1011</wp:post_id>
+    <wp:post_date><![CDATA[2025-02-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-02-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-02-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-02-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-11]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[診療予約のキャンセル・ご変更についてのお願い]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1012</link>
+    <pubDate>Wed, 01 Jan 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1012</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>当院からのお願いです。診療予約のキャンセル・ご変更は前日までにご連絡ください。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1012</wp:post_id>
+    <wp:post_date><![CDATA[2025-01-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-01-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-01-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-01-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-12]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈12月・1月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1013</link>
+    <pubDate>Sun, 01 Dec 2024 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1013</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>年末年始の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1013</wp:post_id>
+    <wp:post_date><![CDATA[2024-12-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2024-12-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2024-12-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2024-12-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-13]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈10月・11月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1014</link>
+    <pubDate>Tue, 10 Sep 2024 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1014</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>10月・11月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1014</wp:post_id>
+    <wp:post_date><![CDATA[2024-09-10 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2024-09-10 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2024-09-10 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2024-09-10 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-14]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈8月・9月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1015</link>
+    <pubDate>Mon, 15 Jul 2024 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1015</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>8月・9月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1015</wp:post_id>
+    <wp:post_date><![CDATA[2024-07-15 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2024-07-15 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2024-07-15 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2024-07-15 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-15]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[ホームページをリニューアルしました]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1016</link>
+    <pubDate>Mon, 01 Apr 2024 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1016</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>当院のホームページをリニューアルいたしました。<br />
+<p><a href="/" class="button">新しいトップページを見る</a></p></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1016</wp:post_id>
+    <wp:post_date><![CDATA[2024-04-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2024-04-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2024-04-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2024-04-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-16]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈4月・5月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1017</link>
+    <pubDate>Fri, 01 Mar 2024 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1017</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>4月・5月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1017</wp:post_id>
+    <wp:post_date><![CDATA[2024-03-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2024-03-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2024-03-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2024-03-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-17]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈12月・1月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1018</link>
+    <pubDate>Tue, 05 Dec 2023 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1018</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>年末年始の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1018</wp:post_id>
+    <wp:post_date><![CDATA[2023-12-05 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2023-12-05 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2023-12-05 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2023-12-05 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-18]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈8月・9月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1019</link>
+    <pubDate>Mon, 10 Jul 2023 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1019</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>8月・9月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1019</wp:post_id>
+    <wp:post_date><![CDATA[2023-07-10 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2023-07-10 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2023-07-10 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2023-07-10 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-19]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈4月・5月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1020</link>
+    <pubDate>Wed, 15 Mar 2023 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1020</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>4月・5月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1020</wp:post_id>
+    <wp:post_date><![CDATA[2023-03-15 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2023-03-15 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2023-03-15 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2023-03-15 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-20]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[新型コロナウイルス感染対策の緩和について]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1021</link>
+    <pubDate>Sat, 01 Oct 2022 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1021</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>感染対策の一部緩和についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1021</wp:post_id>
+    <wp:post_date><![CDATA[2022-10-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2022-10-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2022-10-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2022-10-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-21]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[〈8月・9月〉休診日のお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1022</link>
+    <pubDate>Tue, 05 Jul 2022 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1022</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>8月・9月の休診日についてご案内いたします。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1022</wp:post_id>
+    <wp:post_date><![CDATA[2022-07-05 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2022-07-05 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2022-07-05 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2022-07-05 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-22]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[当院オープンのお知らせ]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=1023</link>
+    <pubDate>Fri, 01 Apr 2022 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=1023</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>このたび当院を開院いたしました。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>1023</wp:post_id>
+    <wp:post_date><![CDATA[2022-04-01 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2022-04-01 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2022-04-01 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2022-04-01 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[news-23]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="news"><![CDATA[お知らせ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[虫歯予防のための正しい歯磨き方法]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2001</link>
+    <pubDate>Mon, 20 Jul 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2001</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>[[THUMBNAIL:blog-thumb-1.jpg]]</p>
+
+<p>虫歯を予防するためには、正しい歯磨きの方法を知ることが大切です。歯ブラシの選び方から磨き方のコツまで詳しく解説します。</p>
+
+<img src="[[IMAGE:body-7226802a61.jpg]]" alt="正しい歯ブラシの持ち方" />
+
+<p>まずは歯ブラシを鉛筆持ちで持ち、小刻みに動かすことがポイントです。力を入れすぎず、歯と歯茎の境目を意識して磨きましょう。</p>
+
+<p>ご自身の歯磨きに不安がある方は、当院の歯科衛生士による歯磨き指導もございますので、お気軽にご相談ください。</p>
+
+<p><a href="/contact" class="button">ご予約・お問い合わせはこちら</a></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2001</wp:post_id>
+    <wp:post_date><![CDATA[2026-07-20 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-07-20 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-07-20 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-07-20 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-1]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="予防歯科"><![CDATA[予防歯科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[歯周病と全身の健康の関係について]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2002</link>
+    <pubDate>Mon, 15 Jun 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2002</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>[[THUMBNAIL:blog-thumb-2.jpg]]</p>
+
+<p>歯周病は口の中だけの問題ではありません。全身の健康にも影響を及ぼすことが分かっています。近年の研究では、歯周病が糖尿病や心疾患のリスクを高める可能性が指摘されています。定期的な歯科検診で早期発見・早期治療を心がけましょう。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2002</wp:post_id>
+    <wp:post_date><![CDATA[2026-06-15 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-06-15 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-06-15 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-06-15 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-2]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="歯周病"><![CDATA[歯周病]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[インプラント治療のメリット・デメリット]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2003</link>
+    <pubDate>Sun, 10 May 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2003</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>[[THUMBNAIL:blog-thumb-3.jpg]]</p>
+
+<p>歯を失った際の治療法の一つであるインプラント治療について、そのメリットとデメリットをご紹介します。</p>
+
+<img src="[[IMAGE:body-a187015d4a.jpg]]" alt="模型を使ったインプラントのご説明" />
+
+<p>インプラントは自分の歯のような感覚で噛むことができる一方、外科手術が必要でありコストもかかります。当院では治療前に模型を使って丁寧にご説明し、納得いただいた上で治療を進めています。</p>
+
+<p><a href="/symptoms" class="button">インプラント治療について詳しく見る</a></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2003</wp:post_id>
+    <wp:post_date><![CDATA[2026-05-10 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-05-10 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-05-10 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-05-10 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-3]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="インプラント"><![CDATA[インプラント]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[子どものむし歯予防、いつから始める？]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2004</link>
+    <pubDate>Sun, 05 Apr 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2004</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>[[THUMBNAIL_MISSING: https://sspark.genspark.ai/cfimages?u1=3Vk6Edykswcb1jZBCS4jo38mi06EjjXDlH8cDwROOwRXdsn829yt7Sto%2BDOx8GFFgf3XbtXrlCAakLn4QfdM787ADw%2FXY7mA35%2BqARzLHB7n%2F3j%2BxunA8Fl8UWM%2B%2Bl416VjGWxoGbIwYvepTnLNFbbfX3Px%2B&u2=cqOP2TryqY%2Bha%2Ble&width=2560]]</p>
+
+<p>小さなお子様の歯を守るために、いつからどのような予防が必要なのかを解説します。</p>
+
+<img src="https://sspark.genspark.ai/cfimages?u1=3Vk6Edykswcb1jZBCS4jo38mi06EjjXDlH8cDwROOwRXdsn829yt7Sto%2BDOx8GFFgf3XbtXrlCAakLn4QfdM787ADw%2FXY7mA35%2BqARzLHB7n%2F3j%2BxunA8Fl8UWM%2B%2Bl416VjGWxoGbIwYvepTnLNFbbfX3Px%2B&u2=cqOP2TryqY%2Bha%2Ble&width=2560" alt="仕上げ磨きをする親子" />
+
+<p>乳歯が生え始める生後6ヶ月頃から、ガーゼで歯を拭く習慣をつけることが大切です。仕上げ磨きは小学校低学年頃まで保護者の方が行ってあげましょう。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2004</wp:post_id>
+    <wp:post_date><![CDATA[2026-04-05 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-04-05 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-04-05 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-04-05 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-4]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="小児歯科"><![CDATA[小児歯科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[ホワイトニングの種類と効果の違い]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2005</link>
+    <pubDate>Wed, 18 Feb 2026 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2005</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>ホワイトニングには、歯科医院で行うオフィスホワイトニングと、自宅で行うホームホワイトニングがあります。それぞれの特徴と効果の違いについて解説します。</p>
+
+<p><a href="/contact" class="button">ホワイトニングのご相談はこちら</a></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2005</wp:post_id>
+    <wp:post_date><![CDATA[2026-02-18 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2026-02-18 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2026-02-18 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2026-02-18 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-5]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="審美歯科"><![CDATA[審美歯科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[矯正治療を始めるベストな年齢とは]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2006</link>
+    <pubDate>Sat, 22 Nov 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2006</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>矯正治療は何歳から始めるのが良いのでしょうか。お子様の矯正と成人矯正、それぞれのメリットについてご紹介します。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2006</wp:post_id>
+    <wp:post_date><![CDATA[2025-11-22 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-11-22 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-11-22 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-11-22 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-6]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="矯正歯科"><![CDATA[矯正歯科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[親知らずの抜歯が必要なケースとは]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2007</link>
+    <pubDate>Sun, 14 Sep 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2007</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>親知らずは必ず抜かなければならないわけではありません。抜歯が必要になるケースと、経過観察でよいケースについて解説します。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2007</wp:post_id>
+    <wp:post_date><![CDATA[2025-09-14 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-09-14 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-09-14 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-09-14 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-7]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="口腔外科"><![CDATA[口腔外科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[定期検診・メンテナンスの重要性]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2008</link>
+    <pubDate>Sun, 03 Aug 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2008</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>虫歯や歯周病を予防するためには、定期的な検診とプロフェッショナルクリーニングが効果的です。当院での定期検診の流れをご紹介します。</p>
+
+<p>詳しくは以下の外部サイトも参考にしてください。<br />
+<a href="https://www.jda.or.jp/">日本歯科医師会「予防歯科」</a></p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2008</wp:post_id>
+    <wp:post_date><![CDATA[2025-08-03 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-08-03 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-08-03 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-08-03 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-8]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="予防歯科"><![CDATA[予防歯科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[知覚過敏の原因と対処法]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2009</link>
+    <pubDate>Wed, 11 Jun 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2009</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>冷たいものや歯ブラシの刺激で歯がしみる知覚過敏。その原因と、ご自宅でできる対処法、歯科医院での治療法をご紹介します。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2009</wp:post_id>
+    <wp:post_date><![CDATA[2025-06-11 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-06-11 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-06-11 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-06-11 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-9]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="一般歯科"><![CDATA[一般歯科]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+  <item>
+    <title><![CDATA[入れ歯とインプラントの違いを比較]]></title>
+    <link>https://medica-clinic.tomyama.com/?p=2010</link>
+    <pubDate>Thu, 27 Mar 2025 00:00:00 +0000</pubDate>
+    <dc:creator><![CDATA[admin]]></dc:creator>
+    <guid isPermaLink="false">https://medica-clinic.tomyama.com/?p=2010</guid>
+    <description></description>
+    <content:encoded><![CDATA[<p>歯を失った際の代表的な治療法である入れ歯とインプラント。それぞれの特徴、費用、メリット・デメリットを比較してご紹介します。</p>]]></content:encoded>
+    <excerpt:encoded><![CDATA[]]></excerpt:encoded>
+    <wp:post_id>2010</wp:post_id>
+    <wp:post_date><![CDATA[2025-03-27 00:00:00]]></wp:post_date>
+    <wp:post_date_gmt><![CDATA[2025-03-27 00:00:00]]></wp:post_date_gmt>
+    <wp:post_modified><![CDATA[2025-03-27 00:00:00]]></wp:post_modified>
+    <wp:post_modified_gmt><![CDATA[2025-03-27 00:00:00]]></wp:post_modified_gmt>
+    <wp:comment_status><![CDATA[closed]]></wp:comment_status>
+    <wp:ping_status><![CDATA[closed]]></wp:ping_status>
+    <wp:post_name><![CDATA[post-10]]></wp:post_name>
+    <wp:status><![CDATA[publish]]></wp:status>
+    <wp:post_parent>0</wp:post_parent>
+    <wp:menu_order>0</wp:menu_order>
+    <wp:post_type><![CDATA[post]]></wp:post_type>
+    <wp:post_password><![CDATA[]]></wp:post_password>
+    <wp:is_sticky>0</wp:is_sticky>
+    <category domain="category" nicename="インプラント"><![CDATA[インプラント]]></category>
+    <category domain="category" nicename="blog"><![CDATA[ブログ]]></category>
+  </item>
+</channel>
+</rss>
