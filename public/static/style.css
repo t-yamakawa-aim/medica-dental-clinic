@@ -227,6 +227,71 @@ h1, h2, h3, h4, p {
   width: auto;
 }
 
+/* ---- 予約システム専用ヘッダー（Header.tsx） ---- */
+.site-header__brand {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.site-header__logo-img {
+  height: 40px;
+  width: auto;
+}
+.site-header__sub {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--color-main);
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+.site-header__nav {
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
+.site-header__nav-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--color-sub);
+  white-space: nowrap;
+}
+.site-header__nav-link:hover {
+  color: var(--color-main);
+}
+.site-header__tel {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--color-main);
+  padding: 8px 16px;
+  border-radius: 999px;
+  background: var(--color-bg-blue);
+  white-space: nowrap;
+}
+
+@media (max-width: 600px) {
+  .site-header__sub {
+    display: none;
+  }
+  .site-header__nav {
+    gap: 10px;
+  }
+  .site-header__nav-link span {
+    display: none;
+  }
+  .site-header__tel span {
+    display: none;
+  }
+  .site-header__tel {
+    padding: 10px 14px;
+  }
+}
+
 .gnav-btn {
   display: none;
   flex-direction: column;
@@ -976,6 +1041,43 @@ h1, h2, h3, h4, p {
 .site-footer__copyright {
   font-size: 12px;
   color: #9fb0c0;
+}
+
+/* ---- 予約システム専用フッター（Footer.tsx） ---- */
+.site-footer__inner {
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 48px 24px;
+  text-align: center;
+}
+.site-footer__name {
+  font-size: 16px;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.site-footer__address {
+  font-size: 13px;
+  color: #cfd9e2;
+  margin-bottom: 10px;
+}
+.site-footer__tel a {
+  font-size: 15px;
+  font-weight: 700;
+  color: #fff;
+}
+.site-footer__link {
+  margin-top: 14px;
+}
+.site-footer__link a {
+  font-size: 13px;
+  color: #cfd9e2;
+  text-decoration: underline;
+}
+.site-footer__link a:hover {
+  color: #fff;
+}
+.site-footer__inner .site-footer__copyright {
+  margin-top: 20px;
 }
 
 /* =========================================================

@@ -7,7 +7,7 @@ export const ReservePage = () => {
       <PageHeader
         titleJa="Web予約（初診専用）"
         titleEn="WEB RESERVE"
-        breadcrumbs={[{ label: 'ホーム', href: '/' }, { label: 'Web予約' }]}
+        breadcrumbs={[{ label: 'ホーム', href: SITE.websiteUrl }, { label: 'Web予約' }]}
       />
 
       <main class="reserve-page" id="top">
@@ -155,7 +155,7 @@ export const ReservePage = () => {
                   <br />
                   ご予約の変更・キャンセルはお電話（{SITE.phone}）にてご連絡ください。
                 </p>
-                <a href="/" class="btn btn-secondary">トップページへ戻る</a>
+                <a href={SITE.websiteUrl} class="btn btn-secondary">トップページへ戻る</a>
               </div>
             </div>
           </div>
