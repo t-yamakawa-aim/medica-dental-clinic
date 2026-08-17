@@ -245,6 +245,7 @@ document.addEventListener('DOMContentLoaded', () => {
           phone: formData.get('phone'),
           email: formData.get('email'),
           birth_date: formData.get('birth_date'),
+          patient_number: formData.get('patient_number'),
           symptom: formData.get('symptom'),
           message: formData.get('message'),
         }

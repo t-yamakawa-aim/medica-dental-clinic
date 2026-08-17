@@ -3822,6 +3822,21 @@ h1, h2, h3, h4, p {
   font-size: 14px;
   flex: 1 1 200px;
 }
+.admin-hygienists__role-select {
+  padding: 8px 10px;
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  font-size: 14px;
+}
+.admin-hygienists__group-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--color-main);
+  margin: 10px 0 4px;
+}
+.admin-hygienists__group-title:first-child {
+  margin-top: 0;
+}
 
 /* ---- スタッフの休み管理パネル（日付・時間帯単位） ---- */
 .admin-timeoff__add-form {
@@ -4417,5 +4432,131 @@ h1, h2, h3, h4, p {
   .admin-post__item-actions {
     width: 100%;
     justify-content: flex-end;
+  }
+}
+
+/* ==================== 当日担当表（スタッフ×時間帯マトリクス） ==================== */
+.admin-schedule__toolbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  margin: 16px 0 20px;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+}
+.admin-schedule__date-nav {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.admin-schedule__quick-btns {
+  display: flex;
+  gap: 8px;
+}
+.admin-schedule__print-header {
+  display: none;
+}
+.admin-schedule__table-wrap {
+  overflow-x: auto;
+  background: #fff;
+  border: 1px solid #e0e0e0;
+  border-radius: 10px;
+  padding: 4px;
+}
+.admin-schedule__table {
+  border-collapse: collapse;
+  width: 100%;
+  min-width: 480px;
+  font-size: 13px;
+}
+.admin-schedule__table th,
+.admin-schedule__table td {
+  border: 1px solid #ddd;
+  padding: 8px 10px;
+  text-align: center;
+  vertical-align: middle;
+}
+.admin-schedule__time-col {
+  white-space: nowrap;
+  background: #fafafa;
+  font-weight: 700;
+  min-width: 90px;
+}
+.admin-schedule__staff-col {
+  min-width: 110px;
+}
+.admin-schedule__staff-col.is-dentist {
+  background: var(--color-bg-blue);
+}
+.admin-schedule__staff-col.is-hygienist {
+  background: #fdf3e7;
+}
+.admin-schedule__staff-role {
+  display: block;
+  font-size: 11px;
+  color: #777;
+}
+.admin-schedule__staff-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 700;
+}
+.admin-schedule__cell {
+  min-height: 40px;
+}
+.admin-schedule__cell.is-booked {
+  background: #fff7e0;
+}
+.admin-schedule__cell.is-off {
+  background: #f0f0f0;
+  color: #999;
+}
+.admin-schedule__cell-name {
+  font-weight: 700;
+  font-size: 13px;
+}
+.admin-schedule__cell-number {
+  font-size: 11px;
+  color: #666;
+}
+.admin-schedule__cell-course {
+  font-size: 11px;
+  color: var(--color-main);
+}
+
+/* ---- 印刷対応：管理画面のナビ・操作UIを隠し、担当表のみを印刷する ---- */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  .admin-schedule__no-print {
+    display: none !important;
+  }
+  #admin-schedule-root,
+  #admin-schedule-root * {
+    visibility: visible;
+  }
+  #admin-schedule-root {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+  }
+  .admin-schedule__print-header {
+    display: block !important;
+    margin-bottom: 12px;
+  }
+  .admin-schedule__print-header h2 {
+    font-size: 18px;
+  }
+  .admin-schedule__table-wrap {
+    border: none;
+    padding: 0;
+  }
+  .admin-schedule__table {
+    font-size: 11px;
   }
 }

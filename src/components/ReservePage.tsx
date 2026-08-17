@@ -116,6 +116,14 @@ export const ReservePage = () => {
 
                 <div class="reserve-form__group">
                   <div class="reserve-form__label-row">
+                    <label class="reserve-form__label" for="reserve-patient-number">患者番号（当院にお心当たりがある方）</label>
+                    <span class="reserve-form__badge reserve-form__badge--optional">任意</span>
+                  </div>
+                  <input type="text" id="reserve-patient-number" name="patient_number" class="reserve-form__input" placeholder="以前ご来院され、患者番号がお分かりの場合はご記入ください" />
+                </div>
+
+                <div class="reserve-form__group">
+                  <div class="reserve-form__label-row">
                     <label class="reserve-form__label" for="reserve-symptom">症状・ご相談内容</label>
                     <span class="reserve-form__badge reserve-form__badge--optional">任意</span>
                   </div>

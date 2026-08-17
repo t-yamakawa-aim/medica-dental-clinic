@@ -30,6 +30,11 @@ export const AdminDashboardPage = () => {
                 <h2>Web予約枠管理</h2>
                 <p>予約枠の追加・削除、予約者情報の確認・キャンセルができます。</p>
               </a>
+              <a href="/admin/schedule" class="admin-dashboard__card">
+                <i class="fa-solid fa-table-list"></i>
+                <h2>当日担当表</h2>
+                <p>スタッフ×時間帯で担当患者が一覧できます。印刷して紙で持ち歩くこともできます。</p>
+              </a>
             </div>
           </main>
         </div>

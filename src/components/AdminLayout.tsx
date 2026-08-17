@@ -1,7 +1,7 @@
 // 管理画面共通のヘッダーナビゲーション。
 // このプロジェクトはWeb予約システム専用のため、予約枠管理のみを持つ。
 type Props = {
-  active: 'dashboard' | 'reserve'
+  active: 'dashboard' | 'reserve' | 'schedule'
 }
 
 export const AdminNav = ({ active }: Props) => {
@@ -14,6 +14,7 @@ export const AdminNav = ({ active }: Props) => {
     <nav class="admin-nav">
       {item('/admin', 'dashboard', 'fa-solid fa-gauge', '管理トップ')}
       {item('/admin/reserve', 'reserve', 'fa-regular fa-calendar-check', 'Web予約枠')}
+      {item('/admin/schedule', 'schedule', 'fa-solid fa-table-list', '当日担当表')}
     </nav>
   )
 }

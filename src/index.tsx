@@ -5,6 +5,7 @@ import { Header } from './components/Header'
 import { Footer } from './components/Footer'
 import { ReservePage } from './components/ReservePage'
 import { AdminReservePage } from './components/AdminReservePage'
+import { AdminSchedulePage } from './components/AdminSchedulePage'
 import { AdminDashboardPage } from './components/AdminDashboardPage'
 
 export type Bindings = {
@@ -17,10 +18,10 @@ const app = new Hono<{ Bindings: Bindings }>()
 
 app.use(renderer)
 
-// ==================== Web予約（初診＝院長 / 初診メンテナンス＝歯科衛生士） ====================
+// ==================== Web予約（初診＝歯科医師 / 初診メンテナンス＝歯科衛生士） ====================
 // コースの所要時間(30/45/60分)はクリニックごとに course_settings テーブルで設定可能。
-// 歯科衛生士は1〜5名程度で増減・休職があるため hygienists テーブルで管理し、
-// 患者側には「担当者」を見せず、時間だけを提示して裏側で自動的に空いている衛生士を割り当てる。
+// 歯科医師・歯科衛生士は共に staff テーブルで管理し（role列で区別、それぞれ1〜4名程度の増減・休職に対応）、
+// 患者側には「担当者」を見せず、時間だけを提示して裏側で自動的に空いているスタッフを割り当てる。
 
 const pad2 = (n: number): string => String(n).padStart(2, '0')
 
@@ -36,15 +37,14 @@ const addMinutes = (time: string, minutes: number): string => {
 const isValidDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)
 const isValidTime = (s: unknown): s is string => typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)
 
-// 歯科衛生士の「日付・時間帯単位の休み」を考慮したSQL条件（NOT EXISTS句）を生成する。
-// hygienist_time_off に、対象枠(slot_date, start_time〜end_time)と重なる休みがあれば除外する。
+// スタッフ（歯科医師・歯科衛生士）の「日付・時間帯単位の休み」を考慮したSQL条件（NOT EXISTS句）を生成する。
+// staff_time_off に、対象枠(slot_date, start_time〜end_time)と重なる休みがあれば除外する。
 // - start_time/end_timeが両方NULLの休み = 終日休み
 // - それ以外は時間帯の重複判定（開始 < 相手の終了 AND 終了 > 相手の開始）
-// - hygienist_id が NULL の枠（院長担当の初診など）は対象外＝常に通過する
 const notOnTimeOffSql = (alias: string): string => `
   NOT EXISTS (
-    SELECT 1 FROM hygienist_time_off t
-    WHERE t.hygienist_id = ${alias}.hygienist_id
+    SELECT 1 FROM staff_time_off t
+    WHERE t.staff_id = ${alias}.staff_id
       AND t.off_date = ${alias}.slot_date
       AND (
         (t.start_time IS NULL AND t.end_time IS NULL)
@@ -68,6 +68,16 @@ const COURSE_TYPES = ['initial_doctor', 'initial_maintenance'] as const
 type CourseType = (typeof COURSE_TYPES)[number]
 const isValidCourseType = (s: unknown): s is CourseType => typeof s === 'string' && (COURSE_TYPES as readonly string[]).includes(s)
 const ALLOWED_DURATIONS = [30, 45, 60]
+
+const STAFF_ROLES = ['dentist', 'hygienist'] as const
+type StaffRole = (typeof STAFF_ROLES)[number]
+const isValidStaffRole = (s: unknown): s is StaffRole => typeof s === 'string' && (STAFF_ROLES as readonly string[]).includes(s)
+
+// コース種別ごとに担当できるスタッフの役割（初診=歯科医師 / 初診メンテナンス=歯科衛生士）
+const ROLE_FOR_COURSE: Record<CourseType, StaffRole> = {
+  initial_doctor: 'dentist',
+  initial_maintenance: 'hygienist',
+}
 
 async function getCourseSetting(env: Bindings, courseType: CourseType) {
   const row = await env.DB.prepare(
@@ -138,8 +148,9 @@ app.get('/api/reserve/available-dates', async (c) => {
 })
 
 // ---- 患者用: 予約登録 ----
-// 患者は「日付・時間・コース」だけを指定する。同じ日時に複数の歯科衛生士の枠が
+// 患者は「日付・時間・コース」だけを指定する。同じ日時に複数のスタッフの枠が
 // 空いている場合は、裏側で自動的にどれか1つを選んで確保する（担当者名は患者に見せない）。
+// patient_number（院内患者番号）は任意入力。久しぶりの来院の方が分かる場合にご記入いただく。
 app.post('/api/reserve', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => null)
@@ -155,8 +166,8 @@ app.post('/api/reserve', async (c) => {
   }
 
   try {
-    // 同じ日付・時間・コースで「空き」になっている候補枠(複数の衛生士がいれば複数件)を取得
-    // 担当の歯科衛生士がその日その時間帯に休みの場合は候補から除外する
+    // 同じ日付・時間・コースで「空き」になっている候補枠(複数のスタッフがいれば複数件)を取得
+    // 担当のスタッフがその日その時間帯に休みの場合は候補から除外する
     const { results: candidates } = await env.DB.prepare(
       `SELECT id FROM reservation_slots
        WHERE slot_date = ? AND start_time = ? AND course_type = ? AND status = 'open'
@@ -189,8 +200,8 @@ app.post('/api/reserve', async (c) => {
     }
 
     await env.DB.prepare(
-      `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message, patient_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         claimedSlotId,
@@ -200,7 +211,8 @@ app.post('/api/reserve', async (c) => {
         body.email || null,
         body.birth_date || null,
         body.symptom || null,
-        body.message || null
+        body.message || null,
+        body.patient_number || null
       )
       .run()
 
@@ -263,33 +275,51 @@ app.put('/api/admin/course-settings/:courseType', async (c) => {
   }
 })
 
-// ---- 管理用: 歯科衛生士の一覧・追加・更新・削除（1〜5名程度、休職はis_activeで非表示にする） ----
-app.get('/api/admin/hygienists', async (c) => {
+// ---- 管理用: スタッフ（歯科医師・歯科衛生士）の一覧・追加・更新・削除 ----
+// 歯科医師・歯科衛生士とも1〜4名程度で増減・休職があるため role 付きの staff テーブルで一元管理し、
+// 休職は is_active で非表示にする（削除は予約枠に紐づいている場合はできない）。
+app.get('/api/admin/staff', async (c) => {
   const { env } = c
+  const role = c.req.query('role')
+  if (role !== undefined && !isValidStaffRole(role)) {
+    return c.json({ ok: false, error: 'invalid_role' }, 400)
+  }
   try {
-    const { results } = await env.DB.prepare(
-      'SELECT id, name, is_active, sort_order FROM hygienists ORDER BY sort_order ASC, id ASC'
-    ).all()
+    const query = role
+      ? env.DB.prepare(
+          `SELECT id, name, role, is_active, sort_order FROM staff WHERE role = ?
+           ORDER BY sort_order ASC, id ASC`
+        ).bind(role)
+      : env.DB.prepare(
+          `SELECT id, name, role, is_active, sort_order FROM staff
+           ORDER BY CASE role WHEN 'dentist' THEN 0 ELSE 1 END, sort_order ASC, id ASC`
+        )
+    const { results } = await query.all()
     return c.json({ ok: true, items: results })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)
   }
 })
 
-app.post('/api/admin/hygienists', async (c) => {
+app.post('/api/admin/staff', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => null)
   const name = String(body?.name || '').trim()
-  if (!name) {
+  const role = body?.role
+  if (!name || !isValidStaffRole(role)) {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
   try {
-    const maxRow = await env.DB.prepare('SELECT COALESCE(MAX(sort_order), 0) as maxOrder FROM hygienists').first()
+    const maxRow = await env.DB.prepare(
+      'SELECT COALESCE(MAX(sort_order), 0) as maxOrder FROM staff WHERE role = ?'
+    )
+      .bind(role)
+      .first()
     const nextOrder = ((maxRow as any)?.maxOrder || 0) + 1
     const result = await env.DB.prepare(
-      'INSERT INTO hygienists (name, is_active, sort_order) VALUES (?, 1, ?)'
+      'INSERT INTO staff (name, role, is_active, sort_order) VALUES (?, ?, 1, ?)'
     )
-      .bind(name, nextOrder)
+      .bind(name, role, nextOrder)
       .run()
     return c.json({ ok: true, id: result.meta?.last_row_id })
   } catch (e) {
@@ -297,7 +327,7 @@ app.post('/api/admin/hygienists', async (c) => {
   }
 })
 
-app.put('/api/admin/hygienists/:id', async (c) => {
+app.put('/api/admin/staff/:id', async (c) => {
   const { env } = c
   const id = Number(c.req.param('id'))
   if (!Number.isInteger(id)) {
@@ -308,13 +338,13 @@ app.put('/api/admin/hygienists/:id', async (c) => {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
   try {
-    const existing = await env.DB.prepare('SELECT id, name, is_active FROM hygienists WHERE id = ?').bind(id).first()
+    const existing = await env.DB.prepare('SELECT id, name, is_active FROM staff WHERE id = ?').bind(id).first()
     if (!existing) {
       return c.json({ ok: false, error: 'not_found' }, 404)
     }
     const name = body.name !== undefined ? String(body.name).trim() : (existing as any).name
     const isActive = body.is_active !== undefined ? (body.is_active ? 1 : 0) : (existing as any).is_active
-    await env.DB.prepare('UPDATE hygienists SET name = ?, is_active = ? WHERE id = ?')
+    await env.DB.prepare('UPDATE staff SET name = ?, is_active = ? WHERE id = ?')
       .bind(name, isActive, id)
       .run()
     return c.json({ ok: true })
@@ -323,45 +353,45 @@ app.put('/api/admin/hygienists/:id', async (c) => {
   }
 })
 
-app.delete('/api/admin/hygienists/:id', async (c) => {
+app.delete('/api/admin/staff/:id', async (c) => {
   const { env } = c
   const id = Number(c.req.param('id'))
   if (!Number.isInteger(id)) {
     return c.json({ ok: false, error: 'invalid_id' }, 400)
   }
   try {
-    const inUse = await env.DB.prepare('SELECT COUNT(*) as cnt FROM reservation_slots WHERE hygienist_id = ?')
+    const inUse = await env.DB.prepare('SELECT COUNT(*) as cnt FROM reservation_slots WHERE staff_id = ?')
       .bind(id)
       .first()
     if (((inUse as any)?.cnt || 0) > 0) {
-      return c.json({ ok: false, error: 'hygienist_in_use' }, 409)
+      return c.json({ ok: false, error: 'staff_in_use' }, 409)
     }
-    await env.DB.prepare('DELETE FROM hygienists WHERE id = ?').bind(id).run()
+    await env.DB.prepare('DELETE FROM staff WHERE id = ?').bind(id).run()
     return c.json({ ok: true })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)
   }
 })
 
-// ---- 管理用: 歯科衛生士の「日付・時間帯単位の休み」一覧取得・追加・削除 ----
+// ---- 管理用: スタッフの「日付・時間帯単位の休み」一覧取得・追加・削除 ----
 // 「稼働中/休職中」のような固定フラグではなく、
 // 「Aさんは8/20は終日有給」「Bさんは8/21の10:00〜12:00だけお休み」のように
-// 日によって異なる勤務パターン（有給、午前休、時短出勤など）を管理する。
-app.get('/api/admin/hygienist-time-off', async (c) => {
+// 日によって異なる勤務パターン（有給、午前休、時短出勤など）を管理する。歯科医師・歯科衛生士共通。
+app.get('/api/admin/staff-time-off', async (c) => {
   const { env } = c
-  const hygienistId = c.req.query('hygienist_id')
+  const staffId = c.req.query('staff_id')
   const from = c.req.query('from') // 一覧表示の絞り込み用（この日付以降のみ返す）
   try {
-    let query = `SELECT id, hygienist_id, off_date, start_time, end_time, reason, created_at FROM hygienist_time_off`
+    let query = `SELECT id, staff_id, off_date, start_time, end_time, reason, created_at FROM staff_time_off`
     const conditions: string[] = []
     const params: (string | number)[] = []
-    if (hygienistId !== undefined) {
-      const hid = Number(hygienistId)
-      if (!Number.isInteger(hid)) {
-        return c.json({ ok: false, error: 'invalid_hygienist_id' }, 400)
+    if (staffId !== undefined) {
+      const sid = Number(staffId)
+      if (!Number.isInteger(sid)) {
+        return c.json({ ok: false, error: 'invalid_staff_id' }, 400)
       }
-      conditions.push('hygienist_id = ?')
-      params.push(hid)
+      conditions.push('staff_id = ?')
+      params.push(sid)
     }
     if (from !== undefined) {
       if (!isValidDate(from)) {
@@ -382,11 +412,11 @@ app.get('/api/admin/hygienist-time-off', async (c) => {
   }
 })
 
-app.post('/api/admin/hygienist-time-off', async (c) => {
+app.post('/api/admin/staff-time-off', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => null)
-  const hygienistId = Number(body?.hygienist_id)
-  if (!body || !Number.isInteger(hygienistId) || !isValidDate(body.off_date)) {
+  const staffId = Number(body?.staff_id)
+  if (!body || !Number.isInteger(staffId) || !isValidDate(body.off_date)) {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
   // start_time/end_timeは両方省略(終日休み) or 両方指定(時間帯休み)のみ許可
@@ -396,15 +426,15 @@ app.post('/api/admin/hygienist-time-off', async (c) => {
     return c.json({ ok: false, error: 'invalid_time_range' }, 400)
   }
   try {
-    const hygienist = await env.DB.prepare('SELECT id FROM hygienists WHERE id = ?').bind(hygienistId).first()
-    if (!hygienist) {
-      return c.json({ ok: false, error: 'hygienist_not_found' }, 404)
+    const staff = await env.DB.prepare('SELECT id FROM staff WHERE id = ?').bind(staffId).first()
+    if (!staff) {
+      return c.json({ ok: false, error: 'staff_not_found' }, 404)
     }
     const result = await env.DB.prepare(
-      `INSERT INTO hygienist_time_off (hygienist_id, off_date, start_time, end_time, reason)
+      `INSERT INTO staff_time_off (staff_id, off_date, start_time, end_time, reason)
        VALUES (?, ?, ?, ?, ?)`
     )
-      .bind(hygienistId, body.off_date, startTime || null, endTime || null, body.reason || null)
+      .bind(staffId, body.off_date, startTime || null, endTime || null, body.reason || null)
       .run()
     return c.json({ ok: true, id: result.meta?.last_row_id })
   } catch (e) {
@@ -412,21 +442,21 @@ app.post('/api/admin/hygienist-time-off', async (c) => {
   }
 })
 
-app.delete('/api/admin/hygienist-time-off/:id', async (c) => {
+app.delete('/api/admin/staff-time-off/:id', async (c) => {
   const { env } = c
   const id = Number(c.req.param('id'))
   if (!Number.isInteger(id)) {
     return c.json({ ok: false, error: 'invalid_id' }, 400)
   }
   try {
-    await env.DB.prepare('DELETE FROM hygienist_time_off WHERE id = ?').bind(id).run()
+    await env.DB.prepare('DELETE FROM staff_time_off WHERE id = ?').bind(id).run()
     return c.json({ ok: true })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)
   }
 })
 
-// ---- 管理用: 指定日の全枠＋予約者情報（コース・担当衛生士も表示） ----
+// ---- 管理用: 指定日の全枠＋予約者情報（コース・担当スタッフも表示） ----
 app.get('/api/admin/reserve/slots', async (c) => {
   const { env } = c
   const date = c.req.query('date')
@@ -436,22 +466,22 @@ app.get('/api/admin/reserve/slots', async (c) => {
   try {
     const { results } = await env.DB.prepare(
       `SELECT s.id, s.slot_date, s.start_time, s.end_time, s.status, s.course_type, s.duration_minutes,
-              s.hygienist_id, h.name as hygienist_name,
-              r.id as reservation_id, r.name, r.kana, r.phone, r.email, r.birth_date, r.symptom, r.message,
+              s.staff_id, st.name as staff_name, st.role as staff_role,
+              r.id as reservation_id, r.name, r.kana, r.phone, r.email, r.birth_date, r.symptom, r.message, r.patient_number,
               EXISTS (
-                SELECT 1 FROM hygienist_time_off t
-                WHERE t.hygienist_id = s.hygienist_id
+                SELECT 1 FROM staff_time_off t
+                WHERE t.staff_id = s.staff_id
                   AND t.off_date = s.slot_date
                   AND (
                     (t.start_time IS NULL AND t.end_time IS NULL)
                     OR (t.start_time < s.end_time AND t.end_time > s.start_time)
                   )
-              ) as hygienist_is_off
+              ) as staff_is_off
        FROM reservation_slots s
-       LEFT JOIN hygienists h ON h.id = s.hygienist_id
+       LEFT JOIN staff st ON st.id = s.staff_id
        LEFT JOIN reservations r ON r.slot_id = s.id
        WHERE s.slot_date = ?
-       ORDER BY s.start_time ASC, s.hygienist_id ASC`
+       ORDER BY s.start_time ASC, s.staff_id ASC`
     )
       .bind(date)
       .all()
@@ -461,7 +491,7 @@ app.get('/api/admin/reserve/slots', async (c) => {
   }
 })
 
-// ---- 管理用: 枠を新規追加(15分間隔の開始時刻・コース・担当衛生士を指定) ----
+// ---- 管理用: 枠を新規追加(15分間隔の開始時刻・コース・担当スタッフを指定) ----
 app.post('/api/admin/reserve/slots', async (c) => {
   const { env } = c
   const body = await c.req.json().catch(() => null)
@@ -469,13 +499,10 @@ app.post('/api/admin/reserve/slots', async (c) => {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
 
-  // 初診メンテナンスは担当の歯科衛生士が必須
-  let hygienistId: number | null = null
-  if (body.course_type === 'initial_maintenance') {
-    hygienistId = Number(body.hygienist_id)
-    if (!Number.isInteger(hygienistId)) {
-      return c.json({ ok: false, error: 'hygienist_required' }, 400)
-    }
+  // コースに応じた担当スタッフ（初診=歯科医師 / 初診メンテナンス=歯科衛生士）が必須
+  const staffId = Number(body.staff_id)
+  if (!Number.isInteger(staffId)) {
+    return c.json({ ok: false, error: 'staff_required' }, 400)
   }
 
   try {
@@ -483,14 +510,23 @@ app.post('/api/admin/reserve/slots', async (c) => {
     if (!courseSetting) {
       return c.json({ ok: false, error: 'invalid_course' }, 400)
     }
+
+    const staff = await env.DB.prepare('SELECT id, role FROM staff WHERE id = ?').bind(staffId).first()
+    if (!staff) {
+      return c.json({ ok: false, error: 'staff_not_found' }, 404)
+    }
+    if ((staff as any).role !== ROLE_FOR_COURSE[body.course_type as CourseType]) {
+      return c.json({ ok: false, error: 'staff_role_mismatch' }, 400)
+    }
+
     const duration = courseSetting.duration_minutes
     const endTime = addMinutes(body.start_time, duration)
 
     await env.DB.prepare(
-      `INSERT INTO reservation_slots (slot_date, start_time, end_time, status, course_type, hygienist_id, duration_minutes)
+      `INSERT INTO reservation_slots (slot_date, start_time, end_time, status, course_type, staff_id, duration_minutes)
        VALUES (?, ?, ?, 'open', ?, ?, ?)`
     )
-      .bind(body.slot_date, body.start_time, endTime, body.course_type, hygienistId, duration)
+      .bind(body.slot_date, body.start_time, endTime, body.course_type, staffId, duration)
       .run()
     return c.json({ ok: true })
   } catch (e: any) {
@@ -537,7 +573,7 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
   }
   try {
     const slot = await env.DB.prepare(
-      `SELECT id, status, slot_date, start_time, end_time, hygienist_id FROM reservation_slots WHERE id = ?`
+      `SELECT id, status, slot_date, start_time, end_time, staff_id FROM reservation_slots WHERE id = ?`
     )
       .bind(id)
       .first()
@@ -548,21 +584,21 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
       return c.json({ ok: false, error: 'slot_unavailable' }, 409)
     }
 
-    // 担当の歯科衛生士がその日その時間帯に休みの場合は登録させない
-    if ((slot as any).hygienist_id) {
+    // 担当のスタッフがその日その時間帯に休みの場合は登録させない
+    if ((slot as any).staff_id) {
       const offRow = await env.DB.prepare(
-        `SELECT 1 FROM hygienist_time_off
-         WHERE hygienist_id = ? AND off_date = ?
+        `SELECT 1 FROM staff_time_off
+         WHERE staff_id = ? AND off_date = ?
            AND (
              (start_time IS NULL AND end_time IS NULL)
              OR (start_time < ? AND end_time > ?)
            )
          LIMIT 1`
       )
-        .bind((slot as any).hygienist_id, (slot as any).slot_date, (slot as any).end_time, (slot as any).start_time)
+        .bind((slot as any).staff_id, (slot as any).slot_date, (slot as any).end_time, (slot as any).start_time)
         .first()
       if (offRow) {
-        return c.json({ ok: false, error: 'hygienist_on_time_off' }, 409)
+        return c.json({ ok: false, error: 'staff_on_time_off' }, 409)
       }
     }
 
@@ -577,8 +613,8 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
     }
 
     await env.DB.prepare(
-      `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message)
-       VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
+      `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message, patient_number)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
       .bind(
         id,
@@ -588,7 +624,8 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
         body.email || null,
         body.birth_date || null,
         body.symptom || null,
-        body.message || null
+        body.message || null,
+        body.patient_number || null
       )
       .run()
 
@@ -614,6 +651,83 @@ app.post('/api/admin/reserve/slots/:id/cancel', async (c) => {
     await env.DB.prepare(`DELETE FROM reservations WHERE slot_id = ?`).bind(id).run()
     await env.DB.prepare(`UPDATE reservation_slots SET status = 'open' WHERE id = ?`).bind(id).run()
     return c.json({ ok: true })
+  } catch (e) {
+    return c.json({ ok: false, error: 'db_error' }, 500)
+  }
+})
+
+// ---- 管理用: 指定日の「スタッフ×時間帯」担当表（一覧・印刷用） ----
+// 時間軸はその日に実際に作成されている予約枠から自動生成する（固定の診療時間設定は持たない）。
+// スタッフ軸は歯科医師→歯科衛生士の順、それぞれの登録順（sort_order）で並べる。
+app.get('/api/admin/schedule', async (c) => {
+  const { env } = c
+  const date = c.req.query('date')
+  if (!isValidDate(date)) {
+    return c.json({ ok: false, error: 'invalid_date' }, 400)
+  }
+  try {
+    const { results: staffList } = await env.DB.prepare(
+      `SELECT id, name, role FROM staff
+       WHERE is_active = 1
+       ORDER BY CASE role WHEN 'dentist' THEN 0 ELSE 1 END, sort_order ASC, id ASC`
+    ).all()
+
+    const { results: slots } = await env.DB.prepare(
+      `SELECT s.id, s.start_time, s.end_time, s.status, s.course_type, s.staff_id,
+              r.name as patient_name, r.patient_number,
+              EXISTS (
+                SELECT 1 FROM staff_time_off t
+                WHERE t.staff_id = s.staff_id
+                  AND t.off_date = s.slot_date
+                  AND (
+                    (t.start_time IS NULL AND t.end_time IS NULL)
+                    OR (t.start_time < s.end_time AND t.end_time > s.start_time)
+                  )
+              ) as staff_is_off
+       FROM reservation_slots s
+       LEFT JOIN reservations r ON r.slot_id = s.id
+       WHERE s.slot_date = ?
+       ORDER BY s.start_time ASC`
+    )
+      .bind(date)
+      .all()
+
+    // 時間軸：その日に実際に作成されている枠の開始〜終了時刻の組み合わせを重複なく抽出
+    const timeSet = new Map<string, { start_time: string; end_time: string }>()
+    for (const s of slots as any[]) {
+      const key = `${s.start_time}-${s.end_time}`
+      if (!timeSet.has(key)) {
+        timeSet.set(key, { start_time: s.start_time, end_time: s.end_time })
+      }
+    }
+    const rows = Array.from(timeSet.values()).sort((a, b) => (a.start_time < b.start_time ? -1 : a.start_time > b.start_time ? 1 : 0))
+
+    // 各行(時間帯)×スタッフ のセル情報を組み立てる
+    const scheduleRows = rows.map((row) => {
+      const cells: Record<string, any> = {}
+      for (const staff of staffList as any[]) {
+        const slot = (slots as any[]).find(
+          (s) => s.staff_id === staff.id && s.start_time === row.start_time && s.end_time === row.end_time
+        )
+        if (!slot) {
+          cells[staff.id] = { state: 'none' }
+        } else if (slot.status === 'booked') {
+          cells[staff.id] = {
+            state: 'booked',
+            patient_name: slot.patient_name,
+            patient_number: slot.patient_number,
+            course_type: slot.course_type,
+          }
+        } else if (slot.staff_is_off) {
+          cells[staff.id] = { state: 'off' }
+        } else {
+          cells[staff.id] = { state: 'open' }
+        }
+      }
+      return { start_time: row.start_time, end_time: row.end_time, cells }
+    })
+
+    return c.json({ ok: true, date, staff: staffList, rows: scheduleRows })
   } catch (e) {
     return c.json({ ok: false, error: 'db_error' }, 500)
   }
@@ -649,6 +763,11 @@ app.get('/admin', (c) => {
 // ---- クリニック側: 予約枠管理画面 ----
 app.get('/admin/reserve', (c) => {
   return c.html(<AdminReservePage />)
+})
+
+// ---- クリニック側: 当日・翌日の担当表（スタッフ×時間帯の一覧・印刷用） ----
+app.get('/admin/schedule', (c) => {
+  return c.html(<AdminSchedulePage />)
 })
 
 export default app

@@ -12,16 +12,17 @@ document.addEventListener('DOMContentLoaded', () => {
   const slotsList = document.getElementById('admin-slots-list')
 
   const courseSelect = document.getElementById('admin-course-select')
-  const courseHygienistWrap = document.getElementById('admin-course-hygienist-wrap')
-  const courseHygienistSelect = document.getElementById('admin-course-hygienist')
+  const courseStaffWrap = document.getElementById('admin-course-staff-wrap')
+  const courseStaffSelect = document.getElementById('admin-course-staff')
 
   const courseSettingsList = document.getElementById('admin-course-settings-list')
-  const hygienistsList = document.getElementById('admin-hygienists-list')
-  const newHygienistName = document.getElementById('admin-new-hygienist-name')
-  const addHygienistBtn = document.getElementById('admin-add-hygienist-btn')
-  const hygienistMsg = document.getElementById('admin-hygienist-msg')
+  const staffList_el = document.getElementById('admin-staff-list')
+  const newStaffRole = document.getElementById('admin-new-staff-role')
+  const newStaffName = document.getElementById('admin-new-staff-name')
+  const addStaffBtn = document.getElementById('admin-add-staff-btn')
+  const staffMsg = document.getElementById('admin-staff-msg')
 
-  const timeoffHygienistSelect = document.getElementById('admin-timeoff-hygienist')
+  const timeoffStaffSelect = document.getElementById('admin-timeoff-staff')
   const timeoffDateInput = document.getElementById('admin-timeoff-date')
   const timeoffAllDayCheckbox = document.getElementById('admin-timeoff-allday')
   const timeoffTimeRangeWrap = document.getElementById('admin-timeoff-time-range')
@@ -36,10 +37,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   const ALLOWED_DURATIONS = [30, 45, 60]
 
+  // コース種別ごとに担当する役割（初診=歯科医師 / 初診メンテナンス=歯科衛生士）
+  const ROLE_FOR_COURSE = { initial_doctor: 'dentist', initial_maintenance: 'hygienist' }
+  const roleLabel = (role) => (role === 'dentist' ? '歯科医師' : '歯科衛生士')
+
   // メモリ上に保持する現在のコース設定一覧・スタッフ一覧・休み一覧
   let courses = [] // [{ course_type, label, duration_minutes }]
-  let hygienists = [] // [{ id, name, is_active, sort_order }]
-  let timeOffs = [] // [{ id, hygienist_id, off_date, start_time, end_time, reason }]
+  let staffMembers = [] // [{ id, name, role, is_active, sort_order }]
+  let timeOffs = [] // [{ id, staff_id, off_date, start_time, end_time, reason }]
 
   const pad2 = (n) => String(n).padStart(2, '0')
 
@@ -99,29 +104,34 @@ document.addEventListener('DOMContentLoaded', () => {
     if (prevValue && courses.some((c) => c.course_type === prevValue)) {
       courseSelect.value = prevValue
     }
-    updateHygienistVisibility()
+    updateStaffVisibility()
   }
 
-  const renderCourseHygienistSelect = () => {
-    courseHygienistSelect.innerHTML = ''
-    hygienists
-      .filter((h) => h.is_active)
-      .forEach((h) => {
-        const opt = document.createElement('option')
-        opt.value = String(h.id)
-        opt.textContent = h.name
-        courseHygienistSelect.appendChild(opt)
-      })
-  }
-
-  const updateHygienistVisibility = () => {
+  const renderCourseStaffSelect = () => {
     const course = currentCourse()
-    const needsHygienist = course && course.course_type === 'initial_maintenance'
-    courseHygienistWrap.style.display = needsHygienist ? '' : 'none'
+    const role = course ? ROLE_FOR_COURSE[course.course_type] : null
+    const prevValue = courseStaffSelect.value
+    courseStaffSelect.innerHTML = ''
+    staffMembers
+      .filter((s) => s.is_active && (!role || s.role === role))
+      .forEach((s) => {
+        const opt = document.createElement('option')
+        opt.value = String(s.id)
+        opt.textContent = s.name
+        courseStaffSelect.appendChild(opt)
+      })
+    if (prevValue && Array.from(courseStaffSelect.options).some((o) => o.value === prevValue)) {
+      courseStaffSelect.value = prevValue
+    }
+  }
+
+  const updateStaffVisibility = () => {
+    renderCourseStaffSelect()
+    courseStaffWrap.style.display = ''
   }
 
   courseSelect.addEventListener('change', () => {
-    updateHygienistVisibility()
+    updateStaffVisibility()
     loadSlots(dateInput.value)
   })
 
@@ -208,142 +218,154 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 
   // ============================================================
-  // 歯科衛生士（スタッフ）管理パネル
+  // スタッフ（歯科医師・歯科衛生士）管理パネル
   // ============================================================
-  const renderHygienistsPanel = () => {
-    hygienistsList.innerHTML = ''
-    if (hygienists.length === 0) {
-      hygienistsList.innerHTML = '<p class="admin-reserve__empty">まだスタッフが登録されていません。</p>'
+  const renderStaffPanel = () => {
+    staffList_el.innerHTML = ''
+    if (staffMembers.length === 0) {
+      staffList_el.innerHTML = '<p class="admin-reserve__empty">まだスタッフが登録されていません。</p>'
       return
     }
-    hygienists.forEach((h) => {
-      const row = document.createElement('div')
-      row.className = `admin-hygienists__row ${h.is_active ? '' : 'is-inactive'}`
 
-      const nameInput = document.createElement('input')
-      nameInput.type = 'text'
-      nameInput.className = 'admin-hygienists__name-input'
-      nameInput.value = h.name
+    // 歯科医師→歯科衛生士の順に見出しを分けて表示
+    ;['dentist', 'hygienist'].forEach((role) => {
+      const group = staffMembers.filter((s) => s.role === role)
+      if (group.length === 0) return
 
-      const statusBadge = document.createElement('span')
-      statusBadge.className = `admin-hygienists__badge ${h.is_active ? 'is-active' : 'is-inactive'}`
-      statusBadge.textContent = h.is_active ? '稼働中' : '休職中'
+      const heading = document.createElement('h3')
+      heading.className = 'admin-hygienists__group-title'
+      heading.textContent = roleLabel(role)
+      staffList_el.appendChild(heading)
 
-      const saveBtn = document.createElement('button')
-      saveBtn.type = 'button'
-      saveBtn.className = 'btn btn-outline btn-sm'
-      saveBtn.textContent = '保存'
-      saveBtn.addEventListener('click', async () => {
-        const newName = nameInput.value.trim()
-        if (!newName) {
-          showMsg(hygienistMsg, '名前を入力してください', true)
-          return
-        }
-        await updateHygienist(h.id, { name: newName })
-      })
+      group.forEach((s) => {
+        const row = document.createElement('div')
+        row.className = `admin-hygienists__row ${s.is_active ? '' : 'is-inactive'}`
 
-      const toggleBtn = document.createElement('button')
-      toggleBtn.type = 'button'
-      toggleBtn.className = 'btn btn-outline btn-sm'
-      toggleBtn.textContent = h.is_active ? '休職にする' : '稼働に戻す'
-      toggleBtn.addEventListener('click', async () => {
-        await updateHygienist(h.id, { is_active: h.is_active ? 0 : 1 })
-      })
+        const nameInput = document.createElement('input')
+        nameInput.type = 'text'
+        nameInput.className = 'admin-hygienists__name-input'
+        nameInput.value = s.name
 
-      const delBtn = document.createElement('button')
-      delBtn.type = 'button'
-      delBtn.className = 'btn btn-outline btn-sm admin-reserve__slot-btn'
-      delBtn.textContent = '削除'
-      delBtn.addEventListener('click', async () => {
-        if (!window.confirm(`「${h.name}」さんを削除しますか？`)) return
-        try {
-          const res = await fetch(`/api/admin/hygienists/${h.id}`, { method: 'DELETE' })
-          const data = await res.json().catch(() => ({ ok: false }))
-          if (data.ok) {
-            await loadHygienists()
-            showMsg(hygienistMsg, '削除しました', false)
-          } else if (data.error === 'hygienist_in_use') {
-            window.alert('この方は既に予約枠に紐づいているため削除できません。「休職にする」をご利用ください。')
-          } else {
-            showMsg(hygienistMsg, '削除に失敗しました', true)
+        const statusBadge = document.createElement('span')
+        statusBadge.className = `admin-hygienists__badge ${s.is_active ? 'is-active' : 'is-inactive'}`
+        statusBadge.textContent = s.is_active ? '稼働中' : '休職中'
+
+        const saveBtn = document.createElement('button')
+        saveBtn.type = 'button'
+        saveBtn.className = 'btn btn-outline btn-sm'
+        saveBtn.textContent = '保存'
+        saveBtn.addEventListener('click', async () => {
+          const newName = nameInput.value.trim()
+          if (!newName) {
+            showMsg(staffMsg, '名前を入力してください', true)
+            return
           }
-        } catch (e) {
-          showMsg(hygienistMsg, '通信エラーが発生しました', true)
-        }
-      })
+          await updateStaff(s.id, { name: newName })
+        })
 
-      row.appendChild(nameInput)
-      row.appendChild(statusBadge)
-      row.appendChild(saveBtn)
-      row.appendChild(toggleBtn)
-      row.appendChild(delBtn)
-      hygienistsList.appendChild(row)
+        const toggleBtn = document.createElement('button')
+        toggleBtn.type = 'button'
+        toggleBtn.className = 'btn btn-outline btn-sm'
+        toggleBtn.textContent = s.is_active ? '休職にする' : '稼働に戻す'
+        toggleBtn.addEventListener('click', async () => {
+          await updateStaff(s.id, { is_active: s.is_active ? 0 : 1 })
+        })
+
+        const delBtn = document.createElement('button')
+        delBtn.type = 'button'
+        delBtn.className = 'btn btn-outline btn-sm admin-reserve__slot-btn'
+        delBtn.textContent = '削除'
+        delBtn.addEventListener('click', async () => {
+          if (!window.confirm(`「${s.name}」さんを削除しますか？`)) return
+          try {
+            const res = await fetch(`/api/admin/staff/${s.id}`, { method: 'DELETE' })
+            const data = await res.json().catch(() => ({ ok: false }))
+            if (data.ok) {
+              await loadStaff()
+              showMsg(staffMsg, '削除しました', false)
+            } else if (data.error === 'staff_in_use') {
+              window.alert('この方は既に予約枠に紐づいているため削除できません。「休職にする」をご利用ください。')
+            } else {
+              showMsg(staffMsg, '削除に失敗しました', true)
+            }
+          } catch (e) {
+            showMsg(staffMsg, '通信エラーが発生しました', true)
+          }
+        })
+
+        row.appendChild(nameInput)
+        row.appendChild(statusBadge)
+        row.appendChild(saveBtn)
+        row.appendChild(toggleBtn)
+        row.appendChild(delBtn)
+        staffList_el.appendChild(row)
+      })
     })
   }
 
-  const updateHygienist = async (id, body) => {
+  const updateStaff = async (id, body) => {
     try {
-      const res = await fetch(`/api/admin/hygienists/${id}`, {
+      const res = await fetch(`/api/admin/staff/${id}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
       })
       const data = await res.json().catch(() => ({ ok: false }))
       if (data.ok) {
-        showMsg(hygienistMsg, '更新しました', false)
-        await loadHygienists()
+        showMsg(staffMsg, '更新しました', false)
+        await loadStaff()
       } else {
-        showMsg(hygienistMsg, '更新に失敗しました', true)
+        showMsg(staffMsg, '更新に失敗しました', true)
       }
     } catch (e) {
-      showMsg(hygienistMsg, '通信エラーが発生しました', true)
+      showMsg(staffMsg, '通信エラーが発生しました', true)
     }
   }
 
-  const loadHygienists = async () => {
+  const loadStaff = async () => {
     try {
-      const res = await fetch('/api/admin/hygienists')
+      const res = await fetch('/api/admin/staff')
       const data = await res.json()
       if (data.ok) {
-        hygienists = data.items
+        staffMembers = data.items
       } else {
-        hygienists = []
+        staffMembers = []
       }
     } catch (e) {
-      hygienists = []
+      staffMembers = []
     }
-    renderHygienistsPanel()
-    renderCourseHygienistSelect()
-    renderTimeoffHygienistSelect()
-    updateHygienistVisibility()
+    renderStaffPanel()
+    renderCourseStaffSelect()
+    renderTimeoffStaffSelect()
   }
 
-  addHygienistBtn &&
-    addHygienistBtn.addEventListener('click', async () => {
-      const name = newHygienistName.value.trim()
+  addStaffBtn &&
+    addStaffBtn.addEventListener('click', async () => {
+      const name = newStaffName.value.trim()
+      const role = newStaffRole.value
       if (!name) {
-        showMsg(hygienistMsg, '名前を入力してください', true)
+        showMsg(staffMsg, '名前を入力してください', true)
         return
       }
-      addHygienistBtn.disabled = true
+      addStaffBtn.disabled = true
       try {
-        const res = await fetch('/api/admin/hygienists', {
+        const res = await fetch('/api/admin/staff', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ name }),
+          body: JSON.stringify({ name, role }),
         })
         const data = await res.json().catch(() => ({ ok: false }))
         if (data.ok) {
-          newHygienistName.value = ''
-          showMsg(hygienistMsg, '追加しました', false)
-          await loadHygienists()
+          newStaffName.value = ''
+          showMsg(staffMsg, '追加しました', false)
+          await loadStaff()
         } else {
-          showMsg(hygienistMsg, '追加に失敗しました', true)
+          showMsg(staffMsg, '追加に失敗しました', true)
         }
       } catch (e) {
-        showMsg(hygienistMsg, '通信エラーが発生しました', true)
+        showMsg(staffMsg, '通信エラーが発生しました', true)
       } finally {
-        addHygienistBtn.disabled = false
+        addStaffBtn.disabled = false
       }
     })
 
@@ -351,26 +373,26 @@ document.addEventListener('DOMContentLoaded', () => {
   // スタッフの休み管理（日付・時間帯単位）
   // 「稼働中/休職中」の固定フラグではなく、
   // 「Aさんは8/20は終日有給」「Bさんは8/21の10:00〜12:00だけお休み」のように
-  // 日によって異なる勤務パターンを登録できるようにする。
+  // 日によって異なる勤務パターンを登録できるようにする。歯科医師・歯科衛生士共通。
   // ============================================================
-  const renderTimeoffHygienistSelect = () => {
-    if (!timeoffHygienistSelect) return
-    const prevValue = timeoffHygienistSelect.value
-    timeoffHygienistSelect.innerHTML = ''
-    hygienists.forEach((h) => {
+  const renderTimeoffStaffSelect = () => {
+    if (!timeoffStaffSelect) return
+    const prevValue = timeoffStaffSelect.value
+    timeoffStaffSelect.innerHTML = ''
+    staffMembers.forEach((s) => {
       const opt = document.createElement('option')
-      opt.value = String(h.id)
-      opt.textContent = h.name
-      timeoffHygienistSelect.appendChild(opt)
+      opt.value = String(s.id)
+      opt.textContent = `${s.name}（${roleLabel(s.role)}）`
+      timeoffStaffSelect.appendChild(opt)
     })
-    if (prevValue && hygienists.some((h) => String(h.id) === prevValue)) {
-      timeoffHygienistSelect.value = prevValue
+    if (prevValue && staffMembers.some((s) => String(s.id) === prevValue)) {
+      timeoffStaffSelect.value = prevValue
     }
   }
 
-  const hygienistName = (id) => {
-    const h = hygienists.find((x) => String(x.id) === String(id))
-    return h ? h.name : `スタッフ#${id}`
+  const staffName = (id) => {
+    const s = staffMembers.find((x) => String(x.id) === String(id))
+    return s ? s.name : `スタッフ#${id}`
   }
 
   const timeoffDateLabel = (dateStr) => {
@@ -393,7 +415,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const nameEl = document.createElement('span')
       nameEl.className = 'admin-timeoff__row-name'
-      nameEl.textContent = hygienistName(t.hygienist_id)
+      nameEl.textContent = staffName(t.staff_id)
       row.appendChild(nameEl)
 
       const dateEl = document.createElement('span')
@@ -421,7 +443,7 @@ document.addEventListener('DOMContentLoaded', () => {
       delBtn.addEventListener('click', async () => {
         if (!window.confirm('この休みの登録を削除しますか？')) return
         try {
-          const res = await fetch(`/api/admin/hygienist-time-off/${t.id}`, { method: 'DELETE' })
+          const res = await fetch(`/api/admin/staff-time-off/${t.id}`, { method: 'DELETE' })
           const data = await res.json().catch(() => ({ ok: false }))
           if (data.ok) {
             await loadTimeoffs()
@@ -443,7 +465,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!timeoffList) return
     try {
       const todayStr = toDateStr(new Date())
-      const res = await fetch(`/api/admin/hygienist-time-off?from=${encodeURIComponent(todayStr)}`)
+      const res = await fetch(`/api/admin/staff-time-off?from=${encodeURIComponent(todayStr)}`)
       const data = await res.json()
       timeOffs = data.ok ? data.items : []
     } catch (e) {
@@ -459,14 +481,14 @@ document.addEventListener('DOMContentLoaded', () => {
 
   timeoffAddBtn &&
     timeoffAddBtn.addEventListener('click', async () => {
-      const hygienistId = Number(timeoffHygienistSelect.value)
+      const staffId = Number(timeoffStaffSelect.value)
       const offDate = timeoffDateInput.value
-      if (!hygienistId || !offDate) {
+      if (!staffId || !offDate) {
         showMsg(timeoffMsg, 'スタッフと日付を指定してください', true)
         return
       }
       const isAllDay = timeoffAllDayCheckbox.checked
-      const body = { hygienist_id: hygienistId, off_date: offDate, reason: timeoffReasonInput.value.trim() || undefined }
+      const body = { staff_id: staffId, off_date: offDate, reason: timeoffReasonInput.value.trim() || undefined }
       if (!isAllDay) {
         const start = timeoffStartInput.value
         const end = timeoffEndInput.value
@@ -484,7 +506,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       timeoffAddBtn.disabled = true
       try {
-        const res = await fetch('/api/admin/hygienist-time-off', {
+        const res = await fetch('/api/admin/staff-time-off', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
@@ -538,8 +560,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const courseBadge = document.createElement('span')
       courseBadge.className = 'admin-reserve__slot-course'
-      courseBadge.textContent = slot.hygienist_name
-        ? `${courseLabel(slot.course_type)}（${slot.hygienist_name}）`
+      courseBadge.textContent = slot.staff_name
+        ? `${courseLabel(slot.course_type)}（${slot.staff_name}）`
         : courseLabel(slot.course_type)
       item.appendChild(courseBadge)
 
@@ -548,7 +570,7 @@ document.addEventListener('DOMContentLoaded', () => {
       statusBadge.textContent = isBooked ? '予約あり' : '空き'
       item.appendChild(statusBadge)
 
-      if (slot.hygienist_is_off) {
+      if (slot.staff_is_off) {
         const offBadge = document.createElement('span')
         offBadge.className = 'admin-reserve__slot-badge is-hygienist-off'
         offBadge.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> 担当者が休みです'
@@ -559,6 +581,7 @@ document.addEventListener('DOMContentLoaded', () => {
         const info = document.createElement('div')
         info.className = 'admin-reserve__slot-patient'
         const rows = [
+          ['患者番号', slot.patient_number],
           ['氏名', slot.name],
           ['フリガナ', slot.kana],
           ['電話番号', slot.phone],
@@ -659,9 +682,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const buildSlotBody = (dateStr, time) => {
     const course = currentCourse()
     const body = { slot_date: dateStr, start_time: time, course_type: course ? course.course_type : '' }
-    if (course && course.course_type === 'initial_maintenance') {
-      body.hygienist_id = Number(courseHygienistSelect.value)
-    }
+    body.staff_id = Number(courseStaffSelect.value)
     return body
   }
 
@@ -672,7 +693,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMsg(addSlotMsg, 'コースを選択してください。', true)
         return
       }
-      if (course.course_type === 'initial_maintenance' && !courseHygienistSelect.value) {
+      if (!courseStaffSelect.value) {
         showMsg(addSlotMsg, '担当スタッフを選択してください。', true)
         return
       }
@@ -695,8 +716,10 @@ document.addEventListener('DOMContentLoaded', () => {
           loadSlots(dateStr)
         } else if (data.error === 'slot_already_exists') {
           showMsg(addSlotMsg, 'その時刻の枠は既に登録済みです。', true)
-        } else if (data.error === 'hygienist_required') {
+        } else if (data.error === 'staff_required') {
           showMsg(addSlotMsg, '担当スタッフを選択してください。', true)
+        } else if (data.error === 'staff_role_mismatch') {
+          showMsg(addSlotMsg, 'このコースに対応する役割のスタッフを選択してください。', true)
         } else {
           showMsg(addSlotMsg, '追加に失敗しました。', true)
         }
@@ -715,7 +738,7 @@ document.addEventListener('DOMContentLoaded', () => {
         showMsg(addSlotMsg, 'コースを選択してください。', true)
         return
       }
-      if (course.course_type === 'initial_maintenance' && !courseHygienistSelect.value) {
+      if (!courseStaffSelect.value) {
         showMsg(addSlotMsg, '担当スタッフを選択してください。', true)
         return
       }
@@ -788,6 +811,7 @@ document.addEventListener('DOMContentLoaded', () => {
   const bookPhoneInput = document.getElementById('admin-book-phone')
   const bookEmailInput = document.getElementById('admin-book-email')
   const bookBirthInput = document.getElementById('admin-book-birth')
+  const bookPatientNumberInput = document.getElementById('admin-book-patient-number')
   const bookSymptomInput = document.getElementById('admin-book-symptom')
   const bookMessageInput = document.getElementById('admin-book-message')
   const bookFormError = document.getElementById('admin-book-form-error')
@@ -809,7 +833,7 @@ document.addEventListener('DOMContentLoaded', () => {
     currentBookSlot = slot
     resetBookForm()
     const weekday = weekdayLabel(slot.slot_date)
-    const courseText = slot.hygienist_name ? `${courseLabel(slot.course_type)}（${slot.hygienist_name}）` : courseLabel(slot.course_type)
+    const courseText = slot.staff_name ? `${courseLabel(slot.course_type)}（${slot.staff_name}）` : courseLabel(slot.course_type)
     bookModalSlotInfo.textContent = `${weekday} ${slot.start_time}〜${slot.end_time}｜${courseText}`
     bookModal.style.display = 'flex'
     window.setTimeout(() => bookNameInput && bookNameInput.focus(), 50)
@@ -843,6 +867,7 @@ document.addEventListener('DOMContentLoaded', () => {
         kana: bookKanaInput.value.trim() || undefined,
         email: bookEmailInput.value.trim() || undefined,
         birth_date: bookBirthInput.value || undefined,
+        patient_number: bookPatientNumberInput.value.trim() || undefined,
         symptom: bookSymptomInput.value.trim() || undefined,
         message: bookMessageInput.value.trim() || undefined,
       }
@@ -861,7 +886,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else if (data.error === 'slot_unavailable') {
           bookFormError.textContent = 'この枠は既に予約済みか、利用できなくなっています。'
           bookFormError.style.display = 'block'
-        } else if (data.error === 'hygienist_on_time_off') {
+        } else if (data.error === 'staff_on_time_off') {
           bookFormError.textContent = '担当スタッフがこの日時はお休みのため登録できません。'
           bookFormError.style.display = 'block'
         } else {
@@ -888,7 +913,7 @@ document.addEventListener('DOMContentLoaded', () => {
   if (timeoffDateInput) timeoffDateInput.value = toDateStr(new Date())
 
   ;(async () => {
-    await loadHygienists()
+    await loadStaff()
     await loadCourseSettings()
     await loadTimeoffs()
     setDate(toDateStr(new Date()))

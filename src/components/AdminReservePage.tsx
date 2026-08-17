@@ -31,18 +31,23 @@ export const AdminReservePage = () => {
               </div>
             </section>
 
-            {/* ---- 歯科衛生士（スタッフ）管理パネル ---- */}
+            {/* ---- スタッフ（歯科医師・歯科衛生士）管理パネル ---- */}
             <section class="admin-reserve__panel admin-reserve__panel--staff">
-              <h2 class="admin-reserve__panel-title"><i class="fa-solid fa-user-nurse"></i> 担当スタッフ（歯科衛生士）管理</h2>
-              <div id="admin-hygienists-list" class="admin-hygienists">
+              <h2 class="admin-reserve__panel-title"><i class="fa-solid fa-user-nurse"></i> 担当スタッフ（歯科医師・歯科衛生士）管理</h2>
+              <p class="admin-reserve__note">歯科医師は初診、歯科衛生士は初診メンテナンスを担当します。それぞれ複数名を登録できます。</p>
+              <div id="admin-staff-list" class="admin-hygienists">
                 <p class="admin-reserve__loading">読み込み中...</p>
               </div>
               <div class="admin-hygienists__add-form">
-                <input type="text" id="admin-new-hygienist-name" placeholder="スタッフ名（例：佐藤 花子）" />
-                <button type="button" id="admin-add-hygienist-btn" class="btn btn-secondary btn-sm">
+                <select id="admin-new-staff-role" class="admin-hygienists__role-select">
+                  <option value="dentist">歯科医師</option>
+                  <option value="hygienist">歯科衛生士</option>
+                </select>
+                <input type="text" id="admin-new-staff-name" placeholder="スタッフ名（例：佐藤 花子）" />
+                <button type="button" id="admin-add-staff-btn" class="btn btn-secondary btn-sm">
                   <i class="fa-solid fa-plus"></i> 追加
                 </button>
-                <span id="admin-hygienist-msg" class="admin-reserve__msg"></span>
+                <span id="admin-staff-msg" class="admin-reserve__msg"></span>
               </div>
             </section>
 
@@ -55,8 +60,8 @@ export const AdminReservePage = () => {
 
               <div class="admin-timeoff__add-form">
                 <div class="admin-timeoff__field">
-                  <label for="admin-timeoff-hygienist">スタッフ</label>
-                  <select id="admin-timeoff-hygienist"></select>
+                  <label for="admin-timeoff-staff">スタッフ</label>
+                  <select id="admin-timeoff-staff"></select>
                 </div>
                 <div class="admin-timeoff__field">
                   <label for="admin-timeoff-date">日付</label>
@@ -96,9 +101,9 @@ export const AdminReservePage = () => {
               <div class="admin-reserve__course-select">
                 <label for="admin-course-select">コース</label>
                 <select id="admin-course-select"></select>
-                <span id="admin-course-hygienist-wrap" class="admin-reserve__hygienist-wrap" style="display:none;">
-                  <label for="admin-course-hygienist">担当スタッフ</label>
-                  <select id="admin-course-hygienist"></select>
+                <span id="admin-course-staff-wrap" class="admin-reserve__hygienist-wrap" style="display:none;">
+                  <label for="admin-course-staff">担当スタッフ</label>
+                  <select id="admin-course-staff"></select>
                 </span>
               </div>
 
@@ -166,6 +171,10 @@ export const AdminReservePage = () => {
               <div class="admin-book-form__group">
                 <label>生年月日</label>
                 <input type="date" id="admin-book-birth" />
+              </div>
+              <div class="admin-book-form__group">
+                <label>患者番号（院内管理番号・任意）</label>
+                <input type="text" id="admin-book-patient-number" placeholder="例：00123" />
               </div>
               <div class="admin-book-form__group">
                 <label>症状・ご相談内容</label>
