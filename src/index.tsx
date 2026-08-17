@@ -37,6 +37,15 @@ const addMinutes = (time: string, minutes: number): string => {
 const isValidDate = (s: unknown): s is string => typeof s === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(s)
 const isValidTime = (s: unknown): s is string => typeof s === 'string' && /^\d{2}:\d{2}$/.test(s)
 
+// 日本時間(JST, UTC+9)での「今日の日付(YYYY-MM-DD)」と「現在時刻(HH:MM)」を取得する。
+// Cloudflare WorkersはUTCで動作するため、+9時間して算出する。
+const getJstNow = (): { date: string; time: string } => {
+  const jst = new Date(Date.now() + 9 * 60 * 60 * 1000)
+  const date = `${jst.getUTCFullYear()}-${pad2(jst.getUTCMonth() + 1)}-${pad2(jst.getUTCDate())}`
+  const time = `${pad2(jst.getUTCHours())}:${pad2(jst.getUTCMinutes())}`
+  return { date, time }
+}
+
 // スタッフ（歯科医師・歯科衛生士）の「日付・時間帯単位の休み」を考慮したSQL条件（NOT EXISTS句）を生成する。
 // staff_time_off に、対象枠(slot_date, start_time〜end_time)と重なる休みがあれば除外する。
 // - start_time/end_timeが両方NULLの休み = 終日休み
@@ -110,14 +119,18 @@ app.get('/api/reserve/slots', async (c) => {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
   try {
+    const { date: jstToday, time: jstNow } = getJstNow()
+    // 指定日が今日の場合は、現在時刻より後に開始する枠のみを対象にする（過ぎた時間は予約不可）
+    const isToday = date === jstToday
     const { results } = await env.DB.prepare(
       `SELECT MIN(id) as id, slot_date, start_time, end_time FROM reservation_slots
        WHERE slot_date = ? AND course_type = ? AND status = 'open'
+         AND (? = 0 OR start_time > ?)
          AND ${notOnTimeOffSql('reservation_slots')}
        GROUP BY start_time
        ORDER BY start_time ASC`
     )
-      .bind(date, course)
+      .bind(date, course, isToday ? 1 : 0, jstNow)
       .all()
     return c.json({ ok: true, slots: results })
   } catch (e) {
@@ -133,13 +146,16 @@ app.get('/api/reserve/available-dates', async (c) => {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
   }
   try {
+    const { date: jstToday, time: jstNow } = getJstNow()
+    // 今日については、現在時刻より後に開始する枠が1つでも残っていれば対象日に含める（過ぎた時間しかない日は除外）
     const { results } = await env.DB.prepare(
       `SELECT DISTINCT slot_date FROM reservation_slots
-       WHERE status = 'open' AND course_type = ? AND slot_date >= date('now', 'localtime')
+       WHERE status = 'open' AND course_type = ?
+         AND (slot_date > ? OR (slot_date = ? AND start_time > ?))
          AND ${notOnTimeOffSql('reservation_slots')}
        ORDER BY slot_date ASC`
     )
-      .bind(course)
+      .bind(course, jstToday, jstToday, jstNow)
       .all()
     return c.json({ ok: true, dates: (results as any[]).map((r) => r.slot_date) })
   } catch (e) {
@@ -163,6 +179,12 @@ app.post('/api/reserve', async (c) => {
     !body.phone
   ) {
     return c.json({ ok: false, error: 'invalid_request' }, 400)
+  }
+
+  // 過ぎた日時の予約はサーバー側でも拒否する（画面のフィルタを回避してAPIを直接叩かれた場合の対策）
+  const { date: jstToday, time: jstNow } = getJstNow()
+  if (body.slot_date < jstToday || (body.slot_date === jstToday && body.start_time <= jstNow)) {
+    return c.json({ ok: false, error: 'slot_unavailable' }, 409)
   }
 
   try {
