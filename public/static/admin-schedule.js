@@ -86,16 +86,10 @@ document.addEventListener('DOMContentLoaded', () => {
           nameEl.className = 'admin-schedule__cell-name'
           nameEl.textContent = cell.patient_name || ''
           td.appendChild(nameEl)
-          if (cell.patient_number) {
-            const numEl = document.createElement('div')
-            numEl.className = 'admin-schedule__cell-number'
-            numEl.textContent = `No. ${cell.patient_number}`
-            td.appendChild(numEl)
-          }
-          const courseEl = document.createElement('div')
-          courseEl.className = 'admin-schedule__cell-course'
-          courseEl.textContent = courseShortLabel(cell.course_type)
-          td.appendChild(courseEl)
+          const numEl = document.createElement('div')
+          numEl.className = 'admin-schedule__cell-number'
+          numEl.textContent = cell.patient_number ? `No. ${cell.patient_number}` : 'No. -'
+          td.appendChild(numEl)
         } else if (cell.state === 'off') {
           td.textContent = '休'
         } else if (cell.state === 'open') {
