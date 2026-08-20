@@ -7,11 +7,22 @@ import { ReservePage } from './components/ReservePage'
 import { AdminReservePage } from './components/AdminReservePage'
 import { AdminSchedulePage } from './components/AdminSchedulePage'
 import { AdminDashboardPage } from './components/AdminDashboardPage'
+import { SITE } from './data/site'
+import { sendConfirmationMail, sendReminderMail, type ClinicMailInfo } from './mailer'
 
 export type Bindings = {
   DB: D1Database
   ADMIN_RESERVE_USER?: string
   ADMIN_RESERVE_PASSWORD?: string
+  RESEND_API_KEY?: string
+  MAIL_FROM_NAME?: string
+  MAIL_FROM_ADDRESS?: string
+}
+
+// メール本文に使うクリニック情報（電話番号は各クリニックの実際の番号を使う）
+const CLINIC_MAIL_INFO: ClinicMailInfo = {
+  clinicName: SITE.name,
+  phone: SITE.phone,
 }
 
 const app = new Hono<{ Bindings: Bindings }>()
@@ -221,7 +232,7 @@ app.post('/api/reserve', async (c) => {
       return c.json({ ok: false, error: 'slot_unavailable' }, 409)
     }
 
-    await env.DB.prepare(
+    const insertResult = await env.DB.prepare(
       `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message, patient_number)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
@@ -237,6 +248,32 @@ app.post('/api/reserve', async (c) => {
         body.patient_number || null
       )
       .run()
+
+    // メールアドレスの入力があれば予約確認メールを送信する（失敗しても予約自体は成立させる）
+    if (body.email) {
+      try {
+        const courseSetting = await getCourseSetting(env, body.course_type as CourseType)
+        const duration = courseSetting?.duration_minutes ?? 60
+        const mailResult = await sendConfirmationMail(env, CLINIC_MAIL_INFO, {
+          toEmail: body.email,
+          patientName: body.name,
+          slotDate: body.slot_date,
+          startTime: body.start_time,
+          endTime: addMinutes(body.start_time, duration),
+          courseLabel: courseSetting?.label || body.course_type,
+          patientNumber: body.patient_number || null,
+        })
+        if (mailResult.ok) {
+          await env.DB.prepare(
+            `UPDATE reservations SET confirmation_sent_at = CURRENT_TIMESTAMP WHERE id = ?`
+          )
+            .bind(insertResult.meta.last_row_id)
+            .run()
+        }
+      } catch (mailError) {
+        console.log(`予約確認メール送信処理でエラーが発生しました: ${mailError}`)
+      }
+    }
 
     return c.json({ ok: true })
   } catch (e) {
@@ -595,7 +632,7 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
   }
   try {
     const slot = await env.DB.prepare(
-      `SELECT id, status, slot_date, start_time, end_time, staff_id FROM reservation_slots WHERE id = ?`
+      `SELECT id, status, slot_date, start_time, end_time, staff_id, course_type FROM reservation_slots WHERE id = ?`
     )
       .bind(id)
       .first()
@@ -634,7 +671,7 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
       return c.json({ ok: false, error: 'slot_unavailable' }, 409)
     }
 
-    await env.DB.prepare(
+    const insertResult = await env.DB.prepare(
       `INSERT INTO reservations (slot_id, name, kana, phone, email, birth_date, symptom, message, patient_number)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`
     )
@@ -650,6 +687,33 @@ app.post('/api/admin/reserve/slots/:id/book', async (c) => {
         body.patient_number || null
       )
       .run()
+
+    // メールアドレスの入力があれば予約確認メールを送信する（スタッフによる電話等での代理登録時も同様）
+    if (body.email) {
+      try {
+        const courseSetting = isValidCourseType((slot as any).course_type)
+          ? await getCourseSetting(env, (slot as any).course_type as CourseType)
+          : null
+        const mailResult = await sendConfirmationMail(env, CLINIC_MAIL_INFO, {
+          toEmail: body.email,
+          patientName: body.name,
+          slotDate: (slot as any).slot_date,
+          startTime: (slot as any).start_time,
+          endTime: (slot as any).end_time,
+          courseLabel: courseSetting?.label || (slot as any).course_type,
+          patientNumber: body.patient_number || null,
+        })
+        if (mailResult.ok) {
+          await env.DB.prepare(
+            `UPDATE reservations SET confirmation_sent_at = CURRENT_TIMESTAMP WHERE id = ?`
+          )
+            .bind(insertResult.meta.last_row_id)
+            .run()
+        }
+      } catch (mailError) {
+        console.log(`予約確認メール送信処理でエラーが発生しました: ${mailError}`)
+      }
+    }
 
     return c.json({ ok: true })
   } catch (e) {
@@ -792,4 +856,91 @@ app.get('/admin/schedule', (c) => {
   return c.html(<AdminSchedulePage />)
 })
 
-export default app
+// ---- Cronトリガー: 24時間前リマインダーメールの送信 ----
+// wrangler.jsonc の [triggers].crons で毎時0分に実行される想定。
+// 「施術開始時刻の24時間前」を跨いだタイミングでこの関数が呼ばれれば送信対象になるよう、
+// JST基準で「今日から24〜25時間後」の枠を対象にする（1時間ごとの実行なので25時間後まで見れば取りこぼしを防げる）。
+async function sendDueReminders(env: Bindings): Promise<{ checked: number; sent: number; failed: number }> {
+  const nowMs = Date.now()
+  const from = new Date(nowMs + 24 * 60 * 60 * 1000)
+  const to = new Date(nowMs + 25 * 60 * 60 * 1000)
+
+  const toJstParts = (d: Date) => {
+    const jst = new Date(d.getTime() + 9 * 60 * 60 * 1000)
+    const date = `${jst.getUTCFullYear()}-${pad2(jst.getUTCMonth() + 1)}-${pad2(jst.getUTCDate())}`
+    const time = `${pad2(jst.getUTCHours())}:${pad2(jst.getUTCMinutes())}`
+    return { date, time }
+  }
+  const fromP = toJstParts(from)
+  const toP = toJstParts(to)
+
+  // 「明日のこの時間帯(1時間幅)」に該当する予約のうち、まだリマインダー未送信・メールアドレスありのものを取得
+  const { results } = await env.DB.prepare(
+    `SELECT r.id as reservation_id, r.name, r.email, r.patient_number,
+            s.slot_date, s.start_time, s.end_time, s.course_type
+       FROM reservations r
+       JOIN reservation_slots s ON s.id = r.slot_id
+      WHERE r.cancelled_at IS NULL
+        AND r.reminder_sent_at IS NULL
+        AND r.email IS NOT NULL AND r.email != ''
+        AND (
+          (s.slot_date = ? AND s.start_time >= ?)
+          OR (s.slot_date = ? AND s.start_time < ?)
+        )`
+  )
+    .bind(fromP.date, fromP.time, toP.date, toP.time)
+    .all()
+
+  let sent = 0
+  let failed = 0
+  for (const row of (results as any[]) || []) {
+    try {
+      const courseSetting = isValidCourseType(row.course_type)
+        ? await getCourseSetting(env, row.course_type as CourseType)
+        : null
+      const result = await sendReminderMail(env, CLINIC_MAIL_INFO, {
+        toEmail: row.email,
+        patientName: row.name,
+        slotDate: row.slot_date,
+        startTime: row.start_time,
+        endTime: row.end_time,
+        courseLabel: courseSetting?.label || row.course_type,
+        patientNumber: row.patient_number || null,
+      })
+      if (result.ok) {
+        await env.DB.prepare(`UPDATE reservations SET reminder_sent_at = CURRENT_TIMESTAMP WHERE id = ?`)
+          .bind(row.reservation_id)
+          .run()
+        sent++
+      } else {
+        failed++
+      }
+    } catch (e) {
+      console.log(`リマインダーメール送信中にエラーが発生しました(reservation_id=${row.reservation_id}): ${e}`)
+      failed++
+    }
+  }
+  return { checked: (results as any[])?.length || 0, sent, failed }
+}
+
+// 動作確認用: 管理画面から手動でリマインダー送信処理をトリガーできるようにしておく（Basic認証保護下）
+app.post('/api/admin/reminders/run', async (c) => {
+  const { env } = c
+  try {
+    const result = await sendDueReminders(env)
+    return c.json({ ok: true, ...result })
+  } catch (e) {
+    return c.json({ ok: false, error: 'run_error' }, 500)
+  }
+})
+
+export default {
+  fetch: app.fetch,
+  async scheduled(_event: ScheduledEvent, env: Bindings, ctx: ExecutionContext) {
+    ctx.waitUntil(
+      sendDueReminders(env).then((result) => {
+        console.log(`リマインダーメール定期実行: 対象${result.checked}件 / 送信${result.sent}件 / 失敗${result.failed}件`)
+      })
+    )
+  },
+}
