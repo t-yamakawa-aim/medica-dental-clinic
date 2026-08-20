@@ -9,7 +9,7 @@
 
 ## URLs
 - **予約システム（本番・カスタムドメイン）**: https://clinic.tomyama.com/ （`/` → `/reserve` に自動リダイレクト）
-- **予約システム（本番・Workers直URL）**: https://medica-dental-clinic.peacefultomorrow0528.workers.dev
+- **予約システム（本番・Workers直URL）**: https://medica-dental-clinic.medica-consul.workers.dev
 - **クリニック本体サイト（WordPress）**: http://medica-clinic.tomyama.com/
 - **管理画面**: `/admin`（Basic認証）
 
@@ -78,6 +78,7 @@
   - Cron Trigger: `0 * * * *`（毎時0分にリマインダー対象をチェック）
   - **カスタムドメイン`clinic.tomyama.com`の切替完了（2026-08-20）**：このドメインのDNSはCloudflare管理外（Xserver等）にあり、Workersの標準カスタムドメイン機能はCloudflare DNSゾーンが必須のため直接は使えない。そのため旧Cloudflare Pagesプロジェクト（`medica-dental-clinic`）を「新Worker版への透過プロキシ」（`_worker.js`でfetchをWorkers URLへ中継）に置き換える方式でDNS変更なし・即時切替を実現。動作確認済み（`/api/reserve/courses`→200、`/admin`→401、`/`→302）。
   - 上記の理由により、旧Pagesプロジェクト（`medica-dental-clinic`）自体は完全には削除できない（削除するとカスタムドメイン紐付けが消えて`clinic.tomyama.com`がダウンする）。現在はロジックを持たない薄いプロキシとして最小化されている。
+  - **workers.devアカウントサブドメイン名の変更（2026-08-20）**：本番URLに含まれていた個人Cloudflareアカウント由来の文字列`peacefultomorrow0528`をユーザー様ご自身がCloudflareダッシュボードから`medica-consul`に変更（tada側の同様の要望に伴うアカウント全体の設定変更）。これによりWorkers直URLも`medica-dental-clinic.medica-consul.workers.dev`に変わったため、上記プロキシの参照先を追従して修正・再デプロイ済み。`clinic.tomyama.com`経由の動作に影響がないことを確認済み。
   - 真のWorkers Custom Domain化（Cloudflareへネームサーバー移管してゾーン管理下に置く）は影響範囲が大きいため未実施。ご希望があれば別途対応。
 - **技術スタック**: Hono + TypeScript + Cloudflare D1 + Resend API（メール送信）、フロントはCDN配信のTailwind/FontAwesome不使用(独自CSS `style.css`)
 - **状態**: ✅ 予約専用へのリファクタリング完了、歯科医師拡張(1-4名)・当日担当表・患者番号機能・予約確認メール/24時間前リマインダー機能デプロイ済み、カスタムドメイン切替済み
